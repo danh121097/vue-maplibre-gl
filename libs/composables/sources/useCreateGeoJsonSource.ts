@@ -1,22 +1,23 @@
-import {
-  unref,
-  shallowRef,
-  computed,
-  onUnmounted,
-  onMounted,
-  nextTick,
-  ref,
-} from 'vue';
+import { useLogger, useMapReloadEvent } from '@libs/composables';
 import { getMainVersion, getNanoid, hasSource } from '@libs/helpers';
-import { useMapReloadEvent, useLogger } from '@libs/composables';
-import type { MaybeRef, ShallowRef } from 'vue';
 import type { Nullable } from '@libs/types';
 import type {
-  Map,
   GeoJSONSource,
-  MapSourceDataEvent,
   GeoJSONSourceSpecification,
+  Map,
+  MapSourceDataEvent,
 } from 'maplibre-gl';
+import type { MaybeRef, ShallowRef } from 'vue';
+import {
+  computed,
+  markRaw,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  shallowRef,
+  unref,
+} from 'vue';
 
 /**
  * Source creation status enum for better state management
@@ -108,7 +109,8 @@ export function useCreateGeoJsonSource({
       if (getMainVersion() > 0) isSourceLoaded = true;
 
       if (!source.value && e.sourceId === sourceId && isSourceLoaded) {
-        source.value = map.getSource(sourceId) as GeoJSONSource;
+        // Use markRaw to prevent Vue reactivity overhead on MapLibre source objects
+        source.value = markRaw(map.getSource(sourceId) as GeoJSONSource);
         sourceStatus.value = SourceStatus.Created;
 
         register?.(

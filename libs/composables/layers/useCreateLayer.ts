@@ -1,15 +1,15 @@
-import { shallowRef, unref, computed, watch, ref } from 'vue';
-import type { CreateBaseLayerActions, Nullable, LayerTypes } from '@libs/types';
+import { useLogger, useMapReloadEvent } from '@libs/composables';
 import { getNanoid, hasLayer, hasSource } from '@libs/helpers';
-import { useMapReloadEvent, useLogger } from '@libs/composables';
-import type { MaybeRef } from 'vue';
+import type { CreateBaseLayerActions, LayerTypes, Nullable } from '@libs/types';
 import type {
-  SourceSpecification,
   FilterSpecification,
-  Map,
-  StyleSetterOptions,
   LayerSpecification,
+  Map,
+  SourceSpecification,
+  StyleSetterOptions,
 } from 'maplibre-gl';
+import type { MaybeRef } from 'vue';
+import { computed, markRaw, ref, shallowRef, unref, watch } from 'vue';
 
 /**
  * Layer creation status enum for better state management
@@ -297,7 +297,8 @@ export function useCreateLayer<Layer extends LayerSpecification>(
       } as LayerSpecification;
 
       map.addLayer(layerSpec, beforeId);
-      layer.value = map.getLayer(layerId) as unknown as Layer;
+      // Use markRaw to prevent Vue reactivity overhead on MapLibre layer objects
+      layer.value = markRaw(map.getLayer(layerId) as unknown as Layer);
       layerStatus.value = LayerStatus.Created;
 
       // Register the enhanced actions

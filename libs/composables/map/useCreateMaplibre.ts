@@ -1,25 +1,26 @@
-import {
-  ref,
-  shallowRef,
-  computed,
-  watchEffect,
-  unref,
-  onUnmounted,
-} from 'vue';
 import { useLogger } from '@libs/composables';
 import { MapCreationStatus } from '@libs/enums';
 import { type CreateMaplibreActions } from '@libs/types';
-import type { MaybeRef } from 'vue';
-import { Map } from 'maplibre-gl';
 import type {
-  MapOptions,
+  CameraOptions,
   LngLatBoundsLike,
   LngLatLike,
-  StyleSpecification,
-  CameraOptions,
-  StyleSwapOptions,
+  MapOptions,
   StyleOptions,
+  StyleSpecification,
+  StyleSwapOptions,
 } from 'maplibre-gl';
+import { Map } from 'maplibre-gl';
+import type { MaybeRef } from 'vue';
+import {
+  computed,
+  markRaw,
+  onUnmounted,
+  ref,
+  shallowRef,
+  unref,
+  watchEffect,
+} from 'vue';
 
 interface CreateMaplibreProps extends MapOptions {
   register?: (actions: SimplifiedCreateMaplibreActions) => void;
@@ -153,11 +154,15 @@ export function useCreateMaplibre(
     try {
       const mapOpts = unref(mapOptions);
 
-      mapInstance.value = new Map({
-        ...mapOpts,
-        style,
-        container: el,
-      });
+      // Use markRaw to prevent Vue's reactivity system from deeply observing
+      // MapLibre's internal objects - this is a critical performance optimization
+      mapInstance.value = markRaw(
+        new Map({
+          ...mapOpts,
+          style,
+          container: el,
+        }),
+      );
 
       // Use explicit type assertion to avoid deep type instantiation
       currentStyle.value = style as any;
