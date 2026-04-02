@@ -304,7 +304,7 @@ const showLabels = ref(true);
 
 <script setup>
 import { ref } from 'vue';
-import { Popup } from 'maplibre-gl';
+import { MaplibrePopup } from 'vue3-maplibre-gl';
 
 const markerPosition = ref([0, 0]);
 
@@ -321,7 +321,7 @@ const markerOptions = ref({
 });
 
 const markerPopup = ref(
-  new Popup({
+  new MaplibrePopup({
     closeButton: true,
     closeOnClick: false,
     anchor: 'bottom',

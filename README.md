@@ -6,6 +6,8 @@
 
 A powerful, feature-rich Vue 3 component library that provides an intuitive, reactive way to build interactive maps in your Vue applications using MapLibre GL JS.
 
+`maplibre-gl` is bundled as a package dependency and re-exported from this package, so consumers only need to install `vue3-maplibre-gl`.
+
 ## ✨ Features
 
 - 🗺️ **Interactive Maps** - High-performance vector maps with WebGL rendering
@@ -211,6 +213,29 @@ const geoJsonData = ref<GeoJSONSourceSpecification['data']>({
   features: [],
 });
 ```
+
+It also re-exports `maplibre-gl`, so raw classes and types can come from the same package:
+
+```typescript
+import {
+  Map,
+  NavigationControl,
+  MaplibreMarker,
+  type MapOptions,
+  type StyleSpecification,
+} from 'vue3-maplibre-gl';
+```
+
+For the two runtime names that collide with Vue components, use either the aliases or the namespace export:
+
+```typescript
+import { MaplibrePopup, maplibregl, Marker } from 'vue3-maplibre-gl';
+
+const popup = new MaplibrePopup();
+const marker = new maplibregl.Marker();
+```
+
+`Marker` in the example above is still the Vue component export.
 
 ## 🌟 Advanced Example with Composables
 

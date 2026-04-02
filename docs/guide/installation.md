@@ -4,6 +4,8 @@
 
 Vue3 MapLibre GL is available on npm and can be installed using your preferred package manager. The package includes all dependencies and is self-contained with bundled CSS.
 
+You do not need to install `maplibre-gl` separately. This package depends on it directly and re-exports its public API and types.
+
 ### Using Yarn (Recommended)
 
 ```bash
@@ -24,10 +26,12 @@ pnpm add vue3-maplibre-gl
 
 ## CDN Installation
 
-You can also use Vue MapLibre GL directly from a CDN:
+You can also use Vue MapLibre GL directly from a CDN.
+
+For the current UMD build, load the global `maplibregl` script first because `maplibre-gl` is still externalized there. The one-package installation guarantee applies to npm/package-manager usage.
 
 ```html
-<!-- Vue MapLibre GL (includes MapLibre GL JS) -->
+<script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/vue3-maplibre-gl@latest/dist/index.umd.cjs"></script>
 <link
   href="https://unpkg.com/vue3-maplibre-gl@latest/dist/style.css"
@@ -200,6 +204,26 @@ import type {
 } from 'vue3-maplibre-gl';
 ```
 
+You can also import raw MapLibre GL classes from the same package entrypoint:
+
+```ts
+import {
+  Map,
+  NavigationControl,
+  GeolocateControl,
+  MaplibreMarker,
+} from 'vue3-maplibre-gl';
+```
+
+`Marker` and `Popup` are already used by Vue components, so the raw MapLibre GL classes are available as `MaplibreMarker`, `MaplibrePopup`, or under the `maplibregl` namespace:
+
+```ts
+import { MaplibrePopup, maplibregl } from 'vue3-maplibre-gl';
+
+const popup = new MaplibrePopup();
+const marker = new maplibregl.Marker();
+```
+
 ## Vite Configuration
 
 If you're using Vite, you might need to add some configuration for optimal performance:
@@ -250,8 +274,8 @@ export default defineNuxtPlugin((nuxtApp) => {
 
 ### Common Issues
 
-1. **CSS not loading**: Make sure to import the MapLibre GL CSS file
-2. **Module not found**: Ensure both `vue-maplibre-gl` and `maplibre-gl` are installed
+1. **CSS not loading**: Make sure to import `vue3-maplibre-gl/dist/style.css`
+2. **Module not found**: Reinstall `vue3-maplibre-gl` so its `maplibre-gl` dependency is present in `node_modules`
 3. **TypeScript errors**: Update your TypeScript configuration to include the package types
 
 ### Browser Compatibility
