@@ -21,16 +21,22 @@ A powerful, feature-rich Vue 3 component library that provides an intuitive, rea
 
 ## 📦 Installation
 
-### Using Yarn (Recommended)
+### Using Bun (Recommended)
 
 ```bash
-yarn add vue3-maplibre-gl
+bun add vue3-maplibre-gl
 ```
 
 ### Using npm
 
 ```bash
 npm install vue3-maplibre-gl
+```
+
+### Using Yarn
+
+```bash
+yarn add vue3-maplibre-gl
 ```
 
 ### Using pnpm
@@ -306,16 +312,16 @@ git clone https://github.com/danh121097/vue-maplibre-gl.git
 cd vue-maplibre-gl
 
 # Install dependencies
-yarn install
+bun install
 
 # Start development server
-yarn dev
+bun run dev
 
 # Build the library
-yarn build
+bun run build
 
 # Run documentation
-yarn docs:dev
+bun run docs:dev
 ```
 
 ## 🌟 Why Choose Vue3 MapLibre GL?
@@ -341,19 +347,19 @@ git clone https://github.com/danh121097/vue-maplibre-gl.git
 cd vue-maplibre-gl
 
 # Install dependencies
-yarn install
+bun install
 
 # Start development server
-yarn dev
+bun run dev
 
 # Run tests
-yarn test
+bun run test
 
 # Build the library
-yarn build
+bun run build
 
 # Run documentation
-yarn docs:dev
+bun run docs:dev
 ```
 
 ## 📄 License

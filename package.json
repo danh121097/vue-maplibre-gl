@@ -62,7 +62,7 @@
   ],
   "scripts": {
     "dev": "cd examples && vite --port 8080",
-    "build": "yarn clean && vite build",
+    "build": "bun run clean && vite build",
     "clean": "rm -rf dist",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.ts,.jsx,.tsx --fix",
@@ -72,9 +72,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "vue-tsc --noEmit",
-    "test:build": "yarn build && yarn pack --dry-run",
-    "prepublishOnly": "yarn lint:check && yarn type-check && yarn build",
-    "deploy": "yarn build && yarn publish",
+    "test:build": "bun run build && bun pm pack --dry-run",
+    "prepublishOnly": "bun run lint:check && bun run type-check && bun run build",
+    "deploy": "bun run build && npm publish",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
