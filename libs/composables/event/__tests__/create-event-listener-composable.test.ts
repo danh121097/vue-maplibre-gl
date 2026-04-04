@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ref, nextTick } from 'vue';
+import { describe, it, expect, vi } from 'vitest';
+import { ref } from 'vue';
 import { withSetup } from '../../../test-utils';
 import {
   createEventListenerComposable,
@@ -8,13 +8,13 @@ import {
 
 // Mock target that mimics Evented interface (Map, GeolocateControl)
 function createMockTarget() {
-  const handlers = new Map<string, Set<Function>>();
+  const handlers = new Map<string, Set<(...args: any[]) => void>>();
   return {
-    on(event: string, handler: Function) {
+    on(event: string, handler: (...args: any[]) => void) {
       if (!handlers.has(event)) handlers.set(event, new Set());
       handlers.get(event)!.add(handler);
     },
-    off(event: string, handler: Function) {
+    off(event: string, handler: (...args: any[]) => void) {
       handlers.get(event)?.delete(handler);
     },
     fire(event: string, ...args: any[]) {

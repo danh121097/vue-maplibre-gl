@@ -1,21 +1,20 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ref } from 'vue';
 import { withSetup } from '../../../test-utils';
 import { createCameraAnimation } from '../create-camera-animation';
-import { AnimationStatus } from '../camera-animation-types';
 
 // Mock MapLibre Map
 function createMockMap() {
-  const listeners = new Map<string, Set<Function>>();
+  const listeners = new Map<string, Set<(...args: any[]) => void>>();
   return {
-    on(event: string, handler: Function) {
+    on(event: string, handler: (...args: any[]) => void) {
       if (!listeners.has(event)) listeners.set(event, new Set());
       listeners.get(event)!.add(handler);
     },
-    off(event: string, handler: Function) {
+    off(event: string, handler: (...args: any[]) => void) {
       listeners.get(event)?.delete(handler);
     },
-    once(event: string, handler: Function) {
+    once(event: string, handler: (...args: any[]) => void) {
       const wrapped = (...args: any[]) => {
         listeners.get(event)?.delete(wrapped);
         handler(...args);

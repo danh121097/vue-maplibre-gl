@@ -10,6 +10,8 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+
 const mapOptions = ref({
   style: 'https://demotiles.maplibre.org/style.json',
   center: [0, 0],
