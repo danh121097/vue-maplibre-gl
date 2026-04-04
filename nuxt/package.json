@@ -4,6 +4,14 @@
   "description": "Nuxt module for vue3-maplibre-gl — auto-import components, composables, CSS, and SSR configuration",
   "type": "module",
   "license": "MIT",
+  "author": {
+    "name": "Danh Nguyen",
+    "url": "https://github.com/danh121097"
+  },
+  "homepage": "https://github.com/danh121097/vue-maplibre-gl#readme",
+  "bugs": {
+    "url": "https://github.com/danh121097/vue-maplibre-gl/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/danh121097/vue-maplibre-gl",
@@ -30,7 +38,8 @@
   "main": "./dist/module.mjs",
   "types": "./dist/types.d.mts",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "dev:prepare": "nuxt-module-build build --stub && nuxi prepare playground",

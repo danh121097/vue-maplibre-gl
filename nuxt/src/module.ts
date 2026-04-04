@@ -16,6 +16,11 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxt-maplibre-gl',
     configKey: 'maplibre',
+    description: 'Nuxt module for vue3-maplibre-gl with auto-import, SSR support, and full TypeScript',
+    links: {
+      documentation: 'https://github.com/danh121097/vue-maplibre-gl',
+      repository: 'https://github.com/danh121097/vue-maplibre-gl',
+    },
     compatibility: {
       nuxt: '>=3.0.0',
     },
