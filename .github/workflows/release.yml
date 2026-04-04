@@ -1,11 +1,14 @@
 name: Auto Release
 
 on:
-  push:
+  workflow_run:
+    workflows: ['Deploy Documentation']
+    types: [completed]
     branches: [master]
 
 jobs:
   release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'master' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
