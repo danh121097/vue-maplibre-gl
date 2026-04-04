@@ -1,3 +1,4 @@
+import { isBrowser } from '@libs/helpers';
 import {
   computed,
   shallowRef,
@@ -138,7 +139,7 @@ export function useCreatePopup({
   function createPopup(): void {
     const map = mapInstance.value;
 
-    if (!map) return;
+    if (!isBrowser || !map) return;
 
     if (popup.value) return;
 

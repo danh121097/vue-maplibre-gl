@@ -131,7 +131,7 @@ export function useThrottledComputed<T extends number>(
   debounceMs = 100,
 ): ComputedRef<T> {
   const lastValue = ref<T>();
-  const timeoutId = ref<number>();
+  const timeoutId = ref<ReturnType<typeof setTimeout>>();
 
   return computed(() => {
     const newValue = getter();
@@ -149,7 +149,7 @@ export function useThrottledComputed<T extends number>(
     }
 
     // Debounce the update
-    timeoutId.value = window.setTimeout(() => {
+    timeoutId.value = setTimeout(() => {
       lastValue.value = newValue;
     }, debounceMs);
 
@@ -204,7 +204,7 @@ export function useBatchedComputed<T>(
 ): ComputedRef<T> {
   const pendingUpdates = ref<T[]>([]);
   const lastValue = ref<T>();
-  const timeoutId = ref<number>();
+  const timeoutId = ref<ReturnType<typeof setTimeout>>();
 
   function processBatch(): void {
     if (pendingUpdates.value.length > 0) {
@@ -231,7 +231,7 @@ export function useBatchedComputed<T>(
       clearTimeout(timeoutId.value);
     }
 
-    timeoutId.value = window.setTimeout(processBatch, batchDelay);
+    timeoutId.value = setTimeout(processBatch, batchDelay);
 
     return lastValue.value !== undefined ? lastValue.value : newValue;
   });

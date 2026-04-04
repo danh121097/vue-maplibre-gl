@@ -1,3 +1,4 @@
+import { isBrowser } from '@libs/helpers';
 import {
   watchEffect,
   watch,
@@ -135,7 +136,7 @@ export function useCreateMarker({
   function createMarker(): void {
     const map = mapInstance.value;
 
-    if (!map) return;
+    if (!isBrowser || !map) return;
 
     if (marker.value) return;
 
