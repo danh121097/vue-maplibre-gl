@@ -1,51 +1,74 @@
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-  title: 'Vue MapLibre GL',
-  description: 'Vue 3 components and composables for MapLibre GL JS',
+  title: 'Vue3 MapLibre GL',
+  description: 'The most comprehensive Vue 3 library for MapLibre GL JS — 10+ components, 15+ composables, full TypeScript support',
   base: '/',
   ignoreDeadLinks: false,
-
-  // Ensure default theme is used
+  srcExclude: [
+    'code-standards.md',
+    'codebase-summary.md',
+    'project-overview-pdr.md',
+    'project-roadmap.md',
+    'system-architecture.md',
+  ],
   appearance: 'dark',
   lastUpdated: true,
   cleanUrls: true,
 
-  // Vite configuration to ensure CSS is included
-  vite: {
-    ssr: {
-      noExternal: ['vitepress'],
-    },
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks: undefined,
-        },
-      },
-      cssCodeSplit: false,
-    },
+  head: [
+    ['meta', { name: 'theme-color', content: '#10b981' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:title', content: 'Vue3 MapLibre GL' }],
+    ['meta', { property: 'og:description', content: 'Build interactive maps with Vue 3 and MapLibre GL JS' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+  ],
+
+  sitemap: {
+    hostname: 'https://danh121097.github.io/vue-maplibre-gl/',
   },
 
-  // Ensure CSS is properly included
-  head: [['meta', { name: 'theme-color', content: '#3c82f6' }]],
-
   themeConfig: {
+    logo: '/logo.svg',
+    search: {
+      provider: 'local',
+    },
+
     nav: [
-      { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'API', link: '/api/components' },
       { text: 'Examples', link: '/examples/' },
+      {
+        text: 'v5.0.0',
+        items: [
+          { text: 'Changelog', link: '/changelog' },
+          { text: 'Migration from v4', link: '/guide/migration-v5' },
+        ],
+      },
     ],
 
     sidebar: {
       '/guide/': [
         {
-          text: 'Guide',
+          text: 'Introduction',
           items: [
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Installation', link: '/guide/installation' },
+          ],
+        },
+        {
+          text: 'Essentials',
+          items: [
             { text: 'Basic Usage', link: '/guide/basic-usage' },
             { text: 'Configuration', link: '/guide/configuration' },
+            { text: 'Composables Overview', link: '/guide/composables-overview' },
+          ],
+        },
+        {
+          text: 'Advanced',
+          items: [
+            { text: 'SSR / Nuxt', link: '/guide/ssr-nuxt' },
+            { text: 'Migration from v4', link: '/guide/migration-v5' },
           ],
         },
       ],
@@ -74,15 +97,17 @@ export default defineConfig({
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/danh121097/vue-maplibre-gl' },
-      {
-        icon: 'npm',
-        link: 'https://www.npmjs.com/package/vue3-maplibre-gl',
-      },
+      { icon: 'npm', link: 'https://www.npmjs.com/package/vue3-maplibre-gl' },
     ],
+
+    editLink: {
+      pattern: 'https://github.com/danh121097/vue-maplibre-gl/edit/master/docs/:path',
+      text: 'Edit this page on GitHub',
+    },
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024 Danh Nguyen',
+      copyright: 'Copyright © 2024-present Danh Nguyen',
     },
   },
 });

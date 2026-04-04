@@ -1,222 +1,73 @@
-/* Custom theme overrides */
+/**
+ * Map-inspired color scheme — emerald/teal brand
+ * Inspired by VueUse, Nuxt, and MapLibre design language
+ */
+
+/* Brand colors — emerald/teal for map theme */
 :root {
-  --vp-c-brand-1: #3c82f6;
-  --vp-c-brand-2: #2563eb;
-  --vp-c-brand-3: #1d4ed8;
+  --vp-c-brand-1: #10b981;
+  --vp-c-brand-2: #059669;
+  --vp-c-brand-3: #047857;
+  --vp-c-brand-soft: rgba(16, 185, 129, 0.14);
+
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: #fff;
+  --vp-button-brand-bg: var(--vp-c-brand-1);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: #fff;
+  --vp-button-brand-hover-bg: var(--vp-c-brand-2);
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: #fff;
+  --vp-button-brand-active-bg: var(--vp-c-brand-3);
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #3b82f6 100%);
+  --vp-home-hero-image-background-image: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 182, 212, 0.2) 50%, rgba(59, 130, 246, 0.2) 100%);
+  --vp-home-hero-image-filter: blur(44px);
 }
 
-/* Ensure proper styling for the documentation */
-.VPDoc {
-  max-width: none;
+.dark {
+  --vp-c-brand-1: #34d399;
+  --vp-c-brand-2: #10b981;
+  --vp-c-brand-3: #059669;
+  --vp-c-brand-soft: rgba(52, 211, 153, 0.14);
 }
 
-.VPContent {
-  padding-top: var(--vp-nav-height);
+/* Hero name gradient */
+.VPHero .name {
+  background: var(--vp-home-hero-name-background);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: var(--vp-home-hero-name-color);
 }
 
-/* Fix any missing styles */
-.vp-doc {
-  line-height: 1.7;
-}
-
-.vp-doc h1,
-.vp-doc h2,
-.vp-doc h3,
-.vp-doc h4,
-.vp-doc h5,
-.vp-doc h6 {
-  font-weight: 600;
-  line-height: 1.25;
-}
-
-.vp-doc p {
-  margin: 16px 0;
-}
-
-.vp-doc a {
-  color: var(--vp-c-brand-1);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 0.25s;
-}
-
-.vp-doc a:hover {
-  color: var(--vp-c-brand-2);
-}
-
-/* Navigation styles */
-.VPNav {
-  background-color: var(--vp-c-bg);
-  border-bottom: 1px solid var(--vp-c-divider);
-}
-
-/* Home page styles */
-.VPHome {
-  padding: 0 24px;
-}
-
-.VPHero {
-  padding: 48px 0;
-  text-align: center;
-}
-
-.VPFeatures {
-  padding: 48px 0;
-}
-
-/* Button styles */
-.VPButton {
-  display: inline-block;
-  border: 1px solid transparent;
-  text-align: center;
-  font-weight: 600;
-  white-space: nowrap;
-  transition:
-    color 0.25s,
-    border-color 0.25s,
-    background-color 0.25s;
-}
-
-.VPButton.brand {
-  border-color: var(--vp-button-brand-border);
-  color: var(--vp-button-brand-text);
-  background-color: var(--vp-button-brand-bg);
-}
-
-.VPButton.brand:hover {
-  border-color: var(--vp-button-brand-hover-border);
-  color: var(--vp-button-brand-hover-text);
-  background-color: var(--vp-button-brand-hover-bg);
-}
-
-.VPButton.alt {
-  border-color: var(--vp-button-alt-border);
-  color: var(--vp-button-alt-text);
-  background-color: var(--vp-button-alt-bg);
-}
-
-.VPButton.alt:hover {
-  border-color: var(--vp-button-alt-hover-border);
-  color: var(--vp-button-alt-hover-text);
-  background-color: var(--vp-button-alt-hover-bg);
-}
-
-.VPButton.medium {
-  border-radius: 20px;
-  padding: 0 20px;
-  line-height: 38px;
-  font-size: 14px;
-}
-
-/* Code block styles */
-.vp-code-group {
-  margin: 16px 0;
-}
-
-div[class*='language-'] {
-  position: relative;
-  margin: 16px 0;
-  background-color: var(--vp-code-block-bg);
-  overflow-x: auto;
-  transition: background-color 0.5s;
-}
-
-div[class*='language-'] code {
-  display: block;
-  padding: 0 24px;
-  width: fit-content;
-  min-width: 100%;
-  line-height: var(--vp-code-line-height);
-  font-size: var(--vp-code-font-size);
-  color: var(--vp-code-block-color);
-  transition: color 0.5s;
-}
-
-/* Feature grid styles */
-.VPFeatures .items {
-  display: flex;
-  flex-wrap: wrap;
-  margin: -8px;
-}
-
-.VPFeatures .item {
-  padding: 8px;
-  width: 100%;
-}
-
-@media (min-width: 640px) {
-  .VPFeatures .item {
-    width: 50%;
-  }
-}
-
-@media (min-width: 960px) {
-  .VPFeatures .item {
-    width: 33.333333%;
-  }
-}
-
+/* Feature cards */
 .VPFeature {
-  display: block;
-  border: 1px solid var(--vp-c-bg-soft);
   border-radius: 12px;
-  height: 100%;
-  background-color: var(--vp-c-bg-soft);
-  transition:
-    border-color 0.25s,
-    background-color 0.25s;
+  transition: border-color 0.25s, box-shadow 0.25s;
 }
 
 .VPFeature:hover {
   border-color: var(--vp-c-brand-1);
+  box-shadow: 0 2px 12px rgba(16, 185, 129, 0.08);
 }
 
-.VPFeature .box {
-  padding: 28px 32px;
-  height: 100%;
+/* Doc content */
+.vp-doc {
+  line-height: 1.7;
 }
 
-.VPFeature .icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-  border-radius: 6px;
-  background-color: var(--vp-c-default-soft);
-  width: 48px;
-  height: 48px;
-  font-size: 24px;
-  transition: background-color 0.25s;
+.vp-doc a {
+  text-underline-offset: 2px;
+  transition: color 0.25s;
 }
 
-.VPFeature .title {
-  line-height: 24px;
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
+/* Custom container refinements */
+.custom-block.tip {
+  border-color: var(--vp-c-brand-1);
 }
 
-.VPFeature .details {
-  flex-grow: 1;
-  padding-top: 8px;
-  line-height: 24px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--vp-c-text-2);
-  margin: 0;
-}
-
-/* Responsive adjustments */
-@media (max-width: 639px) {
-  .VPHome {
-    padding: 0 16px;
-  }
-
-  .VPHero {
-    padding: 32px 0;
-  }
-
-  .VPFeatures {
-    padding: 32px 0;
-  }
+/* Badge styling */
+.VPBadge {
+  border-radius: 10px;
 }
