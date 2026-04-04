@@ -66,6 +66,7 @@ const circleStyle = ref({
 Create a simple interactive map with style switching and configuration options.
 
 **Topics Covered**:
+
 - Map initialization with options
 - Style switching (OSM, satellite, etc.)
 - Reactive property updates
@@ -73,6 +74,7 @@ Create a simple interactive map with style switching and configuration options.
 - Camera controls and state
 
 **Key Composables**:
+
 - `useCreateMaplibre()` - Map creation
 - `useMaplibre()` - Map context access
 - `useFlyTo()` - Smooth camera animation
@@ -82,6 +84,7 @@ Create a simple interactive map with style switching and configuration options.
 Add interactive markers to your map with advanced features.
 
 **Topics Covered**:
+
 - Marker creation and positioning
 - Draggable markers with event handling
 - Marker popups with custom content
@@ -90,11 +93,13 @@ Add interactive markers to your map with advanced features.
 - Marker removal and updates
 
 **Key Composables**:
+
 - `useCreateMarker()` - Programmatic marker creation
 - `useCreatePopup()` - Marker popups
 - `useMapEventListener()` - Interaction events
 
 **Key Components**:
+
 - `<Marker />` - Marker component
 - `<PopUp />` - Popup overlays
 
@@ -103,6 +108,7 @@ Add interactive markers to your map with advanced features.
 Work with all layer types: Fill, Circle, Line, and Symbol layers.
 
 **Topics Covered**:
+
 - Fill layers for polygons with styling
 - Circle layers for points with size/color
 - Line layers for routes/boundaries
@@ -113,12 +119,14 @@ Work with all layer types: Fill, Circle, Line, and Symbol layers.
 - Layer z-order management
 
 **Key Composables** (all with full type safety):
+
 - `useCreateFillLayer()` - Fill layers
 - `useCreateCircleLayer()` - Circle layers
 - `useCreateLineLayer()` - Line layers
 - `useCreateSymbolLayer()` - Symbol layers
 
 **Key Components**:
+
 - `<FillLayer />` - Fill layer component
 - `<CircleLayer />` - Circle layer component
 - `<LineLayer />` - Line layer component
@@ -129,6 +137,7 @@ Work with all layer types: Fill, Circle, Line, and Symbol layers.
 Integrate navigation controls and geolocation features.
 
 **Topics Covered**:
+
 - Geolocation control initialization
 - User location tracking
 - Geolocation events and permissions
@@ -137,23 +146,25 @@ Integrate navigation controls and geolocation features.
 - Error handling for location services
 
 **Key Composables**:
+
 - `useGeolocateControl()` - Programmatic geolocation
 - `useGeolocateEventListener()` - Geolocate events
 
 **Key Components**:
+
 - `<GeolocateControls />` - Geolocation control
 
 ## Example Structure
 
 Each example includes:
 
-| Section | Content |
-|---------|----------|
-| **Live Demo** | Interactive map with full functionality |
-| **Code** | Complete Vue component with explanations |
-| **Features** | Key capabilities highlighted |
-| **APIs** | Links to relevant composables/components |
-| **Variations** | Alternative approaches and patterns |
+| Section        | Content                                  |
+| -------------- | ---------------------------------------- |
+| **Live Demo**  | Interactive map with full functionality  |
+| **Code**       | Complete Vue component with explanations |
+| **Features**   | Key capabilities highlighted             |
+| **APIs**       | Links to relevant composables/components |
+| **Variations** | Alternative approaches and patterns      |
 
 ## Common Patterns
 
@@ -163,10 +174,13 @@ Each example includes:
 const geoData = ref({ type: 'FeatureCollection', features: [] });
 
 // Update data reactively
-watch(() => selectedRegion.value, (region) => {
-  const filtered = allFeatures.filter(f => f.properties.region === region);
-  geoData.value = { type: 'FeatureCollection', features: filtered };
-});
+watch(
+  () => selectedRegion.value,
+  (region) => {
+    const filtered = allFeatures.filter((f) => f.properties.region === region);
+    geoData.value = { type: 'FeatureCollection', features: filtered };
+  },
+);
 ```
 
 ### Camera Animations
@@ -189,7 +203,9 @@ const animateToLocation = async (location) => {
 const { isListenerAttached } = useMapEventListener('click', (e) => {
   console.log('Clicked at:', e.lngLat);
   // Get features at click point
-  const features = mapInstance.value?.queryRenderedFeatures({ layers: ['my-layer'] });
+  const features = mapInstance.value?.queryRenderedFeatures({
+    layers: ['my-layer'],
+  });
 });
 ```
 
@@ -199,13 +215,19 @@ const { isListenerAttached } = useMapEventListener('click', (e) => {
 const { setPaint, setFilter } = useCreateCircleLayer(mapInstance, sourceId);
 
 // Type-safe property updates
-watch(() => settings.radius, (newRadius) => {
-  setPaint({ 'circle-radius': newRadius, 'circle-color': '#088' });
-});
+watch(
+  () => settings.radius,
+  (newRadius) => {
+    setPaint({ 'circle-radius': newRadius, 'circle-color': '#088' });
+  },
+);
 
-watch(() => filters.name, (name) => {
-  setFilter(['in', 'name', ...name.split(',')]);
-});
+watch(
+  () => filters.name,
+  (name) => {
+    setFilter(['in', 'name', ...name.split(',')]);
+  },
+);
 ```
 
 ## Running Examples Locally
@@ -230,6 +252,7 @@ You can copy any example code and paste it into your Vue 3 project. All examples
 ## Best Practices
 
 1. **Always handle map readiness** before operations
+
    ```typescript
    watch(isMapReady, () => {
      // Map is interactive now
@@ -237,18 +260,21 @@ You can copy any example code and paste it into your Vue 3 project. All examples
    ```
 
 2. **Use type-safe layer composables** for compile-time validation
+
    ```typescript
    const { setPaint } = useCreateFillLayer(map, source);
    // setPaint only accepts FillPaint types
    ```
 
 3. **Await camera animations** for sequential operations
+
    ```typescript
    await flyTo({ center: [0, 0], zoom: 10 });
    // Camera animation complete
    ```
 
 4. **Clean up listeners** (automatic with composables)
+
    ```typescript
    const { removeListener } = useMapEventListener('click', handler);
    // Removed on component unmount automatically
