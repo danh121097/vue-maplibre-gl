@@ -16,6 +16,12 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxt-maplibre-gl',
     configKey: 'maplibre',
+    description:
+      'Nuxt module for vue3-maplibre-gl with auto-import, SSR support, and full TypeScript',
+    links: {
+      documentation: 'https://github.com/danh121097/vue-maplibre-gl',
+      repository: 'https://github.com/danh121097/vue-maplibre-gl',
+    },
     compatibility: {
       nuxt: '>=3.0.0',
     },
@@ -50,15 +56,31 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Auto-import composables
     const composables = [
-      'useCreateMaplibre', 'useMaplibre',
-      'useCreateFillLayer', 'useCreateCircleLayer', 'useCreateLineLayer', 'useCreateSymbolLayer',
-      'useCreateGeoJsonSource', 'useGeoJsonSource',
-      'useMapEventListener', 'useLayerEventListener', 'useGeolocateEventListener',
-      'useFlyTo', 'useEaseTo', 'useJumpTo',
-      'useFitBounds', 'useCameraForBounds',
-      'useZoomTo', 'useZoomIn', 'useZoomOut',
-      'usePanBy', 'usePanTo',
-      'useRotateTo', 'useResetNorth', 'useResetNorthPitch', 'useSnapToNorth',
+      'useCreateMaplibre',
+      'useMaplibre',
+      'useCreateFillLayer',
+      'useCreateCircleLayer',
+      'useCreateLineLayer',
+      'useCreateSymbolLayer',
+      'useCreateGeoJsonSource',
+      'useGeoJsonSource',
+      'useMapEventListener',
+      'useLayerEventListener',
+      'useGeolocateEventListener',
+      'useFlyTo',
+      'useEaseTo',
+      'useJumpTo',
+      'useFitBounds',
+      'useCameraForBounds',
+      'useZoomTo',
+      'useZoomIn',
+      'useZoomOut',
+      'usePanBy',
+      'usePanTo',
+      'useRotateTo',
+      'useResetNorth',
+      'useResetNorthPitch',
+      'useSnapToNorth',
     ];
 
     addImports(
