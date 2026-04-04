@@ -1,4 +1,5 @@
 import { useLogger } from '@libs/composables';
+import { isBrowser } from '@libs/helpers';
 import { MapCreationStatus } from '@libs/enums';
 import { type CreateMaplibreActions } from '@libs/types';
 import type {
@@ -145,6 +146,9 @@ export function useCreateMaplibre(
       mapCreationStatus.value = MapCreationStatus.Error;
       return;
     }
+
+    // Skip on server (SSR) — MapLibre requires WebGL/canvas
+    if (!isBrowser) return;
 
     // Prevent double initialization
     if (mapInstance.value) return;

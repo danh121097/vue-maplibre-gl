@@ -90,7 +90,7 @@ export function useMapReloadEvent(
 
   // Initialize load status based on map state
   const initialMap = mapInstance.value;
-  if (initialMap?._loaded) {
+  if (initialMap?.isStyleLoaded()) {
     loadStatus.value = MapReloadEventStatus.Loaded;
     if (props.autoTriggerOnMount !== false) {
       // Trigger initial load callback if map is already loaded
@@ -184,10 +184,10 @@ export function useMapReloadEvent(
 
     try {
       // Set up event listeners
-      if (loadStatus.value === MapReloadEventStatus.NotLoaded && !map._loaded) {
+      if (loadStatus.value === MapReloadEventStatus.NotLoaded && !map.isStyleLoaded()) {
         map.on('load', handleLoadEvent);
       } else if (
-        map._loaded &&
+        map.isStyleLoaded() &&
         loadStatus.value !== MapReloadEventStatus.Loaded
       ) {
         // Map is already loaded, trigger load event

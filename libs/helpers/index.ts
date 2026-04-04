@@ -1,3 +1,4 @@
+export { isBrowser } from './ssr-guard';
 import { getVersion } from 'maplibre-gl';
 import { nanoid } from 'nanoid';
 import type { LngLatLike, Map } from 'maplibre-gl';

@@ -13,8 +13,7 @@ dist-ssr
 *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+.vscode/
 .idea
 .DS_Store
 *.suo
@@ -30,3 +29,22 @@ dist-ssr
 # VitePress
 docs/.vitepress/dist
 docs/.vitepress/cache
+
+# Project docs & plans
+plans/
+docs/code-standards.md
+docs/codebase-summary.md
+docs/project-overview-pdr.md
+docs/project-roadmap.md
+docs/system-architecture.md
+repomix-output.xml
+
+# Nuxt module
+nuxt/dist
+nuxt/node_modules
+nuxt/playground/.nuxt
+nuxt/playground/.output
+nuxt/bun.lock
+
+# Claude
+.claude/

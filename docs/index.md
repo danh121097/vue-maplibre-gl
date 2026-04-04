@@ -2,9 +2,9 @@
 layout: home
 
 hero:
-  name: 'Vue MapLibre GL'
-  text: 'Vue 3 Components for MapLibre GL JS'
-  tagline: 'Build interactive maps with ease using Vue 3 and MapLibre GL JS'
+  name: 'Vue3 MapLibre GL'
+  text: 'Interactive Maps for Vue 3'
+  tagline: '10+ components, 15+ composables, full TypeScript support — build production-ready maps in minutes'
   actions:
     - theme: brand
       text: Get Started
@@ -16,69 +16,55 @@ hero:
 features:
   - icon: 🗺️
     title: Interactive Maps
-    details: Create beautiful, interactive maps with MapLibre GL JS and Vue 3 components with reactive data binding.
+    details: High-performance vector maps with WebGL rendering via MapLibre GL JS. Reactive data binding out of the box.
   - icon: 🧩
-    title: Component-Based Architecture
-    details: 10+ Vue components including Maplibre, GeoJsonSource, FillLayer, CircleLayer, LineLayer, SymbolLayer, Marker, PopUp, Image, and GeolocateControls.
-  - icon: 🎯
-    title: TypeScript Support
-    details: Full TypeScript support with comprehensive type definitions and interfaces for better development experience.
-  - icon: 🚀
-    title: High Performance
-    details: Optimized for performance with efficient rendering, minimal bundle size, and automatic resource cleanup.
+    title: 10+ Components
+    details: Maplibre, GeoJsonSource, FillLayer, CircleLayer, LineLayer, SymbolLayer, Marker, PopUp, Image, GeolocateControls.
   - icon: 🔧
-    title: Powerful Composables
-    details: 15+ composables for map management, layers, sources, controls, events, and utilities with reactive state management.
-  - icon: 📱
-    title: Mobile-Friendly
-    details: Responsive design that works seamlessly across all devices and screen sizes with touch support.
+    title: 15+ Composables
+    details: Map management, camera animations (flyTo, easeTo, jumpTo), event listeners, layer management, and utilities.
+  - icon: 🎯
+    title: Full TypeScript
+    details: Comprehensive type definitions, event handler types, and generic overloads for a first-class DX.
+  - icon: ⚡
+    title: High Performance
+    details: Factory-based architecture with shallowRef optimization, automatic cleanup, and zero memory leaks.
+  - icon: 🌐
+    title: SSR Compatible
+    details: Works with Nuxt and SSR/SSG out of the box. Browser guards built in, no configuration required.
 ---
 
 ## Quick Start
 
-Install the package:
-
-```bash
-# Using yarn
-yarn add vue3-maplibre-gl
-
-# Using npm
+::: code-group
+```bash [bun]
+bun add vue3-maplibre-gl
+```
+```bash [npm]
 npm install vue3-maplibre-gl
 ```
-
-Use in your Vue 3 application:
+```bash [yarn]
+yarn add vue3-maplibre-gl
+```
+```bash [pnpm]
+pnpm add vue3-maplibre-gl
+```
+:::
 
 ```vue
 <template>
-  <Maplibre :options="mapOptions" style="height: 500px" @load="onMapLoad">
+  <Maplibre :options="mapOptions" style="height: 500px">
     <GeoJsonSource :data="geoJsonData">
       <FillLayer :style="fillStyle" />
       <CircleLayer :style="circleStyle" />
     </GeoJsonSource>
-
-    <Marker :lnglat="[0, 0]" :draggable="true">
-      <div class="marker">📍</div>
-    </Marker>
-
-    <PopUp :lnglat="[0, 0]" :show="showPopup">
-      <div class="popup-content">
-        <h3>Welcome to Vue MapLibre GL!</h3>
-        <p>Interactive maps made easy with Vue 3</p>
-      </div>
-    </PopUp>
+    <Marker :lnglat="[0, 0]" :draggable="true" />
   </Maplibre>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import {
-  Maplibre,
-  GeoJsonSource,
-  FillLayer,
-  CircleLayer,
-  Marker,
-  PopUp,
-} from 'vue3-maplibre-gl';
+import { Maplibre, GeoJsonSource, FillLayer, CircleLayer, Marker } from 'vue3-maplibre-gl';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const mapOptions = ref({
@@ -90,51 +76,22 @@ const mapOptions = ref({
 const geoJsonData = ref({
   type: 'FeatureCollection',
   features: [
-    {
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [0, 0] },
-      properties: { name: 'Sample Point' },
-    },
+    { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
   ],
 });
 
-const fillStyle = ref({
-  'fill-color': '#088',
-  'fill-opacity': 0.8,
-});
-
-const circleStyle = ref({
-  'circle-radius': 6,
-  'circle-color': '#007cbf',
-});
-
-const showPopup = ref(true);
-
-function onMapLoad(map) {
-  console.log('Map loaded:', map);
-}
+const fillStyle = ref({ 'fill-color': '#088', 'fill-opacity': 0.8 });
+const circleStyle = ref({ 'circle-radius': 6, 'circle-color': '#007cbf' });
 </script>
-
-<style>
-.marker {
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.popup-content {
-  padding: 10px;
-  max-width: 200px;
-}
-</style>
 ```
 
-## Why Vue MapLibre GL?
+## Why Vue3 MapLibre GL?
 
-- **🎯 Vue 3 Native**: Built specifically for Vue 3 with Composition API and TypeScript support
-- **🗺️ MapLibre GL JS**: Uses the open-source MapLibre GL JS for high-performance vector map rendering
-- **🧩 Component-Based**: 10+ Vue components for maps, layers, sources, markers, popups, and controls
-- **🔧 Powerful Composables**: 15+ composables for map management, animations, events, and utilities
-- **📚 Developer Friendly**: Comprehensive documentation with examples and TypeScript definitions
-- **⚡ High Performance**: Optimized for performance with automatic resource cleanup and minimal bundle size
-- **🌐 Open Source**: MIT licensed with active community support and regular updates
-- **📱 Mobile Ready**: Touch-friendly controls and responsive design for all devices
+| | Feature |
+|---|---|
+| **Vue 3 Native** | Built for Composition API with full reactivity |
+| **Self-Contained** | `maplibre-gl` bundled — one install, zero peer deps |
+| **SSR Safe** | Works with Nuxt SSR/SSG without configuration |
+| **Type Safe** | Comprehensive TypeScript definitions and event handler types |
+| **Zero Leaks** | Factory-based cleanup with defense-in-depth patterns |
+| **Tiny Footprint** | Tree-shakeable — import only what you use |
