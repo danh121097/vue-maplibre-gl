@@ -251,9 +251,9 @@ const {
 // Provide map instance to child components
 provide(MapProvideKey, mapInstance);
 
-// Enhanced event listeners with error handling and performance monitoring
-MaplibreEvents.map((evt) => {
-  return useMapEventListener({
+// Enhanced event listeners with error handling — capture cleanup functions for defense-in-depth
+const eventCleanups = MaplibreEvents.map((evt) => {
+  const { removeListener } = useMapEventListener({
     map: mapInstance,
     event: evt,
     on: (data) => {
@@ -265,6 +265,7 @@ MaplibreEvents.map((evt) => {
     },
     debug: props.debug,
   });
+  return removeListener;
 });
 
 // Create optimized watchers for map properties with null safety
@@ -350,6 +351,9 @@ function cleanup(): void {
   try {
     // Stop all watchers
     watchers.forEach((stopWatcher) => stopWatcher?.());
+
+    // Explicitly remove event listeners (defense-in-depth alongside onUnmounted in factory)
+    eventCleanups.forEach((cleanup) => cleanup?.());
 
     // Reset state
     isComponentMounted.value = false;

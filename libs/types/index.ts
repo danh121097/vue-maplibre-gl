@@ -174,8 +174,17 @@ export interface Layout {
   visibility?: Visibility;
 }
 
-// Use any for expressions to avoid type conflicts
+/**
+ * MapLibre GL expression type.
+ * Intentionally `any` — MapLibre doesn't export strict expression types.
+ * @see https://maplibre.org/maplibre-style-spec/expressions/
+ */
 export type Expressions = any;
+
+/**
+ * MapLibre style function for data-driven styling.
+ * Uses `any` for stops/default — strict typing requires upstream MapLibre changes.
+ */
 export interface StyleFunction {
   stops?: any[][];
   property?: string;
@@ -335,3 +344,6 @@ export type ImageDatas =
       data: Uint8Array | Uint8ClampedArray;
     }
   | StyleImageInterface;
+
+// Re-export consumer-facing event handler types
+export * from './event-handler-types';

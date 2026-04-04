@@ -31,13 +31,20 @@ export function useOptimizedComputed<T>(
   const hasInitialValue = ref(false);
 
   /**
-   * Default equality function
+   * Default equality function — uses shallow object comparison by default,
+   * falls back to JSON.stringify only when deepEqual is explicitly requested.
    */
   function defaultEqualityFn(a: T, b: T): boolean {
+    if (Object.is(a, b)) return true;
     if (deepEqual) {
       return JSON.stringify(a) === JSON.stringify(b);
     }
-    return Object.is(a, b);
+    // Shallow object comparison — avoids JSON.stringify GC pressure
+    if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    if (keysA.length !== keysB.length) return false;
+    return keysA.every(key => (a as any)[key] === (b as any)[key]);
   }
 
   const isEqual = equalityFn || defaultEqualityFn;
