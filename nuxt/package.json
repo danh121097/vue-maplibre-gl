@@ -1,0 +1,54 @@
+{
+  "name": "nuxt-maplibre-gl",
+  "version": "1.0.0",
+  "description": "Nuxt module for vue3-maplibre-gl — auto-import components, composables, CSS, and SSR configuration",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danh121097/vue-maplibre-gl",
+    "directory": "nuxt"
+  },
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "nuxt3",
+    "maplibre",
+    "maplibre-gl",
+    "vue",
+    "vue3",
+    "map",
+    "webgl",
+    "gis"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "types": "./dist/types.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev:prepare": "nuxt-module-build build --stub && nuxi prepare playground",
+    "dev": "nuxi dev playground",
+    "build": "nuxt-module-build build",
+    "prepack": "nuxt-module-build build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.15.0",
+    "vue3-maplibre-gl": "^4.2.0"
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "^1.0.2",
+    "nuxt": "^3.15.0",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "nuxt": ">=3.0.0"
+  }
+}
