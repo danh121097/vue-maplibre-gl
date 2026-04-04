@@ -115,6 +115,7 @@ const handleRegister = (
   actions: CreateLayerActions<FillLayerSpecification>,
   map: Map,
 ) => {
+  props.register?.(actions, map);
   emits('register', actions, map);
 };
 
