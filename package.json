@@ -3,7 +3,8 @@
   "description": "Vue 3 components and composables for MapLibre GL JS - Build interactive maps with ease",
   "version": "5.0.0",
   "author": {
-    "name": "Danh Nguyen"
+    "name": "Danh Nguyen",
+    "url": "https://harrynguyen.work"
   },
   "repository": {
     "type": "git",
