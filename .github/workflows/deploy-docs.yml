@@ -2,9 +2,7 @@ name: Deploy Documentation
 
 on:
   push:
-    branches: [v3]
-  pull_request:
-    branches: [v3]
+    branches: [master]
 
 jobs:
   deploy:
@@ -14,20 +12,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '20'
-          cache: 'yarn'
+          bun-version: latest
 
       - name: Install dependencies
-        run: |
-          yarn install --frozen-lockfile
-          yarn type-check
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun run type-check
 
       - name: Build documentation
-        run: |
-          yarn docs:build
+        run: bun run docs:build
         env:
           NODE_ENV: production
 
@@ -41,4 +38,3 @@ jobs:
           vercel-args: '--prod'
           github-comment: true
           github-deployment: false
-        if: github.ref == 'refs/heads/v3' && github.event_name == 'push'
