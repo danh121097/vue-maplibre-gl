@@ -243,7 +243,7 @@ bun install
 bun dev
 ```
 
-Then open http://localhost:5173 in your browser.
+Then open the local URL shown in your terminal (usually localhost on port 5173).
 
 ### Copy & Paste
 
