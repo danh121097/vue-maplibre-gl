@@ -73,9 +73,9 @@ describe('createCameraAnimation', () => {
       createCameraAnimation({ map: ref(null) }),
     );
 
-    await expect(
-      executeAnimation('flyTo', [{}], 'moveend'),
-    ).rejects.toThrow('Map instance not available');
+    await expect(executeAnimation('flyTo', [{}], 'moveend')).rejects.toThrow(
+      'Map instance not available',
+    );
   });
 
   it('rejects on timeout and calls map.stop() (RT-6)', async () => {
