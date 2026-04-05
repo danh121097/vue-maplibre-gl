@@ -1,7 +1,7 @@
 {
   "name": "vue3-maplibre-gl",
   "description": "Vue 3 components and composables for MapLibre GL JS - Build interactive maps with ease",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "author": {
     "name": "Danh Nguyen",
     "url": "https://harrynguyen.work"
@@ -74,8 +74,8 @@
     "type-check": "vue-tsc --noEmit",
     "test:build": "bun run build && bun pm pack --dry-run",
     "prepublishOnly": "bun run lint:check && bun run type-check && bun run build",
-    "publish:vue": "npm version patch --no-git-tag-version && bun run build && npm publish --provenance --access public",
-    "publish:nuxt": "npm --prefix nuxt version patch --no-git-tag-version && cd nuxt && bun install && bun run build && npm --prefix nuxt publish --provenance --access public",
+    "publish:vue": "npm version patch --no-git-tag-version && bun run build && npm publish --access public",
+    "publish:nuxt": "npm --prefix nuxt version patch --no-git-tag-version && cd nuxt && bun install && bun run build && npm --prefix nuxt publish --access public",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
