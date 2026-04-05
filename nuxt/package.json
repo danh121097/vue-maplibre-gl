@@ -1,6 +1,6 @@
 {
   "name": "nuxt-maplibre-gl",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Nuxt module for vue3-maplibre-gl — auto-import components, composables, CSS, and SSR configuration",
   "type": "module",
   "license": "MIT",
@@ -46,7 +46,9 @@
     "dev": "nuxi dev playground",
     "build": "nuxt-module-build build",
     "prepack": "nuxt-module-build build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "publish:manual": "npm publish --provenance --access public",
+    "publish:manual:otp": "npm publish --provenance --access public --otp=$NPM_OTP"
   },
   "dependencies": {
     "@nuxt/kit": "^3.15.0",
