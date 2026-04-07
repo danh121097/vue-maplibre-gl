@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ref } from 'vue';
 import { withSetup } from '../../../test-utils';
-import { createCameraAnimation } from '../create-camera-animation';
+import { createCameraAnimation } from '../createCameraAnimation';
 
 // Mock MapLibre Map
 function createMockMap() {

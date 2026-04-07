@@ -4,7 +4,7 @@ import {
   createEventListenerComposable,
   EventListenerStatus as BaseStatus,
   type EventListenerActions,
-} from './create-event-listener-composable';
+} from './createEventListenerComposable';
 import type { Nullable } from '@libs/types';
 import type { MaybeRef } from 'vue';
 import type { Map, MapLayerEventType, LayerSpecification } from 'maplibre-gl';

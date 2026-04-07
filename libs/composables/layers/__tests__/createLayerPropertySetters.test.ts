@@ -3,8 +3,8 @@ import {
   createSetStyle,
   createSetVisibility,
   createPropertySetter,
-} from '../create-layer-property-setters';
-import { LAYER_STYLE_CONFIG } from '../layer-style-config';
+} from '../createLayerPropertySetters';
+import { LAYER_STYLE_CONFIG } from '../layerStyleConfig';
 
 describe('createSetStyle', () => {
   it('dispatches paint keys to setPaintProperty', () => {

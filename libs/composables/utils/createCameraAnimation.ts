@@ -4,7 +4,7 @@ import {
   AnimationStatus,
   type CameraAnimationConfig,
   type CameraAnimationResult,
-} from './camera-animation-types';
+} from './cameraAnimationTypes';
 import type { CameraOptions } from 'maplibre-gl';
 
 /**

@@ -2,7 +2,7 @@ import {
   createEventListenerComposable,
   EventListenerStatus,
   type EventListenerActions,
-} from './create-event-listener-composable';
+} from './createEventListenerComposable';
 import type { Nullable, MapEventTypes } from '@libs/types';
 import type { MaybeRef } from 'vue';
 import type { Map } from 'maplibre-gl';

@@ -1,8 +1,8 @@
 import { computed } from 'vue';
 import { useCreateLayer, useLogger } from '@libs/composables';
 import { filterStylePropertiesByKeys } from '@libs/helpers';
-import { LAYER_STYLE_CONFIG } from './layer-style-config';
-import { createSetStyle, createSetVisibility, createPropertySetter } from './create-layer-property-setters';
+import { LAYER_STYLE_CONFIG } from './layerStyleConfig';
+import { createSetStyle, createSetVisibility, createPropertySetter } from './createLayerPropertySetters';
 import type { CreateLayerActions, Nullable, FillLayerStyle } from '@libs/types';
 import type { MaybeRef } from 'vue';
 import type { Map, SourceSpecification, FilterSpecification, FillLayerSpecification, StyleSetterOptions } from 'maplibre-gl';

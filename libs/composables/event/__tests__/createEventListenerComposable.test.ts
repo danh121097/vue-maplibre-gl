@@ -4,7 +4,7 @@ import { withSetup } from '../../../test-utils';
 import {
   createEventListenerComposable,
   EventListenerStatus,
-} from '../create-event-listener-composable';
+} from '../createEventListenerComposable';
 
 // Mock target that mimics Evented interface (Map, GeolocateControl)
 function createMockTarget() {

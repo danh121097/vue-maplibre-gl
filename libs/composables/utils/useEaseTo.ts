@@ -1,6 +1,6 @@
 import { watchEffect, ref, computed, unref } from 'vue';
 import { useLogger } from '@libs/composables';
-import { createCameraAnimation } from './create-camera-animation';
+import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
 import type { MaybeRef } from 'vue';
 import type { Map, EaseToOptions, LngLatLike, CameraOptions } from 'maplibre-gl';
