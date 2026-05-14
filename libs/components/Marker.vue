@@ -1,5 +1,14 @@
 <script lang="ts" setup>
-import { computed, inject, ref, shallowRef, useSlots, watch } from 'vue';
+import {
+  computed,
+  inject,
+  onUpdated,
+  ref,
+  shallowRef,
+  useAttrs,
+  useSlots,
+  watch,
+} from 'vue';
 import { MapProvideKey } from '@libs/enums';
 import { useCreateMarker } from '@libs/composables';
 import type { Anchor } from '@libs/types';
@@ -59,6 +68,10 @@ interface Emits {
   (e: 'dragend', ev: Event): void;
 }
 
+defineOptions({
+  inheritAttrs: false,
+});
+
 // Component props with sensible defaults
 const props = withDefaults(defineProps<Partial<MarkerProps>>(), {
   options: () => ({}),
@@ -69,13 +82,16 @@ const emits = defineEmits<Emits>();
 
 // Slots for custom marker content
 const slots = useSlots();
+const attrs = useAttrs();
 
 // Injected dependencies
 const mapInstance = inject(MapProvideKey, shallowRef(null));
 const markerElRef = ref<HTMLElement>();
+const markerAttrNames = new Set<string>();
 
 if (typeof document !== 'undefined') {
   markerElRef.value = document.createElement('div');
+  syncMarkerAttrs();
 }
 
 // Computed properties for better performance
@@ -116,6 +132,43 @@ const eventHandlers = {
   },
 };
 
+function normalizeMarkerClass(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.map(normalizeMarkerClass).filter(Boolean).join(' ');
+  if (value && typeof value === 'object') {
+    return Object.entries(value)
+      .filter(([, enabled]) => enabled)
+      .map(([name]) => name)
+      .join(' ');
+  }
+  return '';
+}
+
+function syncMarkerAttrs() {
+  const el = markerElRef.value;
+  if (!el) return;
+
+  markerAttrNames.forEach((name) => el.removeAttribute(name));
+  markerAttrNames.clear();
+
+  Object.entries(attrs).forEach(([name, value]) => {
+    if (value == null || name.startsWith('on')) return;
+
+    if (name === 'class') {
+      el.className = normalizeMarkerClass(value);
+      return;
+    }
+
+    if (name === 'style') {
+      if (typeof value === 'string') el.setAttribute('style', value);
+      return;
+    }
+
+    el.setAttribute(name, String(value));
+    markerAttrNames.add(name);
+  });
+}
+
 // Create marker with optimized configuration
 const { setDraggable, setLngLat } = useCreateMarker({
   map: mapInstance,
@@ -145,6 +198,8 @@ watch(
     }
   },
 );
+
+onUpdated(syncMarkerAttrs);
 </script>
 <template>
   <Teleport v-if="markerElRef && hasCustomElement" :to="markerElRef">
