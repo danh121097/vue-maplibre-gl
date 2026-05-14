@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { inject, ref, useSlots, watch, computed, shallowRef } from 'vue';
+import { computed, inject, ref, shallowRef, useSlots, watch } from 'vue';
 import { MapProvideKey } from '@libs/enums';
 import { useCreateMarker } from '@libs/composables';
 import type { Anchor } from '@libs/types';
@@ -74,8 +74,12 @@ const slots = useSlots();
 const mapInstance = inject(MapProvideKey, shallowRef(null));
 const markerElRef = ref<HTMLElement>();
 
+if (typeof document !== 'undefined') {
+  markerElRef.value = document.createElement('div');
+}
+
 // Computed properties for better performance
-const hasCustomElement = computed(() => Boolean(slots.default?.()));
+const hasCustomElement = computed(() => Boolean(slots.default));
 
 const markerOptions = computed(() => ({
   ...props.options,
@@ -143,7 +147,7 @@ watch(
 );
 </script>
 <template>
-  <div ref="markerElRef">
+  <Teleport v-if="markerElRef && hasCustomElement" :to="markerElRef">
     <slot />
-  </div>
+  </Teleport>
 </template>

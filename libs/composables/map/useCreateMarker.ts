@@ -1,6 +1,5 @@
 import { isBrowser } from '@libs/helpers';
 import {
-  watchEffect,
   watch,
   unref,
   shallowRef,
@@ -178,16 +177,24 @@ export function useCreateMarker({
     }
   }
 
-  // Watch for map changes and manage marker lifecycle
-  watchEffect((onCleanUp) => {
-    const map = mapInstance.value;
-    if (map && markerStatus.value === MarkerStatus.NotCreated) {
-      createMarker();
-    } else if (!map && markerStatus.value === MarkerStatus.Created) {
-      removeMarker();
-    }
-    onCleanUp(removeMarker);
-  });
+  watch(
+    mapInstance,
+    (map, previousMap) => {
+      if (previousMap && previousMap !== map) {
+        removeMarker();
+      }
+
+      if (map && markerStatus.value === MarkerStatus.NotCreated) {
+        createMarker();
+        return;
+      }
+
+      if (!map) {
+        removeMarker();
+      }
+    },
+    { immediate: true },
+  );
 
   // Watch for popup changes
   watch(popupValue, (newPopup) => {
