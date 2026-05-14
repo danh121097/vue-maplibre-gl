@@ -2,6 +2,8 @@
 import {
   computed,
   inject,
+  nextTick,
+  onMounted,
   onUpdated,
   ref,
   shallowRef,
@@ -87,6 +89,7 @@ const attrs = useAttrs();
 // Injected dependencies
 const mapInstance = inject(MapProvideKey, shallowRef(null));
 const markerElRef = ref<HTMLElement>();
+const canCreateMarker = ref(false);
 const markerAttrNames = new Set<string>();
 
 if (typeof document !== 'undefined') {
@@ -96,6 +99,7 @@ if (typeof document !== 'undefined') {
 
 // Computed properties for better performance
 const hasCustomElement = computed(() => Boolean(slots.default));
+const markerMapInstance = computed(() => (canCreateMarker.value ? mapInstance.value : null));
 
 const markerOptions = computed(() => ({
   ...props.options,
@@ -171,7 +175,7 @@ function syncMarkerAttrs() {
 
 // Create marker with optimized configuration
 const { setDraggable, setLngLat } = useCreateMarker({
-  map: mapInstance,
+  map: markerMapInstance,
   el: hasCustomElement.value ? markerElRef : undefined,
   lnglat: props.lnglat,
   popup: props.popup,
@@ -199,7 +203,18 @@ watch(
   },
 );
 
-onUpdated(syncMarkerAttrs);
+function syncMarkerDom() {
+  syncMarkerAttrs();
+  if (props.lnglat) setLngLat(props.lnglat);
+}
+
+onMounted(async () => {
+  await nextTick();
+  syncMarkerAttrs();
+  canCreateMarker.value = true;
+});
+
+onUpdated(syncMarkerDom);
 </script>
 <template>
   <Teleport v-if="markerElRef && hasCustomElement" :to="markerElRef">
