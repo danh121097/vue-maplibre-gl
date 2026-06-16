@@ -193,6 +193,21 @@ export interface StyleFunction {
   default?: any;
   colorSpace?: 'rgb' | 'lab' | 'hcl';
 }
+
+/**
+ * Screen-space offset `[x, y]` in pixels applied to a layer's geometry.
+ * @see https://maplibre.org/maplibre-style-spec/layers/
+ */
+export type Translate = [number, number];
+
+/** Frame of reference for `*-translate` offsets. */
+export type TranslateAnchor = 'map' | 'viewport';
+
+/** Scaling behavior of circles relative to the map plane or viewport. */
+export type PitchScale = 'map' | 'viewport';
+
+/** Orientation of circles relative to the map plane or viewport. */
+export type PitchAlignment = 'map' | 'viewport';
 export interface FillLayout extends Layout {
   'fill-sort-key'?: number | Expressions | undefined;
 }
@@ -202,8 +217,8 @@ export interface FillPaint {
   'fill-opacity'?: number | StyleFunction | Expressions | undefined;
   'fill-color'?: string | StyleFunction | Expressions | undefined;
   'fill-outline-color'?: string | StyleFunction | Expressions | undefined;
-  'fill-translate'?: any;
-  'fill-translate-anchor'?: any;
+  'fill-translate'?: Translate | Expressions | undefined;
+  'fill-translate-anchor'?: TranslateAnchor | Expressions | undefined;
   'fill-pattern'?: string | Expressions | undefined;
 }
 
@@ -218,10 +233,10 @@ export interface CirclePaint {
   'circle-color'?: string | StyleFunction | Expressions | undefined;
   'circle-blur'?: number | StyleFunction | Expressions | undefined;
   'circle-opacity'?: number | StyleFunction | Expressions | undefined;
-  'circle-translate'?: any;
-  'circle-translate-anchor'?: any;
-  'circle-pitch-scale'?: any;
-  'circle-pitch-alignment'?: any;
+  'circle-translate'?: Translate | Expressions | undefined;
+  'circle-translate-anchor'?: TranslateAnchor | Expressions | undefined;
+  'circle-pitch-scale'?: PitchScale | Expressions | undefined;
+  'circle-pitch-alignment'?: PitchAlignment | Expressions | undefined;
   'circle-stroke-width'?: number | StyleFunction | Expressions | undefined;
   'circle-stroke-color'?: string | StyleFunction | Expressions | undefined;
   'circle-stroke-opacity'?: number | StyleFunction | Expressions | undefined;
@@ -240,8 +255,8 @@ export interface LineLayout extends Layout {
 export interface LinePaint {
   'line-opacity'?: number | StyleFunction | Expressions | undefined;
   'line-color'?: string | StyleFunction | Expressions | undefined;
-  'line-translate'?: any;
-  'line-translate-anchor'?: any;
+  'line-translate'?: Translate | Expressions | undefined;
+  'line-translate-anchor'?: TranslateAnchor | Expressions | undefined;
   'line-width'?: number | StyleFunction | Expressions | undefined;
   'line-gap-width'?: number | StyleFunction | Expressions | undefined;
   'line-offset'?: number | StyleFunction | Expressions | undefined;
@@ -249,6 +264,7 @@ export interface LinePaint {
   'line-dasharray'?: number[] | Expressions | undefined;
   'line-pattern'?: string | Expressions | undefined;
   'line-gradient'?: Expressions | undefined;
+  'line-trim-offset'?: [number, number] | Expressions | undefined;
 }
 
 export type LineLayerStyle = LineLayout & LinePaint;
@@ -317,15 +333,19 @@ export interface SymbolPaint {
   'icon-halo-color'?: string | StyleFunction | Expressions | undefined;
   'icon-halo-width'?: number | StyleFunction | Expressions | undefined;
   'icon-halo-blur'?: number | StyleFunction | Expressions | undefined;
-  'icon-translate'?: any;
-  'icon-translate-anchor'?: any;
+  'icon-translate'?: Translate | Expressions | undefined;
+  'icon-translate-anchor'?: TranslateAnchor | Expressions | undefined;
   'text-opacity'?: number | StyleFunction | Expressions | undefined;
   'text-color'?: string | StyleFunction | Expressions | undefined;
   'text-halo-color'?: string | StyleFunction | Expressions | undefined;
   'text-halo-width'?: number | StyleFunction | Expressions | undefined;
   'text-halo-blur'?: number | StyleFunction | Expressions | undefined;
-  'text-translate'?: any;
-  'text-translate-anchor'?: any;
+  'text-translate'?: Translate | Expressions | undefined;
+  'text-translate-anchor'?: TranslateAnchor | Expressions | undefined;
+  'icon-opacity-transition'?: {
+    duration?: number;
+    delay?: number;
+  };
 }
 
 export type SymbolLayerStyle = SymbolLayout & SymbolPaint;
