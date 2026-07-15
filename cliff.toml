@@ -1,0 +1,36 @@
+# git-cliff config — generates ONLY the newest version section for docs/changelog.md.
+# The section is injected under the existing "# Changelog" title (curated history preserved).
+# Commits use emoji-prefixed conventional format, e.g. "🐛fix(ci): stop noise".
+
+[changelog]
+# No header/footer: we inject the rendered body under the file's existing title.
+header = ""
+body = """
+## {{ version }}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{% for commit in commits %}
+- {{ commit.message | split(pat=": ") | last | trim | upper_first }}
+{% endfor %}{% endfor %}"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+# Strip the leading emoji so "🐛fix(ci): x" parses as conventional "fix(ci): x".
+commit_preprocessors = [{ pattern = '^[^0-9A-Za-z]+', replace = "" }]
+commit_parsers = [
+  { message = "^feat", group = "✨ Features" },
+  { message = "^fix", group = "🐛 Bug Fixes" },
+  { message = "^perf", group = "🚀 Performance" },
+  { message = "^refactor", group = "📦 Refactor" },
+  { message = "^docs", group = "📚 Documentation" },
+  { message = "^test", group = "🚨 Tests" },
+  { message = "^build", group = "🛠 Build" },
+  { message = "^ci", group = "⚙️ CI" },
+  { message = "^style", group = "💎 Styles" },
+  { message = "^revert", group = "⏪ Revert" },
+  { message = "^chore", skip = true },
+]
+filter_commits = true
+tag_pattern = "v[0-9]*"
