@@ -1,4 +1,21 @@
 export { isBrowser } from './ssr-guard';
+
+/**
+ * Flatten a Vue `class` binding value (string | array | object) into a list of
+ * class tokens. Used to forward fallthrough `class` onto the element MapLibre
+ * owns, since Teleport-root components can't inherit attributes automatically.
+ */
+export function normalizeClassTokens(value: unknown): string[] {
+  if (!value) return [];
+  if (typeof value === 'string') return value.split(/\s+/).filter(Boolean);
+  if (Array.isArray(value)) return value.flatMap(normalizeClassTokens);
+  if (typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>)
+      .filter(([, enabled]) => enabled)
+      .map(([token]) => token);
+  }
+  return [];
+}
 import { getVersion } from 'maplibre-gl';
 import { nanoid } from 'nanoid';
 import type { LngLatLike, Map } from 'maplibre-gl';

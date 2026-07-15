@@ -1,9 +1,22 @@
 <script lang="ts" setup>
-import { inject, ref, useSlots, watch, computed, shallowRef } from 'vue';
+import {
+  inject,
+  ref,
+  useSlots,
+  useAttrs,
+  watch,
+  watchEffect,
+  computed,
+  shallowRef,
+} from 'vue';
 import { MapProvideKey } from '@libs/enums';
 import { useCreatePopup } from '@libs/composables';
-import { isBrowser } from '@libs/helpers';
+import { isBrowser, normalizeClassTokens } from '@libs/helpers';
 import type { LngLatLike, PopupOptions } from 'maplibre-gl';
+
+// The Teleport root can't inherit fallthrough attributes; we forward `class`
+// onto the detached content element instead (see below).
+defineOptions({ inheritAttrs: false });
 
 /**
  * Props interface for Popup component
@@ -69,6 +82,22 @@ if (Boolean(slots.default?.()) && isBrowser) {
   contentEl.className = 'maplibregl-popup-content-inner';
   popupElRef.value = contentEl;
 }
+
+// Forward the fallthrough `class` onto the detached content element (additively,
+// preserving the base class above). Without this, classes passed to <Popup class>
+// would be dropped because the Teleport root has no element to inherit them.
+const attrs = useAttrs();
+let forwardedClasses: string[] = [];
+watchEffect(() => {
+  const el = popupElRef.value;
+  if (!el) return;
+  const nextClasses: string[] = normalizeClassTokens(attrs.class);
+  forwardedClasses
+    .filter((token) => !nextClasses.includes(token))
+    .forEach((token) => el.classList.remove(token));
+  nextClasses.forEach((token) => el.classList.add(token));
+  forwardedClasses = nextClasses;
+});
 
 // Computed properties for better performance
 const popupOptions = computed(() => ({

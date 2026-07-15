@@ -1,8 +1,21 @@
 <script lang="ts" setup>
-import { inject, ref, useSlots, watch, computed, shallowRef } from 'vue';
+import {
+  inject,
+  ref,
+  useSlots,
+  useAttrs,
+  watch,
+  watchEffect,
+  computed,
+  shallowRef,
+} from 'vue';
 import { MapProvideKey } from '@libs/enums';
 import { useCreateMarker } from '@libs/composables';
-import { isBrowser } from '@libs/helpers';
+import { isBrowser, normalizeClassTokens } from '@libs/helpers';
+
+// The Teleport root can't inherit fallthrough attributes; we forward `class`
+// onto the detached element MapLibre positions (see below) instead.
+defineOptions({ inheritAttrs: false });
 import type { Anchor } from '@libs/types';
 import type {
   LngLatLike,
@@ -90,6 +103,23 @@ const hasCustomElement = computed(() => Boolean(slots.default?.()));
 if (hasCustomElement.value && isBrowser) {
   markerElRef.value = document.createElement('div');
 }
+
+// Forward the fallthrough `class` onto the detached element (additively, so
+// MapLibre's own `maplibregl-marker` class is preserved). Without this, classes
+// like z-index utilities passed to <Marker class="..."> would be dropped because
+// the Teleport root has no element to inherit them.
+const attrs = useAttrs();
+let forwardedClasses: string[] = [];
+watchEffect(() => {
+  const el = markerElRef.value;
+  if (!el) return;
+  const nextClasses: string[] = normalizeClassTokens(attrs.class);
+  forwardedClasses
+    .filter((token) => !nextClasses.includes(token))
+    .forEach((token) => el.classList.remove(token));
+  nextClasses.forEach((token) => el.classList.add(token));
+  forwardedClasses = nextClasses;
+});
 
 const markerOptions = computed(() => ({
   ...props.options,
