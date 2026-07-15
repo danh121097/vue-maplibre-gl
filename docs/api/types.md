@@ -304,6 +304,158 @@ interface GeolocateEventTypes {
 }
 ```
 
+## Event Handler Types
+
+These are the function signatures (callback shapes) you use when listening to map, layer, and geolocate events. Use them to type the callback you pass to an event listener or composable, so your editor autocompletes the event payload correctly.
+
+### MapClickHandler
+
+The function signature for handling a click anywhere on the map.
+
+```typescript
+type MapClickHandler = (e: MapMouseEvent) => void;
+```
+
+```ts
+const onMapClick: MapClickHandler = (e) => {
+  console.log('Clicked at', e.lngLat);
+};
+```
+
+### MapMoveHandler
+
+The function signature for handling the map's `move` event (fired while the map is panned or zoomed).
+
+```typescript
+type MapMoveHandler = (e: Event) => void;
+```
+
+```ts
+const onMapMove: MapMoveHandler = (e) => {
+  console.log('Map is moving');
+};
+```
+
+### MapZoomHandler
+
+The function signature for handling the map's `zoom` event.
+
+```typescript
+type MapZoomHandler = (e: Event) => void;
+```
+
+```ts
+const onMapZoom: MapZoomHandler = (e) => {
+  console.log('Map zoom changed');
+};
+```
+
+### MapTouchHandler
+
+The function signature for handling touch interactions on the map (tap, swipe, pinch) on touch devices.
+
+```typescript
+type MapTouchHandler = (e: MapTouchEvent) => void;
+```
+
+```ts
+const onMapTouch: MapTouchHandler = (e) => {
+  console.log('Touched at', e.lngLat);
+};
+```
+
+### MapWheelHandler
+
+The function signature for handling mouse wheel scroll events on the map (used for scroll-to-zoom).
+
+```typescript
+type MapWheelHandler = (e: MapWheelEvent) => void;
+```
+
+```ts
+const onMapWheel: MapWheelHandler = (e) => {
+  console.log('Wheel delta', e.originalEvent.deltaY);
+};
+```
+
+### LayerClickHandler
+
+The function signature for handling a click on a specific layer. The event includes the `features` under the pointer, so you can read which feature(s) were clicked.
+
+```typescript
+type LayerClickHandler = (e: MapMouseEvent & { features?: GeoJSON.Feature[] }) => void;
+```
+
+```vue
+<script setup lang="ts">
+import { GeoJsonSource, CircleLayer } from 'vue3-maplibre-gl';
+import type { LayerClickHandler } from 'vue3-maplibre-gl';
+
+const onLayerClick: LayerClickHandler = (e) => {
+  console.log('Clicked feature:', e.features?.[0]);
+};
+</script>
+
+<template>
+  <GeoJsonSource :data="points">
+    <CircleLayer id="points" :style="circleStyle" @click="onLayerClick" />
+  </GeoJsonSource>
+</template>
+```
+
+### LayerMouseHandler
+
+The function signature for handling mouse events on a layer, such as hover (`mouseenter`/`mousemove`/`mouseleave`). Like `LayerClickHandler`, it also exposes the `features` under the pointer.
+
+```typescript
+type LayerMouseHandler = (e: MapMouseEvent & { features?: GeoJSON.Feature[] }) => void;
+```
+
+```vue
+<script setup lang="ts">
+import { GeoJsonSource, FillLayer } from 'vue3-maplibre-gl';
+import type { LayerMouseHandler } from 'vue3-maplibre-gl';
+
+const onLayerHover: LayerMouseHandler = (e) => {
+  console.log('Hovering feature:', e.features?.[0]);
+};
+</script>
+
+<template>
+  <GeoJsonSource :data="regions">
+    <FillLayer id="regions" :style="fillStyle" @mousemove="onLayerHover" />
+  </GeoJsonSource>
+</template>
+```
+
+### GeolocateHandler
+
+The function signature for handling a successful geolocation result (e.g. when the user's location is found by the geolocate control).
+
+```typescript
+type GeolocateHandler = (e: GeolocateSuccess) => void;
+```
+
+```ts
+const onGeolocate: GeolocateHandler = (e) => {
+  console.log('User is at', e.coords.latitude, e.coords.longitude);
+};
+```
+
+### GeolocateErrorHandler
+
+The function signature for handling a geolocation failure (e.g. the user denied location permission).
+
+```typescript
+type GeolocateErrorHandler = (e: GeolocationPositionError) => void;
+```
+
+```ts
+const onGeolocateError: GeolocateErrorHandler = (e) => {
+  console.error('Geolocation failed:', e.message);
+};
+```
+
 ## Re-exported MapLibre GL Types
 
 Vue3 MapLibre GL re-exports all relevant MapLibre GL JS types for convenience:
