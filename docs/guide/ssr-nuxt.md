@@ -288,7 +288,7 @@ Ensures components only render in the browser:
 
 ## Deployment Considerations
 
-### Nuxt SSR Deployment (Vercel, Netlify, etc.)
+### Nuxt SSR Deployment (Cloudflare, Vercel, Netlify, etc.)
 
 1. **Module handles everything** - Deploy as normal
 2. **Check build logs** - Verify maplibre-gl excluded from server build
