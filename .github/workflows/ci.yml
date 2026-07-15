@@ -61,14 +61,19 @@ jobs:
         env:
           NODE_ENV: production
 
-      # Idempotent: creates the Pages project on first run; harmless "already exists" error on later runs is ignored.
+      # Self-provision the Pages project on first run only; on later runs it already
+      # exists, so we skip creation cleanly instead of emitting an "already exists" error.
       - name: Ensure Cloudflare Pages project exists
-        continue-on-error: true
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages project create vue-maplibre-gl --production-branch=master
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if ! bunx wrangler pages project list | grep -q 'vue-maplibre-gl'; then
+            echo "Project not found — creating..."
+            bunx wrangler pages project create vue-maplibre-gl --production-branch=master
+          else
+            echo "Project already exists — skipping creation."
+          fi
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
