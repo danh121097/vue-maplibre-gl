@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { inject, ref, watch, computed, shallowRef } from 'vue';
+import { inject, ref, useSlots, watch, computed, shallowRef } from 'vue';
 import { MapProvideKey } from '@libs/enums';
 import { useCreatePopup } from '@libs/composables';
+import { isBrowser } from '@libs/helpers';
 import type { LngLatLike, PopupOptions } from 'maplibre-gl';
 
 /**
@@ -56,9 +57,18 @@ const props = withDefaults(defineProps<Partial<PopupProps>>(), {
 // Component events
 const emits = defineEmits<Emits>();
 
+// Slots for custom popup content
+const slots = useSlots();
+
 // Injected dependencies
 const mapInstance = inject(MapProvideKey, shallowRef(null));
 const popupElRef = ref<HTMLElement>();
+
+if (Boolean(slots.default?.()) && isBrowser) {
+  const contentEl = document.createElement('div');
+  contentEl.className = 'maplibregl-popup-content-inner';
+  popupElRef.value = contentEl;
+}
 
 // Computed properties for better performance
 const popupOptions = computed(() => ({
@@ -114,7 +124,7 @@ watch(
 );
 </script>
 <template>
-  <div ref="popupElRef" class="Maplibregl-popup-content-inner">
+  <Teleport v-if="popupElRef" :to="popupElRef">
     <slot />
-  </div>
+  </Teleport>
 </template>

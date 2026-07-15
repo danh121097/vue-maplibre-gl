@@ -2,6 +2,7 @@
 import { inject, ref, useSlots, watch, computed, shallowRef } from 'vue';
 import { MapProvideKey } from '@libs/enums';
 import { useCreateMarker } from '@libs/composables';
+import { isBrowser } from '@libs/helpers';
 import type { Anchor } from '@libs/types';
 import type {
   LngLatLike,
@@ -77,6 +78,19 @@ const markerElRef = ref<HTMLElement>();
 // Computed properties for better performance
 const hasCustomElement = computed(() => Boolean(slots.default?.()));
 
+// Give MapLibre a DETACHED element to own. MapLibre's Marker.addTo() appends
+// its element into the map's canvas container, physically relocating it out of
+// wherever it was mounted. If that element were a node in this component's
+// template flow, Vue would keep using it as a sibling anchor for fragment/list
+// patching and later call parent.insertBefore(newNode, relocatedNode) — which
+// throws "NotFoundError: ... insertBefore ... not a child of this node" once a
+// parent re-renders its marker list. Teleporting the slot into a detached div
+// (below) leaves only a stable comment anchor in the template flow, so Vue never
+// anchors against a node MapLibre has moved.
+if (hasCustomElement.value && isBrowser) {
+  markerElRef.value = document.createElement('div');
+}
+
 const markerOptions = computed(() => ({
   ...props.options,
   ...(props.draggable !== undefined && { draggable: props.draggable }),
@@ -143,7 +157,7 @@ watch(
 );
 </script>
 <template>
-  <div ref="markerElRef">
+  <Teleport v-if="markerElRef" :to="markerElRef">
     <slot />
-  </div>
+  </Teleport>
 </template>
