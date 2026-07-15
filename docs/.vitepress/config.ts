@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-  title: 'Vue3 MapLibre GL',
-  description: 'The most comprehensive Vue 3 library for MapLibre GL JS — 10+ components, 15+ composables, full TypeScript support',
+  title: 'Vue 3 MapLibre GL',
+  description: 'Interactive maps for Vue 3 — 10 components and 50+ composables for MapLibre GL JS, fully typed with TypeScript.',
   base: '/',
   ignoreDeadLinks: false,
   srcExclude: [
@@ -17,10 +17,11 @@ export default defineConfig({
   cleanUrls: true,
 
   head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     ['meta', { name: 'theme-color', content: '#10b981' }],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:title', content: 'Vue3 MapLibre GL' }],
-    ['meta', { property: 'og:description', content: 'Build interactive maps with Vue 3 and MapLibre GL JS' }],
+    ['meta', { property: 'og:title', content: 'Vue 3 MapLibre GL' }],
+    ['meta', { property: 'og:description', content: 'Interactive maps for Vue 3 — 10 components and 50+ composables for MapLibre GL JS, fully typed with TypeScript.' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
   ],
 
