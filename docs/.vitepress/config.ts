@@ -106,8 +106,10 @@ export default defineConfig({
     },
 
     footer: {
-      message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024-present Danh Nguyen',
+      message:
+        'Released under the <a href="https://github.com/danh121097/vue-maplibre-gl/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>.',
+      copyright:
+        'Copyright © 2024–present <a href="https://harrynguyen.work" target="_blank" rel="noopener noreferrer">Harry Nguyen</a>',
     },
   },
 });
