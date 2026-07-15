@@ -25,7 +25,7 @@ export default defineConfig({
   ],
 
   sitemap: {
-    hostname: 'https://danh121097.github.io/vue-maplibre-gl/',
+    hostname: 'https://vue-maplibre-gl.pages.dev/',
   },
 
   themeConfig: {
