@@ -244,6 +244,49 @@ watch(source, (value) => {
 
 For `useMemoized`, any small memoise helper (or `lodash.memoize`) does the same job.
 
+## `MarkerStatus.Removed` and `PopupStatus.Removed` were removed
+
+Both enums carried a `Removed` member that was assigned and then immediately
+overwritten with `NotCreated` in the same teardown path, so no consumer could
+ever observe it. Watching for it meant watching for a state the library never
+published.
+
+A removed marker is exactly a marker that has not been created — the map watcher
+recreates one from `NotCreated` — so the two are the same state and now have one
+name:
+
+```ts
+// v5: never fired, because NotCreated always won the race
+watch(markerStatus, (s) => {
+  if (s === MarkerStatus.Removed) teardown();
+});
+
+// v6
+watch(markerStatus, (s) => {
+  if (s === MarkerStatus.NotCreated) teardown();
+});
+```
+
+The same applies to `PopupStatus`. Every other member of both enums is
+unchanged.
+
+## `useCreateMaplibre().checkInitMap` was removed
+
+`checkInitMap` guarded initialisation on the presence of a `center` or `bounds`,
+but nothing ever called it: the `watchEffect` that creates the map called
+`initMap` directly. Routing initialisation through the guard would have been a
+regression rather than a fix — a map with neither option is valid, and MapLibre
+defaults it to `[0, 0]` at zoom 0.
+
+Call `initMap()` if you were reaching for it, and apply your own precondition
+first if you need one:
+
+```ts
+const { initMap } = useCreateMaplibre(props);
+
+if (props.options?.center) initMap();
+```
+
 ## Other fixes in v6
 
 These need no code change on your side.

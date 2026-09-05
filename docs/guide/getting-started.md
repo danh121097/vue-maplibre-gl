@@ -237,7 +237,7 @@ const { flyTo } = useFlyTo({ map: mapInstance });
 useMapEventListener({
   map: mapInstance,
   event: 'click',
-  handler: (event) => {
+  on: (event) => {
     console.log('Map clicked at:', event.lngLat);
     flyTo({
       center: event.lngLat,

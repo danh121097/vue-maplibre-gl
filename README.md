@@ -289,7 +289,7 @@ const { setData } = useCreateGeoJsonSource({
 useMapEventListener({
   map: mapInstance,
   event: 'click',
-  handler: (event) => {
+  on: (event) => {
     flyTo({
       center: event.lngLat,
       zoom: 12,

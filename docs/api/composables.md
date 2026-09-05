@@ -78,28 +78,50 @@ watch(isMapReady, (ready) => {
 
 ### useMaplibre
 
-A simplified composable for basic map operations and state management.
+Reads the map registered by an ancestor `<Maplibre>` rather than creating one,
+so it is the composable to reach for inside a child component.
 
 #### Parameters
 
-| Parameter | Type               | Description           |
-| --------- | ------------------ | --------------------- |
-| `props`   | `UseMaplibreProps` | Configuration options |
+| Parameter             | Type      | Default | Description                                |
+| --------------------- | --------- | ------- | ------------------------------------------ |
+| `options`             | `object`  | `{}`    | Configuration options                      |
+| `options.debug`       | `boolean` | `false` | Log registration and map operations        |
+| `options.autoCleanup` | `boolean` | `true`  | Release the registered instance on unmount |
 
 #### Returns
 
-| Property      | Type                       | Description              |
-| ------------- | -------------------------- | ------------------------ |
-| `mapInstance` | `ComputedRef<Map \| null>` | Reactive map instance    |
-| `isReady`     | `ComputedRef<boolean>`     | Whether the map is ready |
+| Property        | Type                                           | Description                              |
+| --------------- | ---------------------------------------------- | ---------------------------------------- |
+| `mapInstance`   | `ComputedRef<Map \| null>`                     | Reactive map instance                    |
+| `mapStatus`     | `ComputedRef<MapCreationStatus>`               | Current creation status                  |
+| `isMapReady`    | `ComputedRef<boolean>`                         | Whether the map is ready for operations  |
+| `isMapLoading`  | `ComputedRef<boolean>`                         | Whether the map is currently loading     |
+| `hasMapError`   | `ComputedRef<boolean>`                         | Whether map creation failed              |
+| `isRegistered`  | `ComputedRef<boolean>`                         | Whether an instance has been registered  |
+| `register`      | `(instance: MaplibreActions) => Promise<void>` | Register an actions instance             |
+| `setMapOptions` | `(options: Partial<MapOptions>) => void`       | Apply options to the registered instance |
+
+It also spreads in every accessor and setter of [`MaplibreMethods`](/api/types#maplibremethods)
+— `getCenter`, `getZoom`, `queryRenderedFeatures`, `setStyle`, `flyTo` and the
+rest — each of which no-ops while no map is registered.
+
+The status field is `mapStatus`, not `mapCreationStatus`, and there are no
+lifecycle methods: `initMap`, `removeMap` and `destroyMap` belong to
+`useCreateMaplibre`, which owns the map.
 
 #### Example
 
 ```typescript
 import { useMaplibre } from 'vue3-maplibre-gl';
 
-const { mapInstance, isReady } = useMaplibre({
+const { mapInstance, isMapReady, mapStatus } = useMaplibre({
   debug: true,
+});
+
+// Every field is a ComputedRef — read it with .value in script, unwrapped in template
+watch(isMapReady, (ready) => {
+  if (ready) console.log(mapInstance.value?.getZoom());
 });
 ```
 
@@ -175,8 +197,8 @@ function useCreateImage(props: CreateImageProps): CreateImageActions;
 | `updateImage`  | `(newImage: ImageDatas \| string) => Promise<void>`              | Replace the current image                                              |
 | `refreshImage` | `() => Promise<void>`                                            | Re-apply the current image                                             |
 | `hasImage`     | `() => boolean`                                                  | Whether the image currently exists on the map                          |
-| `imageStatus`  | `Readonly<ImageStatus>`                                          | `'not-created' \| 'loading' \| 'created' \| 'updated' \| 'error'`      |
-| `isImageReady` | `boolean`                                                        | Whether the image is created or updated                                |
+| `imageStatus`  | `ComputedRef<ImageStatus>`                                       | `'not-created' \| 'loading' \| 'created' \| 'updated' \| 'error'`      |
+| `isImageReady` | `ComputedRef<boolean>`                                           | Whether the image is created or updated                                |
 | `loadPromise`  | `Promise<void>`                                                  | Resolves once the image is first added, rejects if removed or on error |
 
 #### Example
@@ -222,28 +244,28 @@ function useCreateMarker(props: CreateMarkerProps): CreateMarkerActions;
 
 #### Returns
 
-| Property               | Type                                                     | Description                                                        |
-| ---------------------- | -------------------------------------------------------- | ------------------------------------------------------------------ |
-| `marker`               | `Readonly<Marker \| null>`                               | The underlying MapLibre `Marker` instance                          |
-| `markerStatus`         | `Readonly<MarkerStatus>`                                 | `'not-created' \| 'creating' \| 'created' \| 'error' \| 'removed'` |
-| `isMarkerCreated`      | `boolean`                                                | Whether the marker has been created                                |
-| `setLngLat`            | `(lnglat: LngLatLike) => void`                           | Move the marker                                                    |
-| `setPopup`             | `(popup?: Popup \| null) => void`                        | Attach/detach a popup                                              |
-| `setOffset`            | `(offset: PointLike) => void`                            | Set pixel offset                                                   |
-| `setDraggable`         | `(draggable: boolean) => void`                           | Toggle draggable state                                             |
-| `togglePopup`          | `() => void`                                             | Open/close the attached popup                                      |
-| `getElement`           | `() => HTMLElement \| null`                              | Get the marker's DOM element                                       |
-| `setRotation`          | `(rotation: number) => void`                             | Set rotation in degrees                                            |
-| `setRotationAlignment` | `(alignment: Alignment) => void`                         | Set rotation alignment                                             |
-| `setPitchAlignment`    | `(alignment: Alignment) => void`                         | Set pitch alignment                                                |
-| `setOpacity`           | `(opacity: string, opacityWhenCovered?: string) => void` | Set opacity                                                        |
-| `removeMarker`         | `() => void`                                             | Remove the marker from the map                                     |
-| `addMarker`            | `() => void`                                             | Add the marker back to the map                                     |
-| `getLngLat`            | `() => LngLatLike \| null`                               | Current position                                                   |
-| `getPopup`             | `() => Popup \| null`                                    | Currently attached popup                                           |
-| `getOffset`            | `() => PointLike`                                        | Current pixel offset                                               |
-| `getDraggable`         | `() => boolean`                                          | Whether the marker is draggable                                    |
-| `getRotation`          | `() => number`                                           | Current rotation                                                   |
+| Property               | Type                                                     | Description                                           |
+| ---------------------- | -------------------------------------------------------- | ----------------------------------------------------- |
+| `marker`               | `ComputedRef<Marker \| null>`                            | The underlying MapLibre `Marker` instance             |
+| `markerStatus`         | `ComputedRef<MarkerStatus>`                              | `'not-created' \| 'creating' \| 'created' \| 'error'` |
+| `isMarkerCreated`      | `ComputedRef<boolean>`                                   | Whether the marker has been created                   |
+| `setLngLat`            | `(lnglat: LngLatLike) => void`                           | Move the marker                                       |
+| `setPopup`             | `(popup?: Popup \| null) => void`                        | Attach/detach a popup                                 |
+| `setOffset`            | `(offset: PointLike) => void`                            | Set pixel offset                                      |
+| `setDraggable`         | `(draggable: boolean) => void`                           | Toggle draggable state                                |
+| `togglePopup`          | `() => void`                                             | Open/close the attached popup                         |
+| `getElement`           | `() => HTMLElement \| null`                              | Get the marker's DOM element                          |
+| `setRotation`          | `(rotation: number) => void`                             | Set rotation in degrees                               |
+| `setRotationAlignment` | `(alignment: Alignment) => void`                         | Set rotation alignment                                |
+| `setPitchAlignment`    | `(alignment: Alignment) => void`                         | Set pitch alignment                                   |
+| `setOpacity`           | `(opacity: string, opacityWhenCovered?: string) => void` | Set opacity                                           |
+| `removeMarker`         | `() => void`                                             | Remove the marker from the map                        |
+| `addMarker`            | `() => void`                                             | Add the marker back to the map                        |
+| `getLngLat`            | `() => LngLatLike \| null`                               | Current position                                      |
+| `getPopup`             | `() => Popup \| null`                                    | Currently attached popup                              |
+| `getOffset`            | `() => PointLike`                                        | Current pixel offset                                  |
+| `getDraggable`         | `() => boolean`                                          | Whether the marker is draggable                       |
+| `getRotation`          | `() => number`                                           | Current rotation                                      |
 
 #### Example
 
@@ -297,28 +319,28 @@ function useCreatePopup(props: CreatePopupProps): CreatePopupActions;
 
 #### Returns
 
-| Property          | Type                             | Description                                                                              |
-| ----------------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
-| `popup`           | `Readonly<Popup \| null>`        | The underlying MapLibre `Popup` instance                                                 |
-| `popupStatus`     | `Readonly<PopupStatus>`          | `'not-created' \| 'creating' \| 'created' \| 'open' \| 'closed' \| 'error' \| 'removed'` |
-| `isPopupCreated`  | `boolean`                        | Whether the popup has been created                                                       |
-| `isPopupOpen`     | `boolean`                        | Whether the popup is currently open                                                      |
-| `setLngLat`       | `(lnglat: LngLatLike) => void`   | Move the popup                                                                           |
-| `setOffset`       | `(offset: PointLike) => void`    | Set pixel offset                                                                         |
-| `addClassName`    | `(className: string) => void`    | Add a CSS class to the popup                                                             |
-| `removeClassName` | `(className: string) => void`    | Remove a CSS class                                                                       |
-| `setMaxWidth`     | `(width: string) => void`        | Set max width (CSS value)                                                                |
-| `show`            | `() => void`                     | Show the popup on the map                                                                |
-| `hide`            | `() => void`                     | Hide the popup from the map                                                              |
-| `toggle`          | `() => void`                     | Toggle visibility                                                                        |
-| `addToMap`        | `() => void`                     | Add popup to map without opening it                                                      |
-| `setHTMLContent`  | `(html?: string) => void`        | Update HTML content                                                                      |
-| `setDOMContent`   | `(element: HTMLElement) => void` | Update DOM content                                                                       |
-| `setText`         | `(text: string) => void`         | Update text content (escaped)                                                            |
-| `removePopup`     | `() => void`                     | Remove and clean up the popup                                                            |
-| `createPopup`     | `() => void`                     | Manually (re)create the popup                                                            |
-| `getLngLat`       | `() => LngLatLike \| null`       | Current position                                                                         |
-| `getElement`      | `() => HTMLElement \| null`      | Popup's DOM element                                                                      |
+| Property          | Type                             | Description                                                                 |
+| ----------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| `popup`           | `ComputedRef<Popup \| null>`     | The underlying MapLibre `Popup` instance                                    |
+| `popupStatus`     | `ComputedRef<PopupStatus>`       | `'not-created' \| 'creating' \| 'created' \| 'open' \| 'closed' \| 'error'` |
+| `isPopupCreated`  | `ComputedRef<boolean>`           | Whether the popup has been created                                          |
+| `isPopupOpen`     | `ComputedRef<boolean>`           | Whether the popup is currently open                                         |
+| `setLngLat`       | `(lnglat: LngLatLike) => void`   | Move the popup                                                              |
+| `setOffset`       | `(offset: PointLike) => void`    | Set pixel offset                                                            |
+| `addClassName`    | `(className: string) => void`    | Add a CSS class to the popup                                                |
+| `removeClassName` | `(className: string) => void`    | Remove a CSS class                                                          |
+| `setMaxWidth`     | `(width: string) => void`        | Set max width (CSS value)                                                   |
+| `show`            | `() => void`                     | Show the popup on the map                                                   |
+| `hide`            | `() => void`                     | Hide the popup from the map                                                 |
+| `toggle`          | `() => void`                     | Toggle visibility                                                           |
+| `addToMap`        | `() => void`                     | Add popup to map without opening it                                         |
+| `setHTMLContent`  | `(html?: string) => void`        | Update HTML content                                                         |
+| `setDOMContent`   | `(element: HTMLElement) => void` | Update DOM content                                                          |
+| `setText`         | `(text: string) => void`         | Update text content (escaped)                                               |
+| `removePopup`     | `() => void`                     | Remove and clean up the popup                                               |
+| `createPopup`     | `() => void`                     | Manually (re)create the popup                                               |
+| `getLngLat`       | `() => LngLatLike \| null`       | Current position                                                            |
+| `getElement`      | `() => HTMLElement \| null`      | Popup's DOM element                                                         |
 
 #### Example
 
@@ -446,8 +468,8 @@ function useCreateLayer<Layer extends LayerSpecification>(
 | `setZoomRange`      | `(minzoom?: number, maxzoom?: number) => void`                        | Update zoom range                                     |
 | `setPaintProperty`  | `(name: string, value: any, options?: StyleSetterOptions) => void`    | Update a paint property                               |
 | `setLayoutProperty` | `(name: string, value: any, options?: StyleSetterOptions) => void`    | Update a layout property                              |
-| `layerStatus`       | `Readonly<LayerStatus>`                                               | `'not-created' \| 'creating' \| 'created' \| 'error'` |
-| `isLayerReady`      | `boolean`                                                             | Whether the layer currently exists on the map         |
+| `layerStatus`       | `ComputedRef<LayerStatus>`                                            | `'not-created' \| 'creating' \| 'created' \| 'error'` |
+| `isLayerReady`      | `ComputedRef<boolean>`                                                | Whether the layer currently exists on the map         |
 | `refreshLayer`      | `() => void`                                                          | Remove and recreate the layer                         |
 | `updateLayer`       | `(updates: { filter?, minzoom?, maxzoom?, paint?, layout? }) => void` | Apply several updates in one call                     |
 
@@ -650,8 +672,8 @@ Creates and manages MapLibre GL GeoJSON Sources with reactive data updates and c
 | `setData`       | `(data: GeoJSONSourceSpecification['data']) => void` | Update source data      |
 | `removeSource`  | `() => void`                                         | Remove source from map  |
 | `refreshSource` | `() => void`                                         | Refresh source          |
-| `sourceStatus`  | `Readonly<SourceStatus>`                             | Source status           |
-| `isSourceReady` | `boolean`                                            | Whether source is ready |
+| `sourceStatus`  | `ComputedRef<SourceStatus>`                          | Source status           |
+| `isSourceReady` | `ComputedRef<boolean>`                               | Whether source is ready |
 
 #### Example
 
@@ -744,27 +766,22 @@ Creates and manages MapLibre GL Geolocate Controls with comprehensive event hand
 
 #### Parameters
 
-| Parameter | Type                       | Description                     |
-| --------- | -------------------------- | ------------------------------- |
-| `props`   | `UseGeolocateControlProps` | Geolocate control configuration |
-
-#### UseGeolocateControlProps Interface
-
-| Property   | Type                      | Description             |
-| ---------- | ------------------------- | ----------------------- |
-| `map`      | `MaybeRef<Map \| null>`   | Map instance reference  |
-| `position` | `ControlPosition`         | Control position on map |
-| `options`  | `GeolocateControlOptions` | Control options         |
-| `debug`    | `boolean`                 | Enable debug logging    |
+| Property   | Type                      | Default          | Description             |
+| ---------- | ------------------------- | ---------------- | ----------------------- |
+| `map`      | `MaybeRef<Map \| null>`   | —                | Map instance reference  |
+| `position` | `ControlPosition`         | `'bottom-right'` | Control position on map |
+| `options`  | `GeolocateControlOptions` | `{}`             | Control options         |
+| `debug`    | `boolean`                 | `false`          | Enable debug logging    |
 
 #### Returns
 
-| Property      | Type                                   | Description                      |
-| ------------- | -------------------------------------- | -------------------------------- |
-| `control`     | `ShallowRef<GeolocateControl \| null>` | Control instance                 |
-| `trigger`     | `() => boolean`                        | Trigger geolocation              |
-| `isActive`    | `ComputedRef<boolean>`                 | Whether control is active        |
-| `isSupported` | `ComputedRef<boolean>`                 | Whether geolocation is supported |
+| Property           | Type                                   | Description                       |
+| ------------------ | -------------------------------------- | --------------------------------- |
+| `geolocateControl` | `ShallowRef<GeolocateControl \| null>` | Control instance                  |
+| `isControlAdded`   | `ShallowRef<boolean>`                  | Whether the control is on the map |
+| `addControl`       | `() => void`                           | Add the control to the map        |
+| `removeControl`    | `() => void`                           | Remove the control from the map   |
+| `trigger`          | `() => void`                           | Trigger geolocation               |
 
 #### Example
 
@@ -774,7 +791,7 @@ import { useGeolocateControl } from 'vue3-maplibre-gl';
 
 const mapInstance = ref<Map | null>(null);
 
-const { control, trigger, isActive, isSupported } = useGeolocateControl({
+const { geolocateControl, isControlAdded, trigger } = useGeolocateControl({
   map: mapInstance,
   position: 'top-right',
   options: {
@@ -787,10 +804,10 @@ const { control, trigger, isActive, isSupported } = useGeolocateControl({
   debug: true,
 });
 
-// Manually trigger geolocation
-if (isSupported.value) {
-  trigger();
-}
+// The control adds itself once the map exists; trigger no-ops before then.
+watch(isControlAdded, (added) => {
+  if (added) trigger();
+});
 ```
 
 ## Event Composables
@@ -801,18 +818,27 @@ Provides reactive event handling for MapLibre GL map events with automatic clean
 
 #### Parameters
 
-| Parameter | Type                       | Description                  |
-| --------- | -------------------------- | ---------------------------- |
-| `props`   | `UseMapEventListenerProps` | Event listener configuration |
+| Property | Type                    | Default | Description                  |
+| -------- | ----------------------- | ------- | ---------------------------- |
+| `map`    | `MaybeRef<Map \| null>` | —       | Map instance reference       |
+| `event`  | `keyof MapEventTypes`   | —       | Event type to listen for     |
+| `on`     | `(event) => void`       | —       | Event handler                |
+| `once`   | `boolean`               | `false` | Detach after the first event |
+| `debug`  | `boolean`               | `false` | Enable debug logging         |
 
-#### UseMapEventListenerProps Interface
+The handler prop is `on`, not `handler`.
 
-| Property  | Type                      | Description              |
-| --------- | ------------------------- | ------------------------ |
-| `map`     | `MaybeRef<Map \| null>`   | Map instance reference   |
-| `event`   | `MapEventType`            | Event type to listen for |
-| `handler` | `(event: any) => void`    | Event handler function   |
-| `options` | `AddEventListenerOptions` | Event listener options   |
+#### Returns
+
+| Property             | Type                               | Description                      |
+| -------------------- | ---------------------------------- | -------------------------------- |
+| `attachListener`     | `() => void`                       | Attach the listener manually     |
+| `removeListener`     | `() => void`                       | Detach the listener (idempotent) |
+| `isListenerAttached` | `ComputedRef<boolean>`             | Whether the listener is attached |
+| `listenerStatus`     | `ComputedRef<EventListenerStatus>` | Current listener status          |
+
+The listener attaches itself once the map exists and detaches on unmount, so
+most callers never touch these.
 
 #### Example
 
@@ -826,7 +852,7 @@ const mapInstance = ref<Map | null>(null);
 useMapEventListener({
   map: mapInstance,
   event: 'click',
-  handler: (event) => {
+  on: (event) => {
     console.log('Map clicked at:', event.lngLat);
   },
 });
@@ -835,7 +861,7 @@ useMapEventListener({
 useMapEventListener({
   map: mapInstance,
   event: 'zoom',
-  handler: (event) => {
+  on: (event) => {
     console.log('Map zoom level:', event.target.getZoom());
   },
 });
@@ -847,18 +873,25 @@ Provides reactive event handling for MapLibre GL layer events with automatic cle
 
 #### Parameters
 
-| Parameter | Type                         | Description                        |
-| --------- | ---------------------------- | ---------------------------------- |
-| `props`   | `UseLayerEventListenerProps` | Layer event listener configuration |
+| Property | Type                                             | Default | Description                  |
+| -------- | ------------------------------------------------ | ------- | ---------------------------- |
+| `map`    | `MaybeRef<Map \| null>`                          | —       | Map instance reference       |
+| `layer`  | `MaybeRef<LayerSpecification \| string \| null>` | —       | Layer, or its id             |
+| `event`  | `keyof MapLayerEventType`                        | —       | Event type to listen for     |
+| `on`     | `(event) => void`                                | —       | Event handler                |
+| `once`   | `boolean`                                        | `false` | Detach after the first event |
+| `debug`  | `boolean`                                        | `false` | Enable debug logging         |
 
-#### UseLayerEventListenerProps Interface
+The layer prop is `layer` and accepts a specification as well as an id; the
+handler prop is `on`, not `handler`.
 
-| Property  | Type                    | Description              |
-| --------- | ----------------------- | ------------------------ |
-| `map`     | `MaybeRef<Map \| null>` | Map instance reference   |
-| `layerId` | `string`                | Layer identifier         |
-| `event`   | `MapLayerEventType`     | Event type to listen for |
-| `handler` | `(event: any) => void`  | Event handler function   |
+#### Returns
+
+Everything [`useMapEventListener`](#usemapeventlistener) returns, plus:
+
+| Property  | Type                          | Description                          |
+| --------- | ----------------------------- | ------------------------------------ |
+| `layerId` | `ComputedRef<string \| null>` | The resolved id of the watched layer |
 
 #### Example
 
@@ -871,9 +904,9 @@ const mapInstance = ref<Map | null>(null);
 // Listen for layer click events
 useLayerEventListener({
   map: mapInstance,
-  layerId: 'my-layer',
+  layer: 'my-layer',
   event: 'click',
-  handler: (event) => {
+  on: (event) => {
     console.log('Layer clicked:', event.features[0]);
   },
 });
@@ -881,9 +914,9 @@ useLayerEventListener({
 // Listen for layer hover events
 useLayerEventListener({
   map: mapInstance,
-  layerId: 'my-layer',
+  layer: 'my-layer',
   event: 'mouseenter',
-  handler: (event) => {
+  on: (event) => {
     console.log('Mouse entered layer:', event.features[0]);
   },
 });
@@ -924,10 +957,10 @@ import {
   useGeolocateEventListener,
 } from 'vue3-maplibre-gl';
 
-const { control } = useGeolocateControl({ map: mapInstance });
+const { geolocateControl } = useGeolocateControl({ map: mapInstance });
 
 useGeolocateEventListener({
-  geolocate: control,
+  geolocate: geolocateControl,
   event: 'geolocate',
   on: (position) => {
     console.log('User located at:', position.coords);
@@ -959,13 +992,13 @@ function useMapReloadEvent(props: MapReloadEventProps): MapReloadEventActions;
 
 #### Returns
 
-| Property      | Type                             | Description                                        |
-| ------------- | -------------------------------- | -------------------------------------------------- |
-| `clear`       | `() => void`                     | Remove all listeners                               |
-| `forceLoad`   | `() => void`                     | Manually trigger the load callback                 |
-| `forceUnload` | `() => void`                     | Manually trigger the unload callback               |
-| `isMapLoaded` | `boolean`                        | Whether the style is currently loaded              |
-| `loadStatus`  | `Readonly<MapReloadEventStatus>` | `'not-loaded' \| 'loading' \| 'loaded' \| 'error'` |
+| Property      | Type                                | Description                                        |
+| ------------- | ----------------------------------- | -------------------------------------------------- |
+| `clear`       | `() => void`                        | Remove all listeners                               |
+| `forceLoad`   | `() => void`                        | Manually trigger the load callback                 |
+| `forceUnload` | `() => void`                        | Manually trigger the unload callback               |
+| `isMapLoaded` | `ComputedRef<boolean>`              | Whether the style is currently loaded              |
+| `loadStatus`  | `ComputedRef<MapReloadEventStatus>` | `'not-loaded' \| 'loading' \| 'loaded' \| 'error'` |
 
 #### Example
 
@@ -1020,8 +1053,8 @@ function usePanTo(props: PanToProps): PanToActions;
 | `stopPanning`                             | `() => void`                          | Stops the in-progress pan                              |
 | `getCurrentCamera`                        | `() => CameraOptions \| null`         | Current `{ center, zoom, bearing, pitch }`             |
 | `validatePanOffset` / `validatePanTarget` | `(value) => boolean`                  | Validates the offset/coordinate shape                  |
-| `panStatus`                               | `Readonly<PanStatus>`                 | `'not-started' \| 'panning' \| 'completed' \| 'error'` |
-| `isPanning`                               | `boolean`                             | Whether a pan is in progress                           |
+| `panStatus`                               | `ComputedRef<PanStatus>`              | `'not-started' \| 'panning' \| 'completed' \| 'error'` |
+| `isPanning`                               | `ComputedRef<boolean>`                | Whether a pan is in progress                           |
 
 #### Example
 
@@ -1075,8 +1108,8 @@ function useResetNorthPitch(
 | `getCurrentPitch` (`useResetNorthPitch` only)                 | `() => number \| null`                | Current pitch                                           |
 | `getCurrentCamera`                                            | `() => CameraOptions \| null`         | Current camera state                                    |
 | `validateBearing` (`useRotateTo` only)                        | `(bearing: number) => boolean`        | Validates a bearing value                               |
-| `rotationStatus`                                              | `Readonly<RotationStatus>`            | `'not-started' \| 'rotating' \| 'completed' \| 'error'` |
-| `isRotating`                                                  | `boolean`                             | Whether a rotation is in progress                       |
+| `rotationStatus`                                              | `ComputedRef<RotationStatus>`         | `'not-started' \| 'rotating' \| 'completed' \| 'error'` |
+| `isRotating`                                                  | `ComputedRef<boolean>`                | Whether a rotation is in progress                       |
 
 #### Example
 
@@ -1126,8 +1159,8 @@ function useZoomTo(props: ZoomToProps): ZoomToActions;
 | `getCurrentZoom`                       | `() => number \| null`                | Current zoom level                                     |
 | `getCurrentCamera`                     | `() => CameraOptions \| null`         | Current camera state                                   |
 | `validateZoomLevel` (`useZoomTo` only) | `(zoom: number) => boolean`           | Validates a zoom value (0-24)                          |
-| `zoomStatus`                           | `Readonly<ZoomStatus>`                | `'not-started' \| 'zooming' \| 'completed' \| 'error'` |
-| `isZooming`                            | `boolean`                             | Whether a zoom is in progress                          |
+| `zoomStatus`                           | `ComputedRef<ZoomStatus>`             | `'not-started' \| 'zooming' \| 'completed' \| 'error'` |
+| `isZooming`                            | `ComputedRef<boolean>`                | Whether a zoom is in progress                          |
 
 #### Example
 
@@ -1178,9 +1211,9 @@ function useCameraForBounds(
 | `setFitBounds`     | `(bounds: LngLatBoundsLike, options?: FitBoundsOptions) => void` | Fits the map to the given bounds             |
 | `clearBounds`      | `() => void`                                                     | Resets internal bounds state                 |
 | `getCurrentBounds` | `() => LngLatBounds \| null`                                     | Current map bounds                           |
-| `bounds`           | `LngLatBoundsLike \| undefined`                                  | Last bounds applied                          |
-| `boundsStatus`     | `Readonly<BoundsStatus>`                                         | `'not-set' \| 'setting' \| 'set' \| 'error'` |
-| `isBoundsSet`      | `boolean`                                                        | Whether bounds are currently set             |
+| `bounds`           | `ComputedRef<LngLatBoundsLike \| undefined>`                     | Last bounds applied                          |
+| `boundsStatus`     | `ComputedRef<BoundsStatus>`                                      | `'not-set' \| 'setting' \| 'set' \| 'error'` |
+| `isBoundsSet`      | `ComputedRef<boolean>`                                           | Whether bounds are currently set             |
 
 **`useCameraForBounds`**
 
@@ -1189,9 +1222,9 @@ function useCameraForBounds(
 | `cameraForBounds`  | `(bounds: LngLatBoundsLike, options?: CameraForBoundsOptions) => void` | Calculates camera options for bounds         |
 | `clearCamera`      | `() => void`                                                           | Resets internal state                        |
 | `getCurrentBounds` | `() => LngLatBounds \| null`                                           | Current map bounds                           |
-| `bbox`             | `LngLatBoundsLike \| undefined`                                        | Last bounding box used                       |
-| `cameraStatus`     | `Readonly<BoundsStatus>`                                               | `'not-set' \| 'setting' \| 'set' \| 'error'` |
-| `isCameraSet`      | `boolean`                                                              | Whether a camera was computed                |
+| `bbox`             | `ComputedRef<LngLatBoundsLike \| undefined>`                           | Last bounding box used                       |
+| `cameraStatus`     | `ComputedRef<BoundsStatus>`                                            | `'not-set' \| 'setting' \| 'set' \| 'error'` |
+| `isCameraSet`      | `ComputedRef<boolean>`                                                 | Whether a camera was computed                |
 
 #### Example
 
@@ -1241,10 +1274,10 @@ function useFitScreenCoordinates(
 | ---------------------- | ------------------------------------------------------------ | -------------------------------------------- |
 | `fitScreenCoordinates` | `(p0: PointLike, p1: PointLike, options?, bearing?) => void` | Fits the map to the pixel rectangle          |
 | `clearCoordinates`     | `() => void`                                                 | Clears the current selection                 |
-| `status`               | `Readonly<FitScreenCoordinatesStatus>`                       | `'not-set' \| 'setting' \| 'set' \| 'error'` |
-| `isCoordinatesSet`     | `boolean`                                                    | Whether both points are set                  |
-| `isFitting`            | `boolean`                                                    | Whether the fit is in progress               |
-| `hasError`             | `boolean`                                                    | Whether the last fit failed                  |
+| `status`               | `ComputedRef<FitScreenCoordinatesStatus>`                    | `'not-set' \| 'setting' \| 'set' \| 'error'` |
+| `isCoordinatesSet`     | `ComputedRef<boolean>`                                       | Whether both points are set                  |
+| `isFitting`            | `ComputedRef<boolean>`                                       | Whether the fit is in progress               |
+| `hasError`             | `ComputedRef<boolean>`                                       | Whether the last fit failed                  |
 
 #### Example
 
@@ -1269,23 +1302,28 @@ Provides smooth animated transitions to new map positions with customizable easi
 
 #### Parameters
 
-| Parameter | Type            | Description                    |
-| --------- | --------------- | ------------------------------ |
-| `props`   | `UseFlyToProps` | Fly-to animation configuration |
-
-#### UseFlyToProps Interface
-
-| Property  | Type                    | Description            |
-| --------- | ----------------------- | ---------------------- |
-| `map`     | `MaybeRef<Map \| null>` | Map instance reference |
-| `options` | `FlyToOptions`          | Animation options      |
+| Property  | Type                    | Default | Description                    |
+| --------- | ----------------------- | ------- | ------------------------------ |
+| `map`     | `MaybeRef<Map \| null>` | —       | Map instance reference         |
+| `options` | `FlyToOptions`          | —       | Default options for every call |
+| `debug`   | `boolean`               | `false` | Enable debug logging           |
 
 #### Returns
 
-| Property   | Type                              | Description                 |
-| ---------- | --------------------------------- | --------------------------- |
-| `flyTo`    | `(options: FlyToOptions) => void` | Execute fly-to animation    |
-| `isFlying` | `ComputedRef<boolean>`            | Whether animation is active |
+| Property           | Type                                        | Description                     |
+| ------------------ | ------------------------------------------- | ------------------------------- |
+| `flyTo`            | `(options?: FlyToOptions) => Promise<void>` | Execute fly-to animation        |
+| `flyToCenter`      | `(center, options?) => Promise<void>`       | Fly, changing only the center   |
+| `flyToZoom`        | `(zoom, options?) => Promise<void>`         | Fly, changing only the zoom     |
+| `flyToBearing`     | `(bearing, options?) => Promise<void>`      | Fly, changing only the bearing  |
+| `flyToPitch`       | `(pitch, options?) => Promise<void>`        | Fly, changing only the pitch    |
+| `stopFlying`       | `() => void`                                | Interrupt the running animation |
+| `getCurrentCamera` | `() => CameraOptions \| null`               | Read the camera as it is now    |
+| `flyStatus`        | `ComputedRef<FlyStatus>`                    | Current animation status        |
+| `isFlying`         | `ComputedRef<boolean>`                      | Whether animation is active     |
+| `cleanup`          | `() => void`                                | Release listeners early         |
+
+Each `flyTo*` resolves when the animation settles, so they can be awaited.
 
 #### Example
 
@@ -1319,16 +1357,18 @@ Provides smooth animated transitions with easing functions for map camera change
 
 #### Parameters
 
-| Parameter | Type             | Description                     |
-| --------- | ---------------- | ------------------------------- |
-| `props`   | `UseEaseToProps` | Ease-to animation configuration |
+| Property  | Type                    | Default | Description                    |
+| --------- | ----------------------- | ------- | ------------------------------ |
+| `map`     | `MaybeRef<Map \| null>` | —       | Map instance reference         |
+| `options` | `EaseToOptions`         | —       | Default options for every call |
+| `debug`   | `boolean`               | `false` | Enable debug logging           |
 
 #### Returns
 
-| Property   | Type                               | Description                 |
-| ---------- | ---------------------------------- | --------------------------- |
-| `easeTo`   | `(options: EaseToOptions) => void` | Execute ease-to animation   |
-| `isEasing` | `ComputedRef<boolean>`             | Whether animation is active |
+The same shape as [`useFlyTo`](#useflyto) with `ease` in place of `fly`:
+`easeTo`, `easeToCenter`, `easeToZoom`, `easeToBearing`, `easeToPitch`,
+`stopEasing`, `getCurrentCamera`, `easeStatus` and `isEasing`. Each `easeTo*`
+returns a promise that resolves when the animation settles.
 
 #### Example
 
@@ -1355,15 +1395,26 @@ Provides instant map position changes without animation.
 
 #### Parameters
 
-| Parameter | Type             | Description           |
-| --------- | ---------------- | --------------------- |
-| `props`   | `UseJumpToProps` | Jump-to configuration |
+| Property   | Type                    | Default | Description                          |
+| ---------- | ----------------------- | ------- | ------------------------------------ |
+| `map`      | `MaybeRef<Map \| null>` | —       | Map instance reference               |
+| `options`  | `JumpToOptions`         | —       | Default options for every call       |
+| `autoJump` | `boolean`               | `false` | Jump as soon as the map is available |
+| `debug`    | `boolean`               | `false` | Enable debug logging                 |
 
 #### Returns
 
-| Property | Type                               | Description                     |
-| -------- | ---------------------------------- | ------------------------------- |
-| `jumpTo` | `(options: CameraOptions) => void` | Execute instant position change |
+| Property              | Type                                  | Description                     |
+| --------------------- | ------------------------------------- | ------------------------------- |
+| `jumpTo`              | `(options?: JumpToOptions) => void`   | Execute instant position change |
+| `jumpToCenter`        | `(center, options?) => void`          | Jump, changing only the center  |
+| `jumpToZoom`          | `(zoom, options?) => void`            | Jump, changing only the zoom    |
+| `jumpToBearing`       | `(bearing, options?) => void`         | Jump, changing only the bearing |
+| `jumpToPitch`         | `(pitch, options?) => void`           | Jump, changing only the pitch   |
+| `getCurrentCamera`    | `() => CameraOptions \| null`         | Read the camera as it is now    |
+| `validateJumpOptions` | `(options: JumpToOptions) => boolean` | Check options before jumping    |
+| `jumpStatus`          | `ComputedRef<JumpStatus>`             | Current jump status             |
+| `isJumping`           | `ComputedRef<boolean>`                | Whether a jump is in progress   |
 
 #### Example
 

@@ -9,12 +9,9 @@ Vue3 MapLibre GL provides comprehensive TypeScript support with well-defined typ
 Enhanced actions interface for map management with additional utility methods.
 
 ```typescript
-interface MaplibreActions extends CreateMaplibreActions {
+type MaplibreActions = CreateMaplibreActions & {
   setMapOptions: (options: Partial<MapOptions>) => void;
-  isMapReady: boolean;
-  isMapLoading: boolean;
-  hasMapError: boolean;
-}
+};
 ```
 
 ### CreateMaplibreActions
@@ -24,6 +21,10 @@ Core actions interface for basic map operations.
 ```typescript
 interface CreateMaplibreActions {
   mapInstance: ComputedRef<Map | null>;
+  mapCreationStatus: ComputedRef<MapCreationStatus>;
+  isMapReady: ComputedRef<boolean>;
+  isMapLoading: ComputedRef<boolean>;
+  hasMapError: ComputedRef<boolean>;
   setCenter: (center: LngLatLike) => void;
   setBearing: (bearing: number) => void;
   setZoom: (zoom: number) => void;
@@ -49,8 +50,8 @@ interface CreateGeoJsonSourceActions {
   setData: (data: GeoJSONSourceSpecification['data']) => void;
   removeSource: () => void;
   refreshSource: () => void;
-  sourceStatus: Readonly<SourceStatus>;
-  isSourceReady: boolean;
+  sourceStatus: ComputedRef<SourceStatus>;
+  isSourceReady: ComputedRef<boolean>;
 }
 ```
 
@@ -59,22 +60,28 @@ interface CreateGeoJsonSourceActions {
 Generic actions interface for layer management.
 
 ```typescript
-interface CreateLayerActions<T extends LayerSpecification> {
-  getLayer: ComputedRef<T | null>;
+interface CreateBaseLayerActions<Layer extends LayerSpecification> {
+  layerId: string;
+  getLayer: ComputedRef<Layer | null>;
   setBeforeId: (beforeId?: string) => void;
   setFilter: (filter?: FilterSpecification) => void;
-  setStyle: (style: any) => void;
-  setZoomRange: (min: number, max: number) => void;
-  setLayoutProperty: (
-    name: string,
-    value: any,
-    options?: StyleSetterOptions,
-  ) => void;
   setPaintProperty: (
     name: string,
     value: any,
     options?: StyleSetterOptions,
   ) => void;
+  setLayoutProperty: (
+    name: string,
+    value: any,
+    options?: StyleSetterOptions,
+  ) => void;
+  setZoomRange: (minzoom?: number, maxzoom?: number) => void;
+  removeLayer: () => void;
+}
+
+interface CreateLayerActions<Layer extends LayerSpecification>
+  extends CreateBaseLayerActions<Layer> {
+  setStyle: (styleVal: AnyLayout & AnyPaint) => void;
 }
 ```
 

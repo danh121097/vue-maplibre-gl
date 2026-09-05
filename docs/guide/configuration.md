@@ -401,7 +401,7 @@ const { flyTo, isFlying } = useFlyTo({
 useMapEventListener({
   map: mapInstance,
   event: 'click',
-  handler: (event) => {
+  on: (event) => {
     flyTo({
       center: event.lngLat,
       zoom: 12,
@@ -462,9 +462,9 @@ const { getLayer, setStyle, setFilter } = useCreateFillLayer({
 // Layer event configuration
 useLayerEventListener({
   map: mapInstance,
-  layerId: 'fill-layer',
+  layer: 'fill-layer',
   event: 'click',
-  handler: (event) => {
+  on: (event) => {
     console.log('Layer clicked:', event.features[0]);
 
     // Update layer style on click

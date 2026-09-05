@@ -29,10 +29,10 @@ Create and manage a MapLibre GL instance with full lifecycle support.
 ```typescript
 {
   mapInstance: ComputedRef<Map | null>,
-  mapCreationStatus: MapCreationStatus,
-  isMapReady: boolean,
-  isMapLoading: boolean,
-  hasMapError: boolean,
+  mapCreationStatus: ComputedRef<MapCreationStatus>,
+  isMapReady: ComputedRef<boolean>,
+  isMapLoading: ComputedRef<boolean>,
+  hasMapError: ComputedRef<boolean>,
   // Camera setters (reactive)
   setStyle, setCenter, setZoom, setBearing, setPitch,
   setMinZoom, setMaxZoom, setMinPitch, setMaxPitch,
@@ -70,7 +70,10 @@ watch(isMapReady, () => {
 
 Access the map context in child components without prop drilling.
 
-**Returns**: Same as `useCreateMaplibre` (from injected context)
+**Returns**: the same camera setters and map accessors as `useCreateMaplibre`,
+read from the injected context. The status field is named `mapStatus`, not
+`mapCreationStatus`, and there is no `initMap` / `removeMap` / `destroyMap` —
+the owning `<Maplibre>` controls the lifecycle.
 
 **Throws**: Error if not within `<Maplibre>` component
 
@@ -234,9 +237,12 @@ Access GeoJSON source from context (for child components).
 
 All event listeners use the **factory pattern** with adapter pattern for different targets.
 
-### `useMapEventListener(event, handler, options?)`
+### `useMapEventListener(props)`
 
-Listen to map-level events with automatic attach/detach.
+Listen to map-level events with automatic attach/detach. Every event-listener
+composable takes a single props object — `map`, `event`, the `on` handler, and
+optional `once` / `debug`. There is no positional
+`(event, handler, options)` form.
 
 **Event Types**: All MapLibre map events
 
@@ -254,8 +260,8 @@ Listen to map-level events with automatic attach/detach.
 {
   removeListener: () => void,
   attachListener: () => void,
-  isListenerAttached: boolean,
-  listenerStatus: EventListenerStatus
+  isListenerAttached: ComputedRef<boolean>,
+  listenerStatus: ComputedRef<EventListenerStatus>
 }
 ```
 
@@ -266,20 +272,24 @@ const handleMapClick = (e: MapMouseEvent) => {
   console.log('Clicked at', e.lngLat);
 };
 
-const { isListenerAttached } = useMapEventListener('click', handleMapClick, {
+const { isListenerAttached } = useMapEventListener({
   map: mapInstance,
+  event: 'click',
+  on: handleMapClick,
 });
 
 // Listener automatically attached and cleaned up
 ```
 
-### `useLayerEventListener<T extends keyof MapLayerEventType>(event, handler, options?)`
+### `useLayerEventListener<T extends keyof MapLayerEventType>(props)`
 
-Listen to layer-specific events with feature information.
+Listen to layer-specific events with feature information. The `layer` prop takes
+a layer specification or an id.
 
 **Handler Type**: `(e: MapMouseEvent & { features?: GeoJSON.Feature[] }) => void`
 
-**Returns**: Same as `useMapEventListener`
+**Returns**: Everything `useMapEventListener` returns, plus
+`layerId: ComputedRef<string | null>`
 
 **Example**:
 
@@ -290,17 +300,15 @@ const handleLayerClick = (e: MapMouseEvent & { features?: Feature[] }) => {
   });
 };
 
-const { isListenerAttached } = useLayerEventListener(
-  'click',
-  handleLayerClick,
-  {
-    map: mapInstance,
-    layerId: 'my-layer',
-  },
-);
+const { isListenerAttached, layerId } = useLayerEventListener({
+  map: mapInstance,
+  layer: 'my-layer',
+  event: 'click',
+  on: handleLayerClick,
+});
 ```
 
-### `useGeolocateEventListener(event, handler, options?)`
+### `useGeolocateEventListener(props)`
 
 Listen to geolocation control events.
 
