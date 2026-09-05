@@ -25,7 +25,6 @@ export enum PopupStatus {
   Open = 'open',
   Closed = 'closed',
   Error = 'error',
-  Removed = 'removed',
 }
 
 interface PopupEventHandlers {
@@ -451,11 +450,11 @@ export function useCreatePopup({
       if (popup.value.isOpen()) {
         popup.value.remove();
       }
-
-      popupStatus.value = PopupStatus.Removed;
     } catch (error) {
       logError('Error removing popup:', error);
     } finally {
+      // Back to NotCreated, not a distinct "removed" state — see the matching
+      // note in useCreateMarker's removeMarker.
       popup.value = null;
       popupStatus.value = PopupStatus.NotCreated;
     }

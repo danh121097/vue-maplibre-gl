@@ -85,23 +85,13 @@ export function useCreateMaplibre(
   );
 
   /**
-   * Validates if map operations can be performed safely
-   * @returns boolean indicating if operations can proceed
-   */
-  function validateMapOperation(): boolean {
-    const map = mapInstance.value;
-    if (!map) return false;
-    return true;
-  }
-
-  /**
    * Gets the current camera state
    * @returns Current camera options or null if not available
    */
   function getCurrentCamera(): CameraOptions | null {
-    if (!validateMapOperation()) return null;
+    const map = mapInstance.value;
+    if (!map) return null;
 
-    const map = mapInstance.value!;
     try {
       return {
         center: map.getCenter(),
@@ -120,10 +110,11 @@ export function useCreateMaplibre(
    * @returns Current style or null if not available
    */
   function getCurrentStyle(): StyleSpecification | string | null {
-    if (!validateMapOperation()) return null;
+    const map = mapInstance.value;
+    if (!map) return null;
 
     try {
-      return mapInstance.value!.getStyle() as StyleSpecification;
+      return map.getStyle() as StyleSpecification;
     } catch (error) {
       logError('Error getting current style:', error);
       return currentStyle.value as StyleSpecification | string | null;
@@ -245,10 +236,11 @@ export function useCreateMaplibre(
    * @param centerVal - Center coordinates to set
    */
   function setCenter(centerVal: LngLatLike): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     try {
-      mapInstance.value!.setCenter(centerVal);
+      map.setCenter(centerVal);
       // Update local state but avoid triggering watchers if possible
       const currentOpts = mapOptions.value;
       if (currentOpts.center !== centerVal) {
@@ -264,7 +256,8 @@ export function useCreateMaplibre(
    * @param bearing - Bearing value in degrees (default: 0)
    */
   function setBearing(bearing = 0): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     // Validate bearing range
     if (bearing < -180 || bearing > 180) {
@@ -274,7 +267,7 @@ export function useCreateMaplibre(
     }
 
     try {
-      mapInstance.value!.setBearing(bearing);
+      map.setBearing(bearing);
       mapOptions.value.bearing = bearing;
     } catch (error) {
       logError('Error setting map bearing:', error, { bearing });
@@ -286,7 +279,8 @@ export function useCreateMaplibre(
    * @param zoom - Zoom level to set
    */
   function setZoom(zoom: number): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     // Validate zoom range
     if (zoom < 0 || zoom > 24) {
@@ -294,7 +288,7 @@ export function useCreateMaplibre(
     }
 
     try {
-      mapInstance.value!.setZoom(zoom);
+      map.setZoom(zoom);
       mapOptions.value.zoom = zoom;
     } catch (error) {
       logError('Error setting map zoom:', error, { zoom });
@@ -306,7 +300,8 @@ export function useCreateMaplibre(
    * @param pitch - Pitch value in degrees
    */
   function setPitch(pitch: number): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     // Validate pitch range
     if (pitch < 0 || pitch > 60) {
@@ -314,7 +309,7 @@ export function useCreateMaplibre(
     }
 
     try {
-      mapInstance.value!.setPitch(pitch);
+      map.setPitch(pitch);
       mapOptions.value.pitch = pitch;
     } catch (error) {
       logError('Error setting map pitch:', error, { pitch });
@@ -330,10 +325,11 @@ export function useCreateMaplibre(
     style: string | StyleSpecification,
     options?: StyleSwapOptions & StyleOptions,
   ): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     try {
-      mapInstance.value!.setStyle(style, options);
+      map.setStyle(style, options);
       // Use explicit type assertion to avoid deep type instantiation
       currentStyle.value = style as any;
     } catch (error) {
@@ -346,10 +342,11 @@ export function useCreateMaplibre(
    * @param bounds - Maximum bounds to set
    */
   function setMaxBounds(bounds?: LngLatBoundsLike): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     try {
-      mapInstance.value!.setMaxBounds(bounds);
+      map.setMaxBounds(bounds);
       mapOptions.value.maxBounds = bounds;
     } catch (error) {
       logError('Error setting map max bounds:', error, { bounds });
@@ -361,7 +358,8 @@ export function useCreateMaplibre(
    * @param pitch - Maximum pitch value (default: 60)
    */
   function setMaxPitch(pitch = 60): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     if (pitch < 0 || pitch > 60) {
       logWarn('Warning: Max pitch should be between 0 and 60 degrees', {
@@ -370,7 +368,7 @@ export function useCreateMaplibre(
     }
 
     try {
-      mapInstance.value!.setMaxPitch(pitch);
+      map.setMaxPitch(pitch);
       mapOptions.value.maxPitch = pitch;
     } catch (error) {
       logError('Error setting map max pitch:', error, { pitch });
@@ -382,14 +380,15 @@ export function useCreateMaplibre(
    * @param zoom - Maximum zoom level (default: 24)
    */
   function setMaxZoom(zoom = 24): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     if (zoom < 0 || zoom > 24) {
       logWarn('Warning: Max zoom should be between 0 and 24', { zoom });
     }
 
     try {
-      mapInstance.value!.setMaxZoom(zoom);
+      map.setMaxZoom(zoom);
       mapOptions.value.maxZoom = zoom;
     } catch (error) {
       logError('Error setting map max zoom:', error, { zoom });
@@ -401,7 +400,8 @@ export function useCreateMaplibre(
    * @param pitch - Minimum pitch value (default: 0)
    */
   function setMinPitch(pitch = 0): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     if (pitch < 0 || pitch > 60) {
       logWarn('Warning: Min pitch should be between 0 and 60 degrees', {
@@ -410,7 +410,7 @@ export function useCreateMaplibre(
     }
 
     try {
-      mapInstance.value!.setMinPitch(pitch);
+      map.setMinPitch(pitch);
       mapOptions.value.minPitch = pitch;
     } catch (error) {
       logError('Error setting map min pitch:', error, { pitch });
@@ -422,14 +422,15 @@ export function useCreateMaplibre(
    * @param zoom - Minimum zoom level (default: 0)
    */
   function setMinZoom(zoom = 0): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     if (zoom < 0 || zoom > 24) {
       logWarn('Warning: Min zoom should be between 0 and 24', { zoom });
     }
 
     try {
-      mapInstance.value!.setMinZoom(zoom);
+      map.setMinZoom(zoom);
       mapOptions.value.minZoom = zoom;
     } catch (error) {
       logError('Error setting map min zoom:', error, { zoom });
@@ -441,10 +442,11 @@ export function useCreateMaplibre(
    * @param renderWorldCopies - Whether to render world copies (default: true)
    */
   function setRenderWorldCopies(renderWorldCopies = true): void {
-    if (!validateMapOperation()) return;
+    const map = mapInstance.value;
+    if (!map) return;
 
     try {
-      mapInstance.value!.setRenderWorldCopies(renderWorldCopies);
+      map.setRenderWorldCopies(renderWorldCopies);
       mapOptions.value.renderWorldCopies = renderWorldCopies;
     } catch (error) {
       logError('Error setting map render world copies:', error, {
@@ -461,19 +463,9 @@ export function useCreateMaplibre(
     mapCreationStatus.value = MapCreationStatus.Destroyed;
   }
 
-  /**
-   * Checks if map should be initialized based on options
-   */
-  function checkInitMap(): void {
-    const opts = unref(mapOptions);
-    if (!opts.center && !opts.bounds) {
-      log('Map initialization skipped: no center or bounds provided');
-      return;
-    }
-    initMap();
-  }
-
-  // Watch effect for automatic map initialization
+  // Watch effect for automatic map initialization. It calls initMap directly:
+  // a map without a center or bounds is valid — MapLibre defaults to [0, 0] at
+  // zoom 0 — so there is nothing to gate on here.
   const stopWatchEffect = watchEffect(() => {
     const el = unref(elRef);
     if (el && !mapInstance.value) {
@@ -519,7 +511,6 @@ export function useCreateMaplibre(
   return {
     initMap,
     removeMap,
-    checkInitMap,
     destroyMap,
     ...methods,
   };

@@ -79,7 +79,7 @@ export function useCreateLayer<Layer extends LayerSpecification>(
     register,
   } = cfg;
 
-  const { logWarn, logError } = useLogger(debug);
+  const { logError } = useLogger(debug);
   const layerId = getNanoid(id);
   const layer = shallowRef<Nullable<Layer>>(null);
   const layerStatus = ref<LayerStatus>(LayerStatus.NotCreated);
@@ -223,27 +223,20 @@ export function useCreateLayer<Layer extends LayerSpecification>(
   }
 
   /**
-   * Resolves source data from various input types
-   * @param source - Source input (string, object, or specification)
-   * @returns Resolved source data or null if invalid
+   * Resolves the `source` prop to the id of a source already on the map.
+   *
+   * A layer references its source by id — MapLibre offers no way to hand
+   * `addLayer` an inline specification — so an object is usable here only when
+   * it carries its own string id. A bare specification such as
+   * `{ type: 'geojson', data }` has none, and reporting that is more useful
+   * than passing `addLayer` an empty id and letting it fail deeper in.
    */
-  function resolveSourceData(source: any): string | null {
-    if (typeof source === 'string') {
-      return source;
-    }
+  function resolveSourceData(source: unknown): string | null {
+    if (typeof source === 'string') return source;
 
-    if (typeof source === 'object' && source !== null) {
-      if ('id' in source && typeof source.id === 'string') {
-        return source.id;
-      }
-      // For source specifications, we need to return the source ID
-      // This assumes the source has already been added to the map
-      if ('type' in source) {
-        logWarn(
-          'Warning: Source specification provided, ensure source is added to map first',
-        );
-        return source.id || '';
-      }
+    if (typeof source === 'object' && source !== null && 'id' in source) {
+      const { id } = source as { id: unknown };
+      if (typeof id === 'string') return id;
     }
 
     return null;
@@ -269,6 +262,12 @@ export function useCreateLayer<Layer extends LayerSpecification>(
       const sourceData = resolveSourceData(source);
       if (!sourceData) {
         layerStatus.value = LayerStatus.Error;
+        logError(
+          'Error creating layer: `source` must be a source id, or an object carrying one. ' +
+            'Add the source to the map first — with <GeoJsonSource> or useCreateGeoJsonSource — and pass its id.',
+          null,
+          { layerId, type },
+        );
         return;
       }
 

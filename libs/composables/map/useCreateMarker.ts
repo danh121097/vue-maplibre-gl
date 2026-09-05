@@ -31,7 +31,6 @@ export enum MarkerStatus {
   Creating = 'creating',
   Created = 'created',
   Error = 'error',
-  Removed = 'removed',
 }
 
 interface MarkerEventHandlers {
@@ -405,11 +404,13 @@ export function useCreateMarker({
 
       // Remove from map
       marker.value.remove();
-
-      markerStatus.value = MarkerStatus.Removed;
     } catch (error) {
       logError('Error removing marker:', error);
     } finally {
+      // Back to NotCreated, not a distinct "removed" state: a removed marker is
+      // exactly a marker that has not been created, and the map watcher below
+      // recreates one from here. A second enum member for the same state would
+      // only be a value consumers have to handle twice.
       marker.value = null;
       markerStatus.value = MarkerStatus.NotCreated;
     }
