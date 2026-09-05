@@ -40,9 +40,10 @@ export default defineConfig({
       { text: 'API', link: '/api/components' },
       { text: 'Examples', link: '/examples/' },
       {
-        text: 'v5.0.0',
+        text: 'v6.0.0',
         items: [
           { text: 'Changelog', link: '/changelog' },
+          { text: 'Migration from v5', link: '/guide/migration-v6' },
           { text: 'Migration from v4', link: '/guide/migration-v5' },
         ],
       },
@@ -69,6 +70,7 @@ export default defineConfig({
           text: 'Advanced',
           items: [
             { text: 'SSR / Nuxt', link: '/guide/ssr-nuxt' },
+            { text: 'Migration from v5', link: '/guide/migration-v6' },
             { text: 'Migration from v4', link: '/guide/migration-v5' },
           ],
         },
