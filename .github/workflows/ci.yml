@@ -30,8 +30,11 @@ jobs:
       - name: Lint
         run: bun run lint:check
 
+      # Coverage, not plain `test`: vitest.config.ts carries per-file
+      # thresholds set to the coverage each module actually had, so a change
+      # that reduces it fails here rather than landing quietly.
       - name: Test
-        run: bun run test
+        run: bun run test:coverage
 
       - name: Build
         run: bun run build

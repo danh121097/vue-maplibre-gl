@@ -12,6 +12,18 @@ export class MockMap {
   /** Truthy so the library's `hasSource` / `hasLayer` guards pass. */
   style: Record<string, unknown> = {};
   private listeners = new Map<string, Set<(...args: any[]) => void>>();
+  /**
+   * Per event, the wrapper `once` actually attached, keyed by the handler the
+   * caller passed. MapLibre's `Evented` keeps one-time listeners in their own
+   * list and `off` searches it by identity, so `off(type, handler)` cancels a
+   * pending `once(type, handler)`. Without this map a wrapper would be
+   * unreachable by the caller's reference and every `once` + cleanup pair in
+   * the library would look like a leak.
+   */
+  private onceWrappers = new Map<
+    string,
+    Map<(...args: any[]) => void, (...args: any[]) => void>
+  >();
   private images = new Map<string, unknown>();
   private sources = new Map<string, unknown>();
   private layers = new Map<string, unknown>();
@@ -28,6 +40,7 @@ export class MockMap {
   setMinPitch = vi.fn();
   setMinZoom = vi.fn();
   setRenderWorldCopies = vi.fn();
+  fitScreenCoordinates = vi.fn();
   remove = vi.fn();
 
   constructor(options: Record<string, any> = {}) {
@@ -42,14 +55,22 @@ export class MockMap {
 
   off(event: string, handler: (...args: any[]) => void): this {
     this.listeners.get(event)?.delete(handler);
+
+    const wrapped = this.onceWrappers.get(event)?.get(handler);
+    if (wrapped) {
+      this.listeners.get(event)?.delete(wrapped);
+      this.onceWrappers.get(event)!.delete(handler);
+    }
     return this;
   }
 
   once(event: string, handler: (...args: any[]) => void): this {
     const wrapped = (...args: any[]) => {
-      this.off(event, wrapped);
+      this.off(event, handler);
       handler(...args);
     };
+    if (!this.onceWrappers.has(event)) this.onceWrappers.set(event, new Map());
+    this.onceWrappers.get(event)!.set(handler, wrapped);
     return this.on(event, wrapped);
   }
 
