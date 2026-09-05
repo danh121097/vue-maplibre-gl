@@ -15,7 +15,6 @@ import {
   useCreateMaplibre,
   useMapEventListener,
   useLogger,
-  useOptimizedComputed,
 } from '@libs/composables';
 import type { CreateMaplibreActions, MaplibreActions } from '@libs/types';
 import type {
@@ -155,16 +154,43 @@ const mapCreationStatus = ref<MapCreationStatus>(
 );
 
 // Enhanced computed properties for better reactivity and performance
-const mapOptions = useOptimizedComputed(
-  () => {
-    const baseOptions = { ...props.options };
-    const mergedOptions = { ...baseOptions, ...innerOptions.value };
-    return mergedOptions;
-  },
-  {
-    deepEqual: true, // Use deep equality for complex objects
-  },
-);
+const mapOptions = computed(() => ({
+  ...props.options,
+  ...innerOptions.value,
+}));
+
+/**
+ * Structural comparison for the coordinate-shaped option values (`center`,
+ * `maxBounds`), so a parent re-render that rebuilds an inline `options` literal
+ * does not re-issue the matching map command with an unchanged value.
+ *
+ * The recursion is unbounded, so this is only applied to the coordinate options
+ * — a handful of numbers each. `style` is deliberately left on reference
+ * equality; deep-walking a full style specification on every render is exactly
+ * the cost this component was changed to stop paying.
+ */
+function isSameCoordinateValue(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (
+    typeof a !== 'object' ||
+    typeof b !== 'object' ||
+    a === null ||
+    b === null
+  ) {
+    return false;
+  }
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+
+  return keysA.every((key) =>
+    isSameCoordinateValue(
+      (a as Record<string, unknown>)[key],
+      (b as Record<string, unknown>)[key],
+    ),
+  );
+}
 
 const isMapReady = computed(
   () => mapCreationStatus.value === MapCreationStatus.Loaded,
@@ -270,7 +296,8 @@ const eventCleanups = MaplibreEvents.map((evt) => {
 const watchers = [
   watch(
     () => unref(mapOptions).center,
-    (value) => value && setCenter(value),
+    (value, oldValue) =>
+      value && !isSameCoordinateValue(value, oldValue) && setCenter(value),
     { flush: 'post' },
   ),
   watch(
@@ -295,7 +322,8 @@ const watchers = [
   ),
   watch(
     () => unref(mapOptions).maxBounds,
-    (value) => value && setMaxBounds(value),
+    (value, oldValue) =>
+      value && !isSameCoordinateValue(value, oldValue) && setMaxBounds(value),
     { flush: 'post' },
   ),
   watch(
