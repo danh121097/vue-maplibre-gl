@@ -6,7 +6,6 @@ import {
   unref,
   watch,
   nextTick,
-  onBeforeMount,
   onUnmounted,
   watchEffect,
   shallowRef,
@@ -211,13 +210,12 @@ const {
   ...unref(mapOptions),
   register: (actions: CreateMaplibreActions) => {
     try {
+      // Status comes from `useCreateMaplibre` alone. The component keeps its
+      // own copy for the template, but it never reaches `Loading`, so mixing
+      // the two sources in one payload gave consumers contradictory values.
       const enhancedActions = {
         ...actions,
         setMapOptions,
-        // Additional enhanced methods
-        isMapReady: isMapReady.value,
-        isMapLoading: isMapLoading.value,
-        hasMapError: hasMapError.value,
       };
 
       props.register?.(enhancedActions as MaplibreActions);
@@ -362,12 +360,6 @@ function cleanup(): void {
     logError('Error during cleanup:', error);
   }
 }
-
-onBeforeMount(() => {
-  if (props.autoCleanup) {
-    cleanup();
-  }
-});
 
 onUnmounted(() => {
   if (props.autoCleanup) {
