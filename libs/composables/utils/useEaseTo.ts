@@ -3,7 +3,12 @@ import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
 import type { ComputedRef, MaybeRef } from 'vue';
-import type { Map, EaseToOptions, LngLatLike, CameraOptions } from 'maplibre-gl';
+import type {
+  Map,
+  EaseToOptions,
+  LngLatLike,
+  CameraOptions,
+} from 'maplibre-gl';
 
 export enum EaseStatus {
   NotStarted = 'not-started',
@@ -20,10 +25,22 @@ interface EaseToProps {
 
 interface EaseToActions {
   easeTo: (options?: EaseToOptions) => Promise<void>;
-  easeToCenter: (center: LngLatLike, options?: Omit<EaseToOptions, 'center'>) => Promise<void>;
-  easeToZoom: (zoom: number, options?: Omit<EaseToOptions, 'zoom'>) => Promise<void>;
-  easeToBearing: (bearing: number, options?: Omit<EaseToOptions, 'bearing'>) => Promise<void>;
-  easeToPitch: (pitch: number, options?: Omit<EaseToOptions, 'pitch'>) => Promise<void>;
+  easeToCenter: (
+    center: LngLatLike,
+    options?: Omit<EaseToOptions, 'center'>,
+  ) => Promise<void>;
+  easeToZoom: (
+    zoom: number,
+    options?: Omit<EaseToOptions, 'zoom'>,
+  ) => Promise<void>;
+  easeToBearing: (
+    bearing: number,
+    options?: Omit<EaseToOptions, 'bearing'>,
+  ) => Promise<void>;
+  easeToPitch: (
+    pitch: number,
+    options?: Omit<EaseToOptions, 'pitch'>,
+  ) => Promise<void>;
   stopEasing: () => void;
   getCurrentCamera: () => CameraOptions | null;
   easeStatus: ComputedRef<EaseStatus>;
@@ -47,17 +64,30 @@ export function useEaseTo(props: EaseToProps): EaseToActions {
   function validateEaseOptions(options: EaseToOptions): boolean {
     if (!options || typeof options !== 'object') return false;
     if (options.zoom !== undefined && (options.zoom < 0 || options.zoom > 24))
-      logWarn('Warning: Zoom level should be between 0 and 24', { zoom: options.zoom });
-    if (options.bearing !== undefined && (options.bearing < -180 || options.bearing > 180))
-      logWarn('Warning: Bearing should be between -180 and 180 degrees', { bearing: options.bearing });
-    if (options.pitch !== undefined && (options.pitch < 0 || options.pitch > 60))
-      logWarn('Warning: Pitch should be between 0 and 60 degrees', { pitch: options.pitch });
+      logWarn('Warning: Zoom level should be between 0 and 24', {
+        zoom: options.zoom,
+      });
+    if (
+      options.bearing !== undefined &&
+      (options.bearing < -180 || options.bearing > 180)
+    )
+      logWarn('Warning: Bearing should be between -180 and 180 degrees', {
+        bearing: options.bearing,
+      });
+    if (
+      options.pitch !== undefined &&
+      (options.pitch < 0 || options.pitch > 60)
+    )
+      logWarn('Warning: Pitch should be between 0 and 60 degrees', {
+        pitch: options.pitch,
+      });
     return true;
   }
 
   function easeTo(options?: EaseToOptions): Promise<void> {
     const finalOptions = options || easeOptions.value;
-    if (!finalOptions) return Promise.reject(new Error('No ease options provided'));
+    if (!finalOptions)
+      return Promise.reject(new Error('No ease options provided'));
     if (!validateEaseOptions(finalOptions)) {
       easeStatus.value = EaseStatus.Error;
       return Promise.reject(new Error('Invalid ease options'));
@@ -67,26 +97,40 @@ export function useEaseTo(props: EaseToProps): EaseToActions {
     easeStatus.value = EaseStatus.Easing;
 
     return executeAnimation('easeTo', [finalOptions], 'moveend')
-      .then(() => { easeStatus.value = EaseStatus.Completed; })
+      .then(() => {
+        easeStatus.value = EaseStatus.Completed;
+      })
       .catch((error) => {
         easeStatus.value = EaseStatus.Error;
         throw error;
       });
   }
 
-  function easeToCenter(center: LngLatLike, options?: Omit<EaseToOptions, 'center'>): Promise<void> {
+  function easeToCenter(
+    center: LngLatLike,
+    options?: Omit<EaseToOptions, 'center'>,
+  ): Promise<void> {
     return easeTo({ ...options, center });
   }
 
-  function easeToZoom(zoom: number, options?: Omit<EaseToOptions, 'zoom'>): Promise<void> {
+  function easeToZoom(
+    zoom: number,
+    options?: Omit<EaseToOptions, 'zoom'>,
+  ): Promise<void> {
     return easeTo({ ...options, zoom });
   }
 
-  function easeToBearing(bearing: number, options?: Omit<EaseToOptions, 'bearing'>): Promise<void> {
+  function easeToBearing(
+    bearing: number,
+    options?: Omit<EaseToOptions, 'bearing'>,
+  ): Promise<void> {
     return easeTo({ ...options, bearing });
   }
 
-  function easeToPitch(pitch: number, options?: Omit<EaseToOptions, 'pitch'>): Promise<void> {
+  function easeToPitch(
+    pitch: number,
+    options?: Omit<EaseToOptions, 'pitch'>,
+  ): Promise<void> {
     return easeTo({ ...options, pitch });
   }
 
@@ -97,7 +141,11 @@ export function useEaseTo(props: EaseToProps): EaseToActions {
 
   watchEffect(() => {
     const map = mapInstance.value;
-    if (map && easeOptions.value && easeStatus.value === EaseStatus.NotStarted) {
+    if (
+      map &&
+      easeOptions.value &&
+      easeStatus.value === EaseStatus.NotStarted
+    ) {
       easeTo(easeOptions.value).catch((error) => {
         logError('Error in watchEffect easeTo:', error);
       });

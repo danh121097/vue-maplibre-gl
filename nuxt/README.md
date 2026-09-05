@@ -28,8 +28,8 @@ export default defineNuxtConfig({
 
   // Optional configuration
   maplibre: {
-    css: true,    // auto-import CSS (default: true)
-    prefix: '',   // composable prefix (default: none)
+    css: true, // auto-import CSS (default: true)
+    prefix: '', // composable prefix (default: none)
   },
 });
 ```
@@ -70,18 +70,18 @@ const circleStyle = ref({ 'circle-radius': 6, 'circle-color': '#007cbf' });
 
 ## Auto-imported Components
 
-| Component | Description |
-|---|---|
-| `Maplibre` | Main map container |
-| `GeoJsonSource` | GeoJSON data source |
-| `FillLayer` | Fill polygons |
-| `CircleLayer` | Circle points |
-| `LineLayer` | Line features |
-| `SymbolLayer` | Icons and text |
-| `Marker` | HTML markers |
-| `PopUp` | Popup windows |
-| `Image` | Map images |
-| `GeolocateControls` | Geolocation |
+| Component           | Description         |
+| ------------------- | ------------------- |
+| `Maplibre`          | Main map container  |
+| `GeoJsonSource`     | GeoJSON data source |
+| `FillLayer`         | Fill polygons       |
+| `CircleLayer`       | Circle points       |
+| `LineLayer`         | Line features       |
+| `SymbolLayer`       | Icons and text      |
+| `Marker`            | HTML markers        |
+| `PopUp`             | Popup windows       |
+| `Image`             | Map images          |
+| `GeolocateControls` | Geolocation         |
 
 ## Auto-imported Composables
 

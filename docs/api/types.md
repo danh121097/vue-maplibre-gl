@@ -65,8 +65,16 @@ interface CreateLayerActions<T extends LayerSpecification> {
   setFilter: (filter?: FilterSpecification) => void;
   setStyle: (style: any) => void;
   setZoomRange: (min: number, max: number) => void;
-  setLayoutProperty: (name: string, value: any, options?: StyleSetterOptions) => void;
-  setPaintProperty: (name: string, value: any, options?: StyleSetterOptions) => void;
+  setLayoutProperty: (
+    name: string,
+    value: any,
+    options?: StyleSetterOptions,
+  ) => void;
+  setPaintProperty: (
+    name: string,
+    value: any,
+    options?: StyleSetterOptions,
+  ) => void;
 }
 ```
 
@@ -140,7 +148,17 @@ Style configuration for symbol layers.
 interface SymbolLayerStyle {
   // Icon properties
   'icon-allow-overlap'?: boolean | Expression;
-  'icon-anchor'?: 'center' | 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | Expression;
+  'icon-anchor'?:
+    | 'center'
+    | 'left'
+    | 'right'
+    | 'top'
+    | 'bottom'
+    | 'top-left'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-right'
+    | Expression;
   'icon-color'?: string | Expression;
   'icon-halo-blur'?: number | Expression;
   'icon-halo-color'?: string | Expression;
@@ -161,10 +179,20 @@ interface SymbolLayerStyle {
   'icon-text-fit-padding'?: [number, number, number, number] | Expression;
   'icon-translate'?: [number, number] | Expression;
   'icon-translate-anchor'?: 'map' | 'viewport' | Expression;
-  
+
   // Text properties
   'text-allow-overlap'?: boolean | Expression;
-  'text-anchor'?: 'center' | 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | Expression;
+  'text-anchor'?:
+    | 'center'
+    | 'left'
+    | 'right'
+    | 'top'
+    | 'bottom'
+    | 'top-left'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-right'
+    | Expression;
   'text-color'?: string | Expression;
   'text-field'?: string | Expression;
   'text-font'?: string[] | Expression;
@@ -191,7 +219,19 @@ interface SymbolLayerStyle {
   'text-transform'?: 'none' | 'uppercase' | 'lowercase' | Expression;
   'text-translate'?: [number, number] | Expression;
   'text-translate-anchor'?: 'map' | 'viewport' | Expression;
-  'text-variable-anchor'?: ('center' | 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right')[] | Expression;
+  'text-variable-anchor'?:
+    | (
+        | 'center'
+        | 'left'
+        | 'right'
+        | 'top'
+        | 'bottom'
+        | 'top-left'
+        | 'top-right'
+        | 'bottom-left'
+        | 'bottom-right'
+      )[]
+    | Expression;
   'text-writing-mode'?: ('horizontal' | 'vertical')[] | Expression;
 }
 ```
@@ -209,7 +249,7 @@ enum MapCreationStatus {
   Loading = 'loading',
   Loaded = 'loaded',
   Error = 'error',
-  Disposed = 'disposed'
+  Disposed = 'disposed',
 }
 ```
 
@@ -225,7 +265,7 @@ enum SourceStatus {
   Loading = 'loading',
   Loaded = 'loaded',
   Error = 'error',
-  Disposed = 'disposed'
+  Disposed = 'disposed',
 }
 ```
 
@@ -239,7 +279,7 @@ enum LayerManagementStatus {
   Registering = 'registering',
   Registered = 'registered',
   Error = 'error',
-  Disposed = 'disposed'
+  Disposed = 'disposed',
 }
 ```
 
@@ -266,7 +306,12 @@ type MaybeRef<T> = T | Ref<T>;
 Union type for image data formats.
 
 ```typescript
-type ImageDatas = ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap;
+type ImageDatas =
+  | ImageData
+  | HTMLImageElement
+  | HTMLCanvasElement
+  | HTMLVideoElement
+  | ImageBitmap;
 ```
 
 ### Anchor
@@ -274,7 +319,16 @@ type ImageDatas = ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoEl
 Anchor position type for markers and popups.
 
 ```typescript
-type Anchor = 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+type Anchor =
+  | 'center'
+  | 'top'
+  | 'bottom'
+  | 'left'
+  | 'right'
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right';
 ```
 
 ## Event Types
@@ -383,7 +437,9 @@ const onMapWheel: MapWheelHandler = (e) => {
 The function signature for handling a click on a specific layer. The event includes the `features` under the pointer, so you can read which feature(s) were clicked.
 
 ```typescript
-type LayerClickHandler = (e: MapMouseEvent & { features?: GeoJSON.Feature[] }) => void;
+type LayerClickHandler = (
+  e: MapMouseEvent & { features?: GeoJSON.Feature[] },
+) => void;
 ```
 
 ```vue
@@ -408,7 +464,9 @@ const onLayerClick: LayerClickHandler = (e) => {
 The function signature for handling mouse events on a layer, such as hover (`mouseenter`/`mousemove`/`mouseleave`). Like `LayerClickHandler`, it also exposes the `features` under the pointer.
 
 ```typescript
-type LayerMouseHandler = (e: MapMouseEvent & { features?: GeoJSON.Feature[] }) => void;
+type LayerMouseHandler = (
+  e: MapMouseEvent & { features?: GeoJSON.Feature[] },
+) => void;
 ```
 
 ```vue

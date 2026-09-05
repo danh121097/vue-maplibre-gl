@@ -24,7 +24,10 @@ interface FitBoundsProps {
 }
 
 interface FitBoundsActions {
-  setFitBounds: (boundsVal: LngLatBoundsLike, options?: FitBoundsOptions) => void;
+  setFitBounds: (
+    boundsVal: LngLatBoundsLike,
+    options?: FitBoundsOptions,
+  ) => void;
   clearBounds: () => void;
   getCurrentBounds: () => LngLatBounds | null;
   bounds: ComputedRef<LngLatBoundsLike | undefined>;
@@ -39,7 +42,10 @@ interface CameraForBoundsProps {
 }
 
 interface CameraForBoundsActions {
-  cameraForBounds: (boundsVal: LngLatBoundsLike, options?: CameraForBoundsOptions) => void;
+  cameraForBounds: (
+    boundsVal: LngLatBoundsLike,
+    options?: CameraForBoundsOptions,
+  ) => void;
   clearCamera: () => void;
   getCurrentBounds: () => LngLatBounds | null;
   bbox: ComputedRef<LngLatBoundsLike | undefined>;
@@ -62,17 +68,28 @@ export function useFitBounds(props: FitBoundsProps): FitBoundsActions {
   function getCurrentBounds(): LngLatBounds | null {
     const map = mapInstance.value;
     if (!map) return null;
-    try { return map.getBounds(); }
-    catch (error) { logError('Error getting current bounds:', error); return null; }
+    try {
+      return map.getBounds();
+    } catch (error) {
+      logError('Error getting current bounds:', error);
+      return null;
+    }
   }
 
-  function setFitBounds(boundsVal: LngLatBoundsLike, options?: FitBoundsOptions): void {
+  function setFitBounds(
+    boundsVal: LngLatBoundsLike,
+    options?: FitBoundsOptions,
+  ): void {
     const map = mapInstance.value;
     if (!map || !boundsVal) {
       boundsStatus.value = BoundsStatus.Error;
       return;
     }
-    if (Array.isArray(boundsVal) && boundsVal.length !== 4 && boundsVal.length !== 2) {
+    if (
+      Array.isArray(boundsVal) &&
+      boundsVal.length !== 4 &&
+      boundsVal.length !== 2
+    ) {
       boundsStatus.value = BoundsStatus.Error;
       return;
     }
@@ -124,10 +141,14 @@ export function useFitBounds(props: FitBoundsProps): FitBoundsActions {
 /**
  * Composable for managing camera positioning for bounds
  */
-export function useCameraForBounds(props: CameraForBoundsProps): CameraForBoundsActions {
+export function useCameraForBounds(
+  props: CameraForBoundsProps,
+): CameraForBoundsActions {
   const { log } = useLogger(props.debug ?? false);
   const bbox = ref<LngLatBoundsLike | undefined>(props.options?.bounds);
-  const cameraOptions = ref<Undefinedable<CameraForBoundsOptions>>(props.options);
+  const cameraOptions = ref<Undefinedable<CameraForBoundsOptions>>(
+    props.options,
+  );
   const cameraStatus = ref<BoundsStatus>(BoundsStatus.NotSet);
 
   const mapInstance = computed(() => unref(props.map));
@@ -136,11 +157,18 @@ export function useCameraForBounds(props: CameraForBoundsProps): CameraForBounds
   function getCurrentBounds(): LngLatBounds | null {
     const map = mapInstance.value;
     if (!map) return null;
-    try { return map.getBounds(); }
-    catch (error) { log('Error getting current bounds:', error); return null; }
+    try {
+      return map.getBounds();
+    } catch (error) {
+      log('Error getting current bounds:', error);
+      return null;
+    }
   }
 
-  function cameraForBounds(boundsVal: LngLatBoundsLike, options?: CameraForBoundsOptions): void {
+  function cameraForBounds(
+    boundsVal: LngLatBoundsLike,
+    options?: CameraForBoundsOptions,
+  ): void {
     const map = mapInstance.value;
     if (!map || !boundsVal) {
       cameraStatus.value = BoundsStatus.Error;

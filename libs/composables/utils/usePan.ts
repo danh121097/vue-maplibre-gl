@@ -3,7 +3,13 @@ import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
 import type { ComputedRef, MaybeRef } from 'vue';
-import type { Map, AnimationOptions, PointLike, LngLatLike, CameraOptions } from 'maplibre-gl';
+import type {
+  Map,
+  AnimationOptions,
+  PointLike,
+  LngLatLike,
+  CameraOptions,
+} from 'maplibre-gl';
 
 export enum PanStatus {
   NotStarted = 'not-started',
@@ -12,7 +18,13 @@ export enum PanStatus {
   Error = 'error',
 }
 
-interface PanByProps { map: MaybeRef<Nullable<Map>>; offset?: PointLike; options?: AnimationOptions; debug?: boolean; autoPan?: boolean; }
+interface PanByProps {
+  map: MaybeRef<Nullable<Map>>;
+  offset?: PointLike;
+  options?: AnimationOptions;
+  debug?: boolean;
+  autoPan?: boolean;
+}
 interface PanByActions {
   panBy: (offset: PointLike, options?: AnimationOptions) => Promise<void>;
   stopPanning: () => void;
@@ -21,7 +33,13 @@ interface PanByActions {
   panStatus: ComputedRef<PanStatus>;
   isPanning: ComputedRef<boolean>;
 }
-interface PanToProps { map: MaybeRef<Nullable<Map>>; lnglat?: LngLatLike; options?: AnimationOptions; debug?: boolean; autoPan?: boolean; }
+interface PanToProps {
+  map: MaybeRef<Nullable<Map>>;
+  lnglat?: LngLatLike;
+  options?: AnimationOptions;
+  debug?: boolean;
+  autoPan?: boolean;
+}
 interface PanToActions {
   panTo: (lnglat: LngLatLike, options?: AnimationOptions) => Promise<void>;
   stopPanning: () => void;
@@ -34,7 +52,11 @@ interface PanToActions {
 function validatePanOffset(offset: PointLike): boolean {
   if (!offset) return false;
   if (Array.isArray(offset)) {
-    return offset.length === 2 && typeof offset[0] === 'number' && typeof offset[1] === 'number';
+    return (
+      offset.length === 2 &&
+      typeof offset[0] === 'number' &&
+      typeof offset[1] === 'number'
+    );
   }
   if (typeof offset === 'object') {
     return typeof offset.x === 'number' && typeof offset.y === 'number';
@@ -47,7 +69,14 @@ function validatePanTarget(lnglat: LngLatLike): boolean {
   if (Array.isArray(lnglat)) {
     if (lnglat.length !== 2) return false;
     const [lng, lat] = lnglat;
-    return typeof lng === 'number' && typeof lat === 'number' && lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90;
+    return (
+      typeof lng === 'number' &&
+      typeof lat === 'number' &&
+      lng >= -180 &&
+      lng <= 180 &&
+      lat >= -90 &&
+      lat <= 90
+    );
   }
   if (typeof lnglat === 'object') {
     const hasLngLat = 'lng' in lnglat && 'lat' in lnglat;
@@ -60,14 +89,26 @@ function validatePanTarget(lnglat: LngLatLike): boolean {
 // --- usePanBy ---
 
 export function usePanBy(props: PanByProps): PanByActions;
-export function usePanBy(map: MaybeRef<Nullable<Map>>, options?: AnimationOptions & { offset: PointLike }): { panBy: (offsetVal: PointLike, options?: AnimationOptions) => void };
+export function usePanBy(
+  map: MaybeRef<Nullable<Map>>,
+  options?: AnimationOptions & { offset: PointLike },
+): { panBy: (offsetVal: PointLike, options?: AnimationOptions) => void };
 export function usePanBy(
   mapOrProps: MaybeRef<Nullable<Map>> | PanByProps,
   legacyOptions?: AnimationOptions & { offset: PointLike },
-): PanByActions | { panBy: (offsetVal: PointLike, options?: AnimationOptions) => void } {
-  const isLegacyAPI = legacyOptions !== undefined || !('map' in (mapOrProps as any));
+):
+  | PanByActions
+  | { panBy: (offsetVal: PointLike, options?: AnimationOptions) => void } {
+  const isLegacyAPI =
+    legacyOptions !== undefined || !('map' in (mapOrProps as any));
   const props: PanByProps = isLegacyAPI
-    ? { map: mapOrProps as MaybeRef<Nullable<Map>>, offset: legacyOptions?.offset, options: legacyOptions, debug: false, autoPan: true }
+    ? {
+        map: mapOrProps as MaybeRef<Nullable<Map>>,
+        offset: legacyOptions?.offset,
+        options: legacyOptions,
+        debug: false,
+        autoPan: true,
+      }
     : (mapOrProps as PanByProps);
 
   const { logError } = useLogger(props.debug ?? false);
@@ -80,7 +121,10 @@ export function usePanBy(
   const { executeAnimation, getCurrentCamera, stopAnimation } =
     createCameraAnimation({ map: props.map, debug: props.debug });
 
-  function panBy(offsetVal: PointLike, options?: AnimationOptions): Promise<void> {
+  function panBy(
+    offsetVal: PointLike,
+    options?: AnimationOptions,
+  ): Promise<void> {
     if (!validatePanOffset(offsetVal)) {
       panStatus.value = PanStatus.Error;
       return Promise.reject(new Error('Invalid pan offset'));
@@ -92,44 +136,91 @@ export function usePanBy(
 
     if (!finalOptions) {
       return executeAnimation('panBy', [offsetVal])
-        .then(() => { panStatus.value = PanStatus.Completed; })
-        .catch((error) => { panStatus.value = PanStatus.Error; throw error; });
+        .then(() => {
+          panStatus.value = PanStatus.Completed;
+        })
+        .catch((error) => {
+          panStatus.value = PanStatus.Error;
+          throw error;
+        });
     }
 
     return executeAnimation('panBy', [offsetVal, finalOptions], 'moveend')
-      .then(() => { panStatus.value = PanStatus.Completed; })
-      .catch((error) => { panStatus.value = PanStatus.Error; throw error; });
+      .then(() => {
+        panStatus.value = PanStatus.Completed;
+      })
+      .catch((error) => {
+        panStatus.value = PanStatus.Error;
+        throw error;
+      });
   }
 
-  function stopPanning(): void { stopAnimation(); panStatus.value = PanStatus.Completed; }
+  function stopPanning(): void {
+    stopAnimation();
+    panStatus.value = PanStatus.Completed;
+  }
 
   watchEffect(() => {
     const map = mapInstance.value;
-    if (map && offset.value && props.autoPan !== false && panStatus.value === PanStatus.NotStarted) {
-      panBy(offset.value, animationOptions.value).catch((e) => logError('Error in watchEffect panBy:', e));
+    if (
+      map &&
+      offset.value &&
+      props.autoPan !== false &&
+      panStatus.value === PanStatus.NotStarted
+    ) {
+      panBy(offset.value, animationOptions.value).catch((e) =>
+        logError('Error in watchEffect panBy:', e),
+      );
     }
   });
 
-  onUnmounted(() => { panStatus.value = PanStatus.Completed; });
+  onUnmounted(() => {
+    panStatus.value = PanStatus.Completed;
+  });
 
   if (isLegacyAPI) {
-    return { panBy: (offsetVal: PointLike, options?: AnimationOptions) => { panBy(offsetVal, options).catch((e) => logError('Error in legacy panBy:', e)); } };
+    return {
+      panBy: (offsetVal: PointLike, options?: AnimationOptions) => {
+        panBy(offsetVal, options).catch((e) =>
+          logError('Error in legacy panBy:', e),
+        );
+      },
+    };
   }
 
-  return { panBy, stopPanning, getCurrentCamera, validatePanOffset, panStatus: computed(() => panStatus.value), isPanning };
+  return {
+    panBy,
+    stopPanning,
+    getCurrentCamera,
+    validatePanOffset,
+    panStatus: computed(() => panStatus.value),
+    isPanning,
+  };
 }
 
 // --- usePanTo ---
 
 export function usePanTo(props: PanToProps): PanToActions;
-export function usePanTo(map: MaybeRef<Nullable<Map>>, options?: AnimationOptions & { lnglat: LngLatLike }): { panTo: (offsetVal: LngLatLike, options?: AnimationOptions) => void };
+export function usePanTo(
+  map: MaybeRef<Nullable<Map>>,
+  options?: AnimationOptions & { lnglat: LngLatLike },
+): { panTo: (offsetVal: LngLatLike, options?: AnimationOptions) => void };
 export function usePanTo(
   mapOrProps: MaybeRef<Nullable<Map>> | PanToProps,
   legacyOptions?: AnimationOptions & { lnglat: LngLatLike },
-): PanToActions | { panTo: (offsetVal: LngLatLike, options?: AnimationOptions) => void } {
-  const isLegacyAPI = legacyOptions !== undefined || !('map' in (mapOrProps as any));
+):
+  | PanToActions
+  | { panTo: (offsetVal: LngLatLike, options?: AnimationOptions) => void } {
+  const isLegacyAPI =
+    legacyOptions !== undefined || !('map' in (mapOrProps as any));
   const props: PanToProps = isLegacyAPI
-    ? { map: mapOrProps as MaybeRef<Nullable<Map>>, lnglat: legacyOptions?.lnglat, options: legacyOptions, debug: false, autoPan: true }
+    ? {
+        map: mapOrProps as MaybeRef<Nullable<Map>>,
+        lnglat: legacyOptions?.lnglat,
+        options: legacyOptions,
+        debug: false,
+        autoPan: true,
+      }
     : (mapOrProps as PanToProps);
 
   const { logError } = useLogger(props.debug ?? false);
@@ -142,7 +233,10 @@ export function usePanTo(
   const { executeAnimation, getCurrentCamera, stopAnimation } =
     createCameraAnimation({ map: props.map, debug: props.debug });
 
-  function panTo(lnglatVal: LngLatLike, options?: AnimationOptions): Promise<void> {
+  function panTo(
+    lnglatVal: LngLatLike,
+    options?: AnimationOptions,
+  ): Promise<void> {
     if (!validatePanTarget(lnglatVal)) {
       panStatus.value = PanStatus.Error;
       return Promise.reject(new Error('Invalid pan target coordinates'));
@@ -154,29 +248,64 @@ export function usePanTo(
 
     if (!finalOptions) {
       return executeAnimation('panTo', [lnglatVal])
-        .then(() => { panStatus.value = PanStatus.Completed; })
-        .catch((error) => { panStatus.value = PanStatus.Error; throw error; });
+        .then(() => {
+          panStatus.value = PanStatus.Completed;
+        })
+        .catch((error) => {
+          panStatus.value = PanStatus.Error;
+          throw error;
+        });
     }
 
     return executeAnimation('panTo', [lnglatVal, finalOptions], 'moveend')
-      .then(() => { panStatus.value = PanStatus.Completed; })
-      .catch((error) => { panStatus.value = PanStatus.Error; throw error; });
+      .then(() => {
+        panStatus.value = PanStatus.Completed;
+      })
+      .catch((error) => {
+        panStatus.value = PanStatus.Error;
+        throw error;
+      });
   }
 
-  function stopPanning(): void { stopAnimation(); panStatus.value = PanStatus.Completed; }
+  function stopPanning(): void {
+    stopAnimation();
+    panStatus.value = PanStatus.Completed;
+  }
 
   watchEffect(() => {
     const map = mapInstance.value;
-    if (map && lnglat.value && props.autoPan !== false && panStatus.value === PanStatus.NotStarted) {
-      panTo(lnglat.value, animationOptions.value).catch((e) => logError('Error in watchEffect panTo:', e));
+    if (
+      map &&
+      lnglat.value &&
+      props.autoPan !== false &&
+      panStatus.value === PanStatus.NotStarted
+    ) {
+      panTo(lnglat.value, animationOptions.value).catch((e) =>
+        logError('Error in watchEffect panTo:', e),
+      );
     }
   });
 
-  onUnmounted(() => { panStatus.value = PanStatus.Completed; });
+  onUnmounted(() => {
+    panStatus.value = PanStatus.Completed;
+  });
 
   if (isLegacyAPI) {
-    return { panTo: (lnglatVal: LngLatLike, options?: AnimationOptions) => { panTo(lnglatVal, options).catch((e) => logError('Error in legacy panTo:', e)); } };
+    return {
+      panTo: (lnglatVal: LngLatLike, options?: AnimationOptions) => {
+        panTo(lnglatVal, options).catch((e) =>
+          logError('Error in legacy panTo:', e),
+        );
+      },
+    };
   }
 
-  return { panTo, stopPanning, getCurrentCamera, validatePanTarget, panStatus: computed(() => panStatus.value), isPanning };
+  return {
+    panTo,
+    stopPanning,
+    getCurrentCamera,
+    validatePanTarget,
+    panStatus: computed(() => panStatus.value),
+    isPanning,
+  };
 }

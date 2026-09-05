@@ -9,8 +9,12 @@ export type MapTouchHandler = (e: MapTouchEvent) => void;
 export type MapWheelHandler = (e: MapWheelEvent) => void;
 
 // Layer event handlers
-export type LayerClickHandler = (e: MapMouseEvent & { features?: GeoJSON.Feature[] }) => void;
-export type LayerMouseHandler = (e: MapMouseEvent & { features?: GeoJSON.Feature[] }) => void;
+export type LayerClickHandler = (
+  e: MapMouseEvent & { features?: GeoJSON.Feature[] },
+) => void;
+export type LayerMouseHandler = (
+  e: MapMouseEvent & { features?: GeoJSON.Feature[] },
+) => void;
 
 // Geolocate event handlers
 export type GeolocateHandler = (e: GeolocateSuccess) => void;

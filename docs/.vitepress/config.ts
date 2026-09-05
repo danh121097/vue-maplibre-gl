@@ -2,7 +2,8 @@ import { defineConfig } from 'vitepress';
 
 export default defineConfig({
   title: 'Vue 3 MapLibre GL',
-  description: 'Interactive maps for Vue 3 — 10 components and 50+ composables for MapLibre GL JS, fully typed with TypeScript.',
+  description:
+    'Interactive maps for Vue 3 — 10 components and 50+ composables for MapLibre GL JS, fully typed with TypeScript.',
   base: '/',
   ignoreDeadLinks: false,
   srcExclude: [
@@ -21,7 +22,14 @@ export default defineConfig({
     ['meta', { name: 'theme-color', content: '#10b981' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'Vue 3 MapLibre GL' }],
-    ['meta', { property: 'og:description', content: 'Interactive maps for Vue 3 — 10 components and 50+ composables for MapLibre GL JS, fully typed with TypeScript.' }],
+    [
+      'meta',
+      {
+        property: 'og:description',
+        content:
+          'Interactive maps for Vue 3 — 10 components and 50+ composables for MapLibre GL JS, fully typed with TypeScript.',
+      },
+    ],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
   ],
 
@@ -63,7 +71,10 @@ export default defineConfig({
           items: [
             { text: 'Basic Usage', link: '/guide/basic-usage' },
             { text: 'Configuration', link: '/guide/configuration' },
-            { text: 'Composables Overview', link: '/guide/composables-overview' },
+            {
+              text: 'Composables Overview',
+              link: '/guide/composables-overview',
+            },
           ],
         },
         {
@@ -104,7 +115,8 @@ export default defineConfig({
     ],
 
     editLink: {
-      pattern: 'https://github.com/danh121097/vue-maplibre-gl/edit/master/docs/:path',
+      pattern:
+        'https://github.com/danh121097/vue-maplibre-gl/edit/master/docs/:path',
       text: 'Edit this page on GitHub',
     },
 

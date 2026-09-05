@@ -16,8 +16,16 @@ export enum EventListenerStatus {
  * Adapter functions for attaching/detaching events on different target types
  */
 export interface EventListenerAdapter<TTarget> {
-  attach: (target: TTarget, event: string, handler: (...args: any[]) => void) => void;
-  detach: (target: TTarget, event: string, handler: (...args: any[]) => void) => void;
+  attach: (
+    target: TTarget,
+    event: string,
+    handler: (...args: any[]) => void,
+  ) => void;
+  detach: (
+    target: TTarget,
+    event: string,
+    handler: (...args: any[]) => void,
+  ) => void;
   /** Optional validation before attaching (e.g., hasLayer check) */
   validate?: (target: TTarget) => boolean;
 }
@@ -51,7 +59,9 @@ export function createEventListenerComposable<TTarget>(
   config: EventListenerConfig<TTarget>,
 ): EventListenerActions {
   const { logError } = useLogger(config.debug ?? false);
-  const listenerStatus = ref<EventListenerStatus>(EventListenerStatus.NotAttached);
+  const listenerStatus = ref<EventListenerStatus>(
+    EventListenerStatus.NotAttached,
+  );
 
   const targetInstance = computed(() => unref(config.target));
   const isListenerAttached = computed(
@@ -85,7 +95,9 @@ export function createEventListenerComposable<TTarget>(
       listenerStatus.value = EventListenerStatus.Attached;
     } catch (error) {
       listenerStatus.value = EventListenerStatus.Error;
-      logError('Error attaching event listener:', error, { event: config.event });
+      logError('Error attaching event listener:', error, {
+        event: config.event,
+      });
     }
   }
 
@@ -117,7 +129,10 @@ export function createEventListenerComposable<TTarget>(
 
     if (target && listenerStatus.value === EventListenerStatus.NotAttached) {
       attachListener();
-    } else if (!target && listenerStatus.value === EventListenerStatus.Attached) {
+    } else if (
+      !target &&
+      listenerStatus.value === EventListenerStatus.Attached
+    ) {
       removeListener();
     }
     onCleanUp(removeListener);

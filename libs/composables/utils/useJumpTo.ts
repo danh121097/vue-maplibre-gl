@@ -3,7 +3,12 @@ import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
 import type { ComputedRef, MaybeRef } from 'vue';
-import type { Map, JumpToOptions, LngLatLike, CameraOptions } from 'maplibre-gl';
+import type {
+  Map,
+  JumpToOptions,
+  LngLatLike,
+  CameraOptions,
+} from 'maplibre-gl';
 
 export enum JumpStatus {
   NotStarted = 'not-started',
@@ -21,9 +26,15 @@ interface JumpToProps {
 
 interface JumpToActions {
   jumpTo: (options?: JumpToOptions) => void;
-  jumpToCenter: (center: LngLatLike, options?: Omit<JumpToOptions, 'center'>) => void;
+  jumpToCenter: (
+    center: LngLatLike,
+    options?: Omit<JumpToOptions, 'center'>,
+  ) => void;
   jumpToZoom: (zoom: number, options?: Omit<JumpToOptions, 'zoom'>) => void;
-  jumpToBearing: (bearing: number, options?: Omit<JumpToOptions, 'bearing'>) => void;
+  jumpToBearing: (
+    bearing: number,
+    options?: Omit<JumpToOptions, 'bearing'>,
+  ) => void;
   jumpToPitch: (pitch: number, options?: Omit<JumpToOptions, 'pitch'>) => void;
   getCurrentCamera: () => CameraOptions | null;
   validateJumpOptions: (options: JumpToOptions) => boolean;
@@ -49,7 +60,12 @@ export function useJumpTo(
   const isLegacyAPI =
     legacyOptions !== undefined || !('map' in (mapOrProps as any));
   const props: JumpToProps = isLegacyAPI
-    ? { map: mapOrProps as MaybeRef<Nullable<Map>>, options: legacyOptions, debug: false, autoJump: true }
+    ? {
+        map: mapOrProps as MaybeRef<Nullable<Map>>,
+        options: legacyOptions,
+        debug: false,
+        autoJump: true,
+      }
     : (mapOrProps as JumpToProps);
 
   const { logError } = useLogger(props.debug ?? false);
@@ -60,8 +76,10 @@ export function useJumpTo(
   const isJumping = computed(() => jumpStatus.value === JumpStatus.Jumping);
 
   // Instant operation — no completion event, resolves via Promise.resolve() (RT-14)
-  const { executeAnimation, getCurrentCamera } =
-    createCameraAnimation({ map: props.map, debug: props.debug });
+  const { executeAnimation, getCurrentCamera } = createCameraAnimation({
+    map: props.map,
+    debug: props.debug,
+  });
 
   function validateJumpOptions(options: JumpToOptions): boolean {
     if (!options) return false;
@@ -71,10 +89,21 @@ export function useJumpTo(
       if (typeof lng !== 'number' || typeof lat !== 'number') return false;
       if (lng < -180 || lng > 180 || lat < -90 || lat > 90) return false;
     }
-    if (options.zoom !== undefined && (typeof options.zoom !== 'number' || options.zoom < 0 || options.zoom > 24))
+    if (
+      options.zoom !== undefined &&
+      (typeof options.zoom !== 'number' ||
+        options.zoom < 0 ||
+        options.zoom > 24)
+    )
       return false;
-    if (options.bearing !== undefined && typeof options.bearing !== 'number') return false;
-    if (options.pitch !== undefined && (typeof options.pitch !== 'number' || options.pitch < 0 || options.pitch > 60))
+    if (options.bearing !== undefined && typeof options.bearing !== 'number')
+      return false;
+    if (
+      options.pitch !== undefined &&
+      (typeof options.pitch !== 'number' ||
+        options.pitch < 0 ||
+        options.pitch > 60)
+    )
       return false;
     return true;
   }
@@ -92,37 +121,58 @@ export function useJumpTo(
 
     // No completion event — instant resolve
     executeAnimation('jumpTo', [finalOptions])
-      .then(() => { jumpStatus.value = JumpStatus.Completed; })
+      .then(() => {
+        jumpStatus.value = JumpStatus.Completed;
+      })
       .catch((error) => {
         jumpStatus.value = JumpStatus.Error;
         logError('Error performing jump-to operation:', error);
       });
   }
 
-  function jumpToCenter(center: LngLatLike, options?: Omit<JumpToOptions, 'center'>): void {
+  function jumpToCenter(
+    center: LngLatLike,
+    options?: Omit<JumpToOptions, 'center'>,
+  ): void {
     jumpTo({ ...options, center });
   }
 
-  function jumpToZoom(zoom: number, options?: Omit<JumpToOptions, 'zoom'>): void {
+  function jumpToZoom(
+    zoom: number,
+    options?: Omit<JumpToOptions, 'zoom'>,
+  ): void {
     jumpTo({ ...options, zoom });
   }
 
-  function jumpToBearing(bearing: number, options?: Omit<JumpToOptions, 'bearing'>): void {
+  function jumpToBearing(
+    bearing: number,
+    options?: Omit<JumpToOptions, 'bearing'>,
+  ): void {
     jumpTo({ ...options, bearing });
   }
 
-  function jumpToPitch(pitch: number, options?: Omit<JumpToOptions, 'pitch'>): void {
+  function jumpToPitch(
+    pitch: number,
+    options?: Omit<JumpToOptions, 'pitch'>,
+  ): void {
     jumpTo({ ...options, pitch });
   }
 
   watchEffect(() => {
     const map = mapInstance.value;
-    if (map && jumpOptions.value && props.autoJump !== false && jumpStatus.value === JumpStatus.NotStarted) {
+    if (
+      map &&
+      jumpOptions.value &&
+      props.autoJump !== false &&
+      jumpStatus.value === JumpStatus.NotStarted
+    ) {
       jumpTo(jumpOptions.value);
     }
   });
 
-  onUnmounted(() => { jumpStatus.value = JumpStatus.Completed; });
+  onUnmounted(() => {
+    jumpStatus.value = JumpStatus.Completed;
+  });
 
   if (isLegacyAPI) {
     return { jumpTo };

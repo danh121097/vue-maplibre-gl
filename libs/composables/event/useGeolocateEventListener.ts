@@ -33,8 +33,10 @@ export function useGeolocateEventListener(
     debug: props.debug,
     once: props.once,
     adapter: {
-      attach: (geolocate, event, handler) => geolocate.on(event as any, handler),
-      detach: (geolocate, event, handler) => geolocate.off(event as any, handler),
+      attach: (geolocate, event, handler) =>
+        geolocate.on(event as any, handler),
+      detach: (geolocate, event, handler) =>
+        geolocate.off(event as any, handler),
     },
   });
 }

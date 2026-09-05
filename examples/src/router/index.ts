@@ -1,6 +1,6 @@
-import type { App } from 'vue'
+import type { App } from 'vue';
 
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -8,13 +8,13 @@ export const router = createRouter({
     {
       name: 'Home',
       path: '/',
-      component: () => import('../views/Home.vue')
-    }
+      component: () => import('../views/Home.vue'),
+    },
   ],
   strict: true,
-  scrollBehavior: () => ({ left: 0, top: 0 })
-})
+  scrollBehavior: () => ({ left: 0, top: 0 }),
+});
 
 export function setupRouter(app: App<Element>) {
-  app.use(router)
+  app.use(router);
 }

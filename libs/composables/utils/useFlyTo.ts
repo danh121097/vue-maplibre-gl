@@ -63,21 +63,38 @@ export function useFlyTo(props: FlyToProps): FlyToActions {
   function validateFlyOptions(options: FlyToOptions): boolean {
     if (!options || typeof options !== 'object') return false;
     if (options.zoom !== undefined && (options.zoom < 0 || options.zoom > 24))
-      logWarn('Warning: Zoom level should be between 0 and 24', { zoom: options.zoom });
-    if (options.bearing !== undefined && (options.bearing < -180 || options.bearing > 180))
-      logWarn('Warning: Bearing should be between -180 and 180 degrees', { bearing: options.bearing });
-    if (options.pitch !== undefined && (options.pitch < 0 || options.pitch > 60))
-      logWarn('Warning: Pitch should be between 0 and 60 degrees', { pitch: options.pitch });
+      logWarn('Warning: Zoom level should be between 0 and 24', {
+        zoom: options.zoom,
+      });
+    if (
+      options.bearing !== undefined &&
+      (options.bearing < -180 || options.bearing > 180)
+    )
+      logWarn('Warning: Bearing should be between -180 and 180 degrees', {
+        bearing: options.bearing,
+      });
+    if (
+      options.pitch !== undefined &&
+      (options.pitch < 0 || options.pitch > 60)
+    )
+      logWarn('Warning: Pitch should be between 0 and 60 degrees', {
+        pitch: options.pitch,
+      });
     if (options.speed !== undefined && options.speed <= 0)
-      logWarn('Warning: Speed should be greater than 0', { speed: options.speed });
+      logWarn('Warning: Speed should be greater than 0', {
+        speed: options.speed,
+      });
     if (options.curve !== undefined && options.curve < 0)
-      logWarn('Warning: Curve should be non-negative', { curve: options.curve });
+      logWarn('Warning: Curve should be non-negative', {
+        curve: options.curve,
+      });
     return true;
   }
 
   function flyTo(options?: FlyToOptions): Promise<void> {
     const finalOptions = options || flyOptions.value;
-    if (!finalOptions) return Promise.reject(new Error('No fly options provided'));
+    if (!finalOptions)
+      return Promise.reject(new Error('No fly options provided'));
     if (!validateFlyOptions(finalOptions)) {
       flyStatus.value = FlyStatus.Error;
       return Promise.reject(new Error('Invalid fly options'));
@@ -87,26 +104,40 @@ export function useFlyTo(props: FlyToProps): FlyToActions {
     flyStatus.value = FlyStatus.Flying;
 
     return executeAnimation('flyTo', [finalOptions], 'moveend')
-      .then(() => { flyStatus.value = FlyStatus.Completed; })
+      .then(() => {
+        flyStatus.value = FlyStatus.Completed;
+      })
       .catch((error) => {
         flyStatus.value = FlyStatus.Error;
         throw error;
       });
   }
 
-  function flyToCenter(center: LngLatLike, options?: Omit<FlyToOptions, 'center'>): Promise<void> {
+  function flyToCenter(
+    center: LngLatLike,
+    options?: Omit<FlyToOptions, 'center'>,
+  ): Promise<void> {
     return flyTo({ ...options, center });
   }
 
-  function flyToZoom(zoom: number, options?: Omit<FlyToOptions, 'zoom'>): Promise<void> {
+  function flyToZoom(
+    zoom: number,
+    options?: Omit<FlyToOptions, 'zoom'>,
+  ): Promise<void> {
     return flyTo({ ...options, zoom });
   }
 
-  function flyToBearing(bearing: number, options?: Omit<FlyToOptions, 'bearing'>): Promise<void> {
+  function flyToBearing(
+    bearing: number,
+    options?: Omit<FlyToOptions, 'bearing'>,
+  ): Promise<void> {
     return flyTo({ ...options, bearing });
   }
 
-  function flyToPitch(pitch: number, options?: Omit<FlyToOptions, 'pitch'>): Promise<void> {
+  function flyToPitch(
+    pitch: number,
+    options?: Omit<FlyToOptions, 'pitch'>,
+  ): Promise<void> {
     return flyTo({ ...options, pitch });
   }
 

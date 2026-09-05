@@ -69,6 +69,7 @@ const { flyTo } = useFlyTo({ map: mapInstance });
 ## Upgrade Steps
 
 1. Update the package:
+
    ```bash
    bun add vue3-maplibre-gl@latest
    ```

@@ -7,3 +7,7 @@
 **/*.sh
 
 /public/*
+
+# Generated in CI by git-cliff and committed by a bot that does not run
+# Prettier. Formatting it here would fail format:check on the next push.
+docs/changelog.md

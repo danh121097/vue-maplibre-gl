@@ -37,18 +37,23 @@ features:
 ## Quick Start
 
 ::: code-group
+
 ```bash [bun]
 bun add vue3-maplibre-gl
 ```
+
 ```bash [npm]
 npm install vue3-maplibre-gl
 ```
+
 ```bash [yarn]
 yarn add vue3-maplibre-gl
 ```
+
 ```bash [pnpm]
 pnpm add vue3-maplibre-gl
 ```
+
 :::
 
 ```vue
@@ -64,7 +69,13 @@ pnpm add vue3-maplibre-gl
 
 <script setup>
 import { ref } from 'vue';
-import { Maplibre, GeoJsonSource, FillLayer, CircleLayer, Marker } from 'vue3-maplibre-gl';
+import {
+  Maplibre,
+  GeoJsonSource,
+  FillLayer,
+  CircleLayer,
+  Marker,
+} from 'vue3-maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
@@ -77,7 +88,11 @@ const mapOptions = ref({
 const geoJsonData = ref({
   type: 'FeatureCollection',
   features: [
-    { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+    {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [0, 0] },
+      properties: {},
+    },
   ],
 });
 
@@ -88,11 +103,11 @@ const circleStyle = ref({ 'circle-radius': 6, 'circle-color': '#007cbf' });
 
 ## Why Vue3 MapLibre GL?
 
-| | Feature |
-|---|---|
-| **Vue 3 Native** | Built for Composition API with full reactivity |
-| **Self-Contained** | `maplibre-gl` bundled — one install, zero peer deps |
-| **SSR Safe** | Works with Nuxt SSR/SSG without configuration |
-| **Type Safe** | Comprehensive TypeScript definitions and event handler types |
-| **Zero Leaks** | Factory-based cleanup with defense-in-depth patterns |
-| **Tiny Footprint** | Tree-shakeable — import only what you use |
+|                    | Feature                                                      |
+| ------------------ | ------------------------------------------------------------ |
+| **Vue 3 Native**   | Built for Composition API with full reactivity               |
+| **Self-Contained** | `maplibre-gl` bundled — one install, zero peer deps          |
+| **SSR Safe**       | Works with Nuxt SSR/SSG without configuration                |
+| **Type Safe**      | Comprehensive TypeScript definitions and event handler types |
+| **Zero Leaks**     | Factory-based cleanup with defense-in-depth patterns         |
+| **Tiny Footprint** | Tree-shakeable — import only what you use                    |

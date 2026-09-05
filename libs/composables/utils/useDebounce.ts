@@ -99,10 +99,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
       return trailingEdge(time);
     }
     // Restart the timer
-    timeoutId = setTimeout(
-      timerExpired,
-      delay - (time - (lastCallTime || 0)),
-    );
+    timeoutId = setTimeout(timerExpired, delay - (time - (lastCallTime || 0)));
   }
 
   /**

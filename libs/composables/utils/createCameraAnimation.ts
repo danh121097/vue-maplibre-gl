@@ -21,7 +21,9 @@ export function createCameraAnimation(
   const animationStatus = ref<AnimationStatus>(AnimationStatus.NotStarted);
 
   const mapInstance = computed(() => unref(config.map));
-  const isAnimating = computed(() => animationStatus.value === AnimationStatus.Running);
+  const isAnimating = computed(
+    () => animationStatus.value === AnimationStatus.Running,
+  );
 
   /**
    * Execute a map camera method, wrapping it in a Promise that resolves on a completion event.

@@ -1,1 +1,1 @@
-export * from './useGeolocateControl'
+export * from './useGeolocateControl';

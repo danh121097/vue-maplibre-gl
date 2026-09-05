@@ -12,12 +12,22 @@ describe('createSetStyle', () => {
     const setLayout = vi.fn();
     const { paintKeys, layoutKeys } = LAYER_STYLE_CONFIG.circle;
 
-    const setStyle = createSetStyle(setPaint, setLayout, paintKeys, layoutKeys, vi.fn());
+    const setStyle = createSetStyle(
+      setPaint,
+      setLayout,
+      paintKeys,
+      layoutKeys,
+      vi.fn(),
+    );
 
     setStyle({ 'circle-color': '#ff0000', 'circle-radius': 5 } as any);
 
-    expect(setPaint).toHaveBeenCalledWith('circle-color', '#ff0000', { validate: false });
-    expect(setPaint).toHaveBeenCalledWith('circle-radius', 5, { validate: false });
+    expect(setPaint).toHaveBeenCalledWith('circle-color', '#ff0000', {
+      validate: false,
+    });
+    expect(setPaint).toHaveBeenCalledWith('circle-radius', 5, {
+      validate: false,
+    });
     expect(setLayout).not.toHaveBeenCalled();
   });
 
@@ -26,11 +36,19 @@ describe('createSetStyle', () => {
     const setLayout = vi.fn();
     const { paintKeys, layoutKeys } = LAYER_STYLE_CONFIG.circle;
 
-    const setStyle = createSetStyle(setPaint, setLayout, paintKeys, layoutKeys, vi.fn());
+    const setStyle = createSetStyle(
+      setPaint,
+      setLayout,
+      paintKeys,
+      layoutKeys,
+      vi.fn(),
+    );
 
     setStyle({ visibility: 'none' } as any);
 
-    expect(setLayout).toHaveBeenCalledWith('visibility', 'none', { validate: false });
+    expect(setLayout).toHaveBeenCalledWith('visibility', 'none', {
+      validate: false,
+    });
     expect(setPaint).not.toHaveBeenCalled();
   });
 
@@ -39,7 +57,13 @@ describe('createSetStyle', () => {
     const setLayout = vi.fn();
     const { paintKeys, layoutKeys } = LAYER_STYLE_CONFIG.circle;
 
-    const setStyle = createSetStyle(setPaint, setLayout, paintKeys, layoutKeys, vi.fn());
+    const setStyle = createSetStyle(
+      setPaint,
+      setLayout,
+      paintKeys,
+      layoutKeys,
+      vi.fn(),
+    );
 
     setStyle({ 'circle-color': undefined } as any);
 
@@ -51,7 +75,13 @@ describe('createSetStyle', () => {
     const setLayout = vi.fn();
     const { paintKeys, layoutKeys } = LAYER_STYLE_CONFIG.fill;
 
-    const setStyle = createSetStyle(setPaint, setLayout, paintKeys, layoutKeys, vi.fn());
+    const setStyle = createSetStyle(
+      setPaint,
+      setLayout,
+      paintKeys,
+      layoutKeys,
+      vi.fn(),
+    );
 
     setStyle({} as any);
     expect(setPaint).not.toHaveBeenCalled();
@@ -59,11 +89,19 @@ describe('createSetStyle', () => {
   });
 
   it('logs error on exception', () => {
-    const setPaint = vi.fn(() => { throw new Error('test'); });
+    const setPaint = vi.fn(() => {
+      throw new Error('test');
+    });
     const logError = vi.fn();
     const { paintKeys, layoutKeys } = LAYER_STYLE_CONFIG.circle;
 
-    const setStyle = createSetStyle(setPaint, vi.fn(), paintKeys, layoutKeys, logError);
+    const setStyle = createSetStyle(
+      setPaint,
+      vi.fn(),
+      paintKeys,
+      layoutKeys,
+      logError,
+    );
 
     setStyle({ 'circle-color': 'red' } as any);
     expect(logError).toHaveBeenCalled();
@@ -76,17 +114,25 @@ describe('createSetVisibility', () => {
     const setVisibility = createSetVisibility(setLayout, vi.fn());
 
     setVisibility('visible');
-    expect(setLayout).toHaveBeenCalledWith('visibility', 'visible', { validate: true });
+    expect(setLayout).toHaveBeenCalledWith('visibility', 'visible', {
+      validate: true,
+    });
 
     setVisibility('none', { validate: false });
-    expect(setLayout).toHaveBeenCalledWith('visibility', 'none', { validate: false });
+    expect(setLayout).toHaveBeenCalledWith('visibility', 'none', {
+      validate: false,
+    });
   });
 });
 
 describe('createPropertySetter', () => {
   it('creates a typed setter that calls setFn correctly', () => {
     const setFn = vi.fn();
-    const setRadius = createPropertySetter<number>(setFn, 'circle-radius', vi.fn());
+    const setRadius = createPropertySetter<number>(
+      setFn,
+      'circle-radius',
+      vi.fn(),
+    );
 
     setRadius(10);
     expect(setFn).toHaveBeenCalledWith('circle-radius', 10, { validate: true });
@@ -94,19 +140,34 @@ describe('createPropertySetter', () => {
 
   it('passes custom options', () => {
     const setFn = vi.fn();
-    const setColor = createPropertySetter<string>(setFn, 'circle-color', vi.fn());
+    const setColor = createPropertySetter<string>(
+      setFn,
+      'circle-color',
+      vi.fn(),
+    );
 
     setColor('#fff', { validate: false });
-    expect(setFn).toHaveBeenCalledWith('circle-color', '#fff', { validate: false });
+    expect(setFn).toHaveBeenCalledWith('circle-color', '#fff', {
+      validate: false,
+    });
   });
 
   it('logs error on exception', () => {
-    const setFn = vi.fn(() => { throw new Error('test'); });
+    const setFn = vi.fn(() => {
+      throw new Error('test');
+    });
     const logError = vi.fn();
-    const setter = createPropertySetter<number>(setFn, 'circle-radius', logError);
+    const setter = createPropertySetter<number>(
+      setFn,
+      'circle-radius',
+      logError,
+    );
 
     setter(5);
-    expect(logError).toHaveBeenCalledWith('Error setting circle-radius:', expect.any(Error));
+    expect(logError).toHaveBeenCalledWith(
+      'Error setting circle-radius:',
+      expect.any(Error),
+    );
   });
 });
 
@@ -127,7 +188,10 @@ describe('LAYER_STYLE_CONFIG', () => {
 
   it('symbol has the most keys (icon + text)', () => {
     const { paintKeys: circlePaint } = LAYER_STYLE_CONFIG.circle;
-    const { paintKeys: symbolPaint, layoutKeys: symbolLayout } = LAYER_STYLE_CONFIG.symbol;
-    expect(symbolPaint.length + symbolLayout.length).toBeGreaterThan(circlePaint.length);
+    const { paintKeys: symbolPaint, layoutKeys: symbolLayout } =
+      LAYER_STYLE_CONFIG.symbol;
+    expect(symbolPaint.length + symbolLayout.length).toBeGreaterThan(
+      circlePaint.length,
+    );
   });
 });

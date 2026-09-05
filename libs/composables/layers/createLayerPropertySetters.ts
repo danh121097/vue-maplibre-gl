@@ -1,6 +1,10 @@
 import type { StyleSetterOptions } from 'maplibre-gl';
 
-type SetPropertyFn = (name: string, value: any, options?: StyleSetterOptions) => void;
+type SetPropertyFn = (
+  name: string,
+  value: any,
+  options?: StyleSetterOptions,
+) => void;
 type LogErrorFn = (...args: any[]) => void;
 
 /**
