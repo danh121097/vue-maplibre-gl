@@ -479,11 +479,10 @@ Add images to map for image layers.
 
 ## Utilities
 
-| Composable             | Description                                            |
-| ---------------------- | ------------------------------------------------------ |
-| `useLogger`            | Consistent debug logging (controlled via `debug` prop) |
-| `useDebounce`          | Debounced function execution                           |
-| `useOptimizedComputed` | Cached computed with shallow equality                  |
+| Composable    | Description                                            |
+| ------------- | ------------------------------------------------------ |
+| `useLogger`   | Consistent debug logging (controlled via `debug` prop) |
+| `useDebounce` | Debounced function execution                           |
 
 ## Factory Functions (Advanced)
 

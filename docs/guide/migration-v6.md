@@ -179,6 +179,71 @@ Two side effects worth knowing:
 - The `vue3-maplibre-gl/components` and `vue3-maplibre-gl/composables` subpaths, which pointed at files the build never emitted, now resolve.
 - Sourcemaps are no longer published (the package dropped from 1.7 MB to roughly 0.7 MB). Build from the repository if you need to step through library source.
 
+## Prop watchers compare by reference, not deeply
+
+Eight watchers ran with `deep: true` in v5. On `<GeoJsonSource>` that meant Vue walked every feature, geometry and coordinate pair of the `data` collection to build reactive dependencies, and re-walked them on every invalidation — before the debounce even applied, because the debounce delays the callback, not the traversal.
+
+v6 watches identity on `<GeoJsonSource>` (`data`), the four layer components (`filter`, `style`, `maxzoom`, `minzoom`, `beforeId`, `visible`), `<Marker>` and `<Popup>` (`lnglat`), and `<Image>` (`images`).
+
+**Replace the value instead of mutating it in place:**
+
+```vue
+<!-- Works in v6 -->
+<GeoJsonSource :data="features" />
+<script setup>
+// new object identity — the source updates
+features.value = {
+  ...features.value,
+  features: [...features.value.features, next],
+};
+</script>
+```
+
+In-place mutation never updated the source, in v5 either:
+
+```vue
+<script setup>
+// No-op in v5 and in v6 — use refreshSource() from the register payload
+features.value.features.push(next); // same object identity
+</script>
+```
+
+v5 walked the entire `FeatureCollection` to notice that push and then discarded the result, because the callback's first line compares `newData === oldData` and a deep watch over an unchanged reference passes the same object as both. v6 simply stops paying for the traversal. The layer components are the same story: their callbacks compared each field with `!==`, so an in-place mutation of `style` woke the watcher and was then thrown away.
+
+## `<Maplibre>` compares `:options` per field
+
+`mapOptions` was a memoised computed that ran `JSON.stringify` over the merged options — including a full style specification, which can be hundreds of kB — on every read, from a getter that also wrote its own cache refs. It is a plain `computed` in v6.
+
+The practical consequence: `<Maplibre>` reacts to each option field by reference. `center` and `maxBounds` are still compared by value, so rebuilding an inline `:options` literal on every parent render does not re-issue those commands. **`style` is compared by reference** — passing an inline style _object_ literal now re-applies the style on every parent render. Hoist it to a stable constant, or pass a style URL string:
+
+```vue
+<script setup>
+// Stable identity across renders
+const MAP_OPTIONS = { style: 'https://…/style.json', center: [0, 0], zoom: 4 };
+</script>
+
+<template>
+  <Maplibre :options="MAP_OPTIONS" />
+</template>
+```
+
+## Five `computed` helpers were removed
+
+`useThrottledComputed`, `useBatchedComputed` and `useComputedWithCleanup` scheduled timers, mutated arrays and ran user cleanup callbacks from inside a `computed` getter. A Vue `computed` getter is lazy and cached: it may not run when you expect, may run during SSR, and must be pure. All three were unsound as written and none of them were used inside the library. They are gone in v6 — build the equivalent with `watch` plus a `ref`, where side effects belong.
+
+`useOptimizedComputed` and `useMemoized` are gone as well, for a different reason: nothing in the library used either of them, and neither earned its place. `useOptimizedComputed` gated a `computed` behind an equality check that ran inside the getter — and its `cacheDuration` option never worked, because the implementation invalidated itself on every read. Rewriting it around a watcher fixed the purity problem but inverted the point of the helper: the getter then ran once per dependency write instead of once per read, which is strictly worse than a plain `computed` under write-heavy loads.
+
+Use a plain `computed` instead. If you specifically need to suppress notifications on equal values, gate a `shallowRef` from a `watch`:
+
+```ts
+const state = shallowRef(source.value);
+watch(source, (value) => {
+  if (!isEqual(value, state.value)) state.value = value;
+});
+```
+
+For `useMemoized`, any small memoise helper (or `lodash.memoize`) does the same job.
+
 ## Other fixes in v6
 
 These need no code change on your side.
@@ -207,7 +272,7 @@ scope.stop(); // removes the image from the map
 
 Cleanup now runs on `onScopeDispose` rather than `onUnmounted`, so a component's `setup()` still cleans up on unmount exactly as before. If the scope is stopped while an image URL is still loading, the load is discarded rather than added to the map.
 
-**This applies to `useCreateImage` only.** Every other creation composable — `useCreateMarker`, `useCreatePopup`, `useCreateLayer`, `useCreateGeoJsonSource` — still cleans up via `onUnmounted`, so a detached `effectScope` will not dispose them. Call those inside a component's `setup()`.
+`useCreateMarker` and `useCreatePopup` also dispose on `onScopeDispose` now, so a detached `effectScope` releases them too. `useCreateLayer` and `useCreateGeoJsonSource` still clean up via `onUnmounted` only — call those inside a component's `setup()`.
 
 ### `<Image>` gained an `error` event
 
