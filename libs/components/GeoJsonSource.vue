@@ -66,6 +66,11 @@ const mapInstance = inject(MapProvideKey, shallowRef(null));
 const isSourceRegistered = ref(false);
 const lastDataUpdate = shallowRef<GeoJSONSourceSpecification['data']>();
 
+// Read-only views for the `register` payload — external consumers must not be
+// able to write the component's own state.
+const isSourceRegisteredRef = computed(() => isSourceRegistered.value);
+const lastDataUpdateRef = computed(() => lastDataUpdate.value);
+
 // Computed properties for better reactivity and performance
 const isDataValid = computed(() => {
   const data = props.data;
@@ -138,9 +143,9 @@ const {
       const enhancedActions = {
         ...actions,
         // Additional enhanced methods
-        isSourceRegistered: isSourceRegistered.value,
-        lastDataUpdate: lastDataUpdate.value,
-        isDataValid: isDataValid.value,
+        isSourceRegistered: isSourceRegisteredRef,
+        lastDataUpdate: lastDataUpdateRef,
+        isDataValid,
       };
 
       props.register?.(enhancedActions);
@@ -208,7 +213,7 @@ function cleanup(): void {
       lastDataUpdate.value = undefined;
 
       // Remove source if still available
-      if (isSourceReady) {
+      if (isSourceReady.value) {
         removeSource();
       }
     }
