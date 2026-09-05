@@ -39,6 +39,11 @@
       "require": "./dist/index.umd.cjs",
       "default": "./dist/index.js"
     },
+    "./maplibre": {
+      "types": "./dist/maplibre-reexports.d.ts",
+      "import": "./dist/maplibre-reexports.js",
+      "default": "./dist/maplibre-reexports.js"
+    },
     "./style.css": {
       "default": "./dist/style.css"
     },
@@ -62,7 +67,7 @@
   ],
   "scripts": {
     "dev": "cd examples && vite --port 8080",
-    "build": "bun run clean && vite build",
+    "build": "bun run clean && vite build && vite build --config vite.config.umd.ts",
     "clean": "rm -rf dist",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.ts,.jsx,.tsx --fix",

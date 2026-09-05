@@ -35,7 +35,9 @@
     "libs/**/*.vue",
     "types/**/*.d.ts",
     "types/**/*.ts",
-    "vite.config.ts"
+    "build/**/*.ts",
+    "vite.config.ts",
+    "vite.config.umd.ts"
   ],
   "exclude": ["node_modules", "dist", "examples"]
 }

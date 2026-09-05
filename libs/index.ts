@@ -1,5 +1,7 @@
-// Import CSS styles
-import './style.css';
+// Styles are not imported here. MapLibre's own stylesheet is a peer concern:
+// consumers import 'maplibre-gl/dist/maplibre-gl.css' themselves, as MapLibre's
+// docs instruct. This package's own rules ship as
+// 'vue3-maplibre-gl/dist/style.css', the path the docs use throughout.
 
 // Export all composables
 export * from './composables';
@@ -107,14 +109,11 @@ export type {
   VideoSourceSpecification,
 } from 'maplibre-gl';
 
-// Expose the full runtime surface under a namespace to avoid collisions with
-// Vue components such as Marker and Popup while still making the exact upstream
-// API available from this package.
-export * as maplibregl from 'maplibre-gl';
-
-// Re-export the upstream runtime surface directly where names do not conflict
-// with this package. Marker and Popup stay available via aliases below.
-export {
+// MapLibre GL classes are values *and* types. Their runtime side moved to the
+// 'vue3-maplibre-gl/maplibre' subpath (see below), but the type side stays here:
+// a type export is erased at compile time, so it costs a consumer nothing and
+// `import type { Map } from 'vue3-maplibre-gl'` keeps working.
+export type {
   AJAXError,
   AttributionControl,
   BoxZoomHandler,
@@ -159,26 +158,16 @@ export {
   TwoFingersTouchZoomRotateHandler,
   VectorTileSource,
   VideoSource,
-  addProtocol,
-  addSourceType,
-  clearPrewarmedResources,
-  config,
-  createTileMesh,
-  getMaxParallelImageRequests,
-  getRTLTextPluginStatus,
-  getVersion,
-  getWorkerCount,
-  getWorkerUrl,
-  importScriptInWorkers,
-  prewarm,
-  removeProtocol,
-  setMaxParallelImageRequests,
-  setRTLTextPlugin,
-  setWorkerCount,
-  setWorkerUrl,
 } from 'maplibre-gl';
 
-export {
+// `Marker` and `Popup` are Vue components at this package's root, so the
+// upstream classes keep the aliases they have always had.
+export type {
   Marker as MaplibreMarker,
   Popup as MaplibrePopup,
 } from 'maplibre-gl';
+
+// Only the *runtime* MapLibre surface (the `maplibregl` namespace, the classes
+// as constructors, `addProtocol`, …) lives on the dedicated
+// 'vue3-maplibre-gl/maplibre' subpath, so importing a single component from the
+// root does not pin the whole upstream runtime into the module graph.
