@@ -1,4 +1,4 @@
-import { watchEffect, ref, computed, unref, onUnmounted } from 'vue';
+import { watch, ref, computed, unref, onUnmounted } from 'vue';
 import { useLogger } from '@libs/composables';
 import type { Nullable, Undefinedable } from '@libs/types';
 import type { ComputedRef, MaybeRef } from 'vue';
@@ -242,20 +242,24 @@ export function useFitScreenCoordinates(
     status.value = FitScreenCoordinatesStatus.NotSet;
   }
 
-  // Watch for map and coordinates changes with enhanced error handling
-  watchEffect(() => {
-    const map = mapInstance.value;
-    if (
-      map &&
-      p0.value &&
-      p1.value &&
-      status.value !== FitScreenCoordinatesStatus.Setting
-    ) {
+  // Re-apply the coordinates when the map is replaced. `p0`/`p1` are only
+  // written after a successful fit against a live map, so nothing is ever
+  // pending for the first map — this is the replacement path only.
+  //
+  // A `watch` on the map instance, not a `watchEffect`: the body read `status`
+  // and `fitScreenCoordinates` writes it, so the effect re-triggered itself —
+  // and every re-run attached another `styledata` listener, because it
+  // registered one without any cleanup.
+  watch(
+    mapInstance,
+    (map, _previousMap, onCleanUp) => {
+      if (!map || !p0.value || !p1.value) return;
+      if (status.value === FitScreenCoordinatesStatus.Setting) return;
+
       try {
         if (!map.isStyleLoaded()) {
           // Wait for style to load before fitting
           const onStyleLoad = () => {
-            map.off('styledata', onStyleLoad);
             fitScreenCoordinates(
               p0.value!,
               p1.value!,
@@ -263,7 +267,8 @@ export function useFitScreenCoordinates(
               bearing.value,
             );
           };
-          map.on('styledata', onStyleLoad);
+          map.once('styledata', onStyleLoad);
+          onCleanUp(() => map.off('styledata', onStyleLoad));
           return;
         }
 
@@ -279,10 +284,11 @@ export function useFitScreenCoordinates(
         status.value = FitScreenCoordinatesStatus.Set;
       } catch (error) {
         status.value = FitScreenCoordinatesStatus.Error;
-        logError('Error in watchEffect for screen coordinates:', error);
+        logError('Error fitting screen coordinates on map change:', error);
       }
-    }
-  });
+    },
+    { immediate: true },
+  );
 
   // Cleanup function for disposing resources
   function cleanup(): void {

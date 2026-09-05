@@ -1,4 +1,4 @@
-import { watchEffect, ref, computed, unref, onUnmounted } from 'vue';
+import { watch, ref, computed, unref, onUnmounted } from 'vue';
 import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
@@ -104,12 +104,18 @@ export function useZoomTo(
 
   function stopZooming(): void { stopAnimation(); zoomStatus.value = ZoomStatus.Completed; }
 
-  watchEffect(() => {
-    const map = mapInstance.value;
-    if (map && zoom.value !== undefined && props.autoZoom !== false && zoomStatus.value === ZoomStatus.NotStarted) {
-      zoomTo(zoom.value, animationOptions.value).catch((error) => { logError('Error in watchEffect zoomTo:', error); });
-    }
-  });
+  // Auto-zoom once a map arrives. Watching the map instance rather than
+  // running an effect keeps `zoomStatus` — which `zoomTo` writes — out of the
+  // dependency set.
+  watch(
+    mapInstance,
+    (map) => {
+      if (map && zoom.value !== undefined && props.autoZoom !== false && zoomStatus.value === ZoomStatus.NotStarted) {
+        zoomTo(zoom.value, animationOptions.value).catch((error) => { logError('Error in auto zoomTo:', error); });
+      }
+    },
+    { immediate: true },
+  );
 
   onUnmounted(() => { zoomStatus.value = ZoomStatus.Completed; });
 
@@ -161,12 +167,16 @@ export function useZoomIn(
 
   function stopZooming(): void { stopAnimation(); zoomStatus.value = ZoomStatus.Completed; }
 
-  watchEffect(() => {
-    const map = mapInstance.value;
-    if (map && props.autoZoom !== false && zoomStatus.value === ZoomStatus.NotStarted) {
-      zoomIn(animationOptions.value).catch((error) => { logError('Error in watchEffect zoomIn:', error); });
-    }
-  });
+  // Auto-zoom once a map arrives — see the note in `useZoomTo`.
+  watch(
+    mapInstance,
+    (map) => {
+      if (map && props.autoZoom !== false && zoomStatus.value === ZoomStatus.NotStarted) {
+        zoomIn(animationOptions.value).catch((error) => { logError('Error in auto zoomIn:', error); });
+      }
+    },
+    { immediate: true },
+  );
 
   onUnmounted(() => { zoomStatus.value = ZoomStatus.Completed; });
 
@@ -218,12 +228,16 @@ export function useZoomOut(
 
   function stopZooming(): void { stopAnimation(); zoomStatus.value = ZoomStatus.Completed; }
 
-  watchEffect(() => {
-    const map = mapInstance.value;
-    if (map && props.autoZoom !== false && zoomStatus.value === ZoomStatus.NotStarted) {
-      zoomOut(animationOptions.value).catch((error) => { logError('Error in watchEffect zoomOut:', error); });
-    }
-  });
+  // Auto-zoom once a map arrives — see the note in `useZoomTo`.
+  watch(
+    mapInstance,
+    (map) => {
+      if (map && props.autoZoom !== false && zoomStatus.value === ZoomStatus.NotStarted) {
+        zoomOut(animationOptions.value).catch((error) => { logError('Error in auto zoomOut:', error); });
+      }
+    },
+    { immediate: true },
+  );
 
   onUnmounted(() => { zoomStatus.value = ZoomStatus.Completed; });
 

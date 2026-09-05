@@ -1,4 +1,4 @@
-import { watchEffect, ref, computed, unref, onUnmounted } from 'vue';
+import { watch, ref, computed, unref, onUnmounted } from 'vue';
 import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
@@ -108,12 +108,18 @@ function createSimpleRotation(
 
   function stopRotating(): void { stopAnimation(); rotationStatus.value = RotationStatus.Completed; }
 
-  watchEffect(() => {
-    const map = mapInstance.value;
-    if (map && autoFlag && rotationStatus.value === RotationStatus.NotStarted) {
-      execute(animationOptions.value).catch((e) => logError(`Error in watchEffect ${method}:`, e));
-    }
-  });
+  // Auto-run once a map arrives. Watching the map instance rather than running
+  // an effect keeps `rotationStatus` — which `execute` writes — out of the
+  // dependency set.
+  watch(
+    mapInstance,
+    (map) => {
+      if (map && autoFlag && rotationStatus.value === RotationStatus.NotStarted) {
+        execute(animationOptions.value).catch((e) => logError(`Error in auto ${method}:`, e));
+      }
+    },
+    { immediate: true },
+  );
 
   onUnmounted(() => { rotationStatus.value = RotationStatus.Completed; });
 
@@ -167,12 +173,16 @@ export function useRotateTo(
 
   function stopRotating(): void { stopAnimation(); rotationStatus.value = RotationStatus.Completed; }
 
-  watchEffect(() => {
-    const map = mapInstance.value;
-    if (map && bearing.value !== undefined && props.autoRotate !== false && rotationStatus.value === RotationStatus.NotStarted) {
-      rotateTo(bearing.value, animationOptions.value).catch((e) => logError('Error in watchEffect rotateTo:', e));
-    }
-  });
+  // Auto-rotate once a map arrives — see the note in `createSimpleRotation`.
+  watch(
+    mapInstance,
+    (map) => {
+      if (map && bearing.value !== undefined && props.autoRotate !== false && rotationStatus.value === RotationStatus.NotStarted) {
+        rotateTo(bearing.value, animationOptions.value).catch((e) => logError('Error in auto rotateTo:', e));
+      }
+    },
+    { immediate: true },
+  );
 
   onUnmounted(() => { rotationStatus.value = RotationStatus.Completed; });
 

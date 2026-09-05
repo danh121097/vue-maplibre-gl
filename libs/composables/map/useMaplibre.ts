@@ -74,7 +74,7 @@ export function useMaplibre(
   options: UseMaplibreOptions = {},
 ): UseMaplibreReturn {
   const { debug = false, autoCleanup = true } = options;
-  const { logError } = useLogger(debug);
+  const { log, logError } = useLogger(debug);
 
   // Internal state
   const instanceRef = ref<MaplibreActions>();
@@ -116,21 +116,17 @@ export function useMaplibre(
 
       // Prevent duplicate registration
       if (instance === unref(instanceRef)) {
-        if (debug) {
-          console.log('Skipping duplicate registration for same instance');
-        }
+        log('Skipping duplicate registration for same instance');
         return;
       }
 
-      if (debug) {
-        console.log('🔄 Registering MapLibre instance with useMaplibre', {
-          hasMapInstance: !!instance.mapInstance,
-          currentMapCreationStatus: instance.mapCreationStatus.value,
-          isMapReady: instance.isMapReady.value,
-          isMapLoading: instance.isMapLoading.value,
-          hasMapError: instance.hasMapError.value,
-        });
-      }
+      log('🔄 Registering MapLibre instance with useMaplibre', {
+        hasMapInstance: !!instance.mapInstance,
+        currentMapCreationStatus: instance.mapCreationStatus.value,
+        isMapReady: instance.isMapReady.value,
+        isMapLoading: instance.isMapLoading.value,
+        hasMapError: instance.hasMapError.value,
+      });
       instanceRef.value = instance;
 
       // Clean up previous watch scope
@@ -138,58 +134,41 @@ export function useMaplibre(
 
       // Set up new watch scope for instance changes
       watchScope = effectScope();
+      // Set initial status from instance before the watcher's immediate run
+      // refines it from the map itself.
+      mapStatus.value = instance.mapCreationStatus.value;
+
       watchScope.run(() => {
-        // Watch for map instance changes
+        // One watcher on the instance's map: mirroring the reference and
+        // deriving the status share a single source, and subscribing twice
+        // only ran the same work twice.
         watch(
           () => instance.mapInstance.value,
-          (map) => {
+          (map, _previousMap, onCleanUp) => {
             try {
               mapInstance.value = map;
-              if (debug) {
-                console.log('🗺️ Map instance updated in useMaplibre', {
-                  hasMap: !!map,
-                  mapLoaded: map?.loaded?.(),
-                });
-              }
-            } catch (error) {
-              mapStatus.value = MapCreationStatus.Error;
-              logError('Error updating map instance:', error);
-            }
-          },
-          {
-            immediate: true,
-          },
-        );
+              // No `loaded()` in the payload: it walks every source in the
+              // style, and the branch below already logs that outcome.
+              log('🗺️ Map instance updated in useMaplibre', { hasMap: !!map });
 
-        // Set initial status from instance
-        mapStatus.value = instance.mapCreationStatus.value;
-
-        // Watch for map instance changes to determine status
-        watch(
-          () => instance.mapInstance.value,
-          (map) => {
-            try {
               if (map) {
                 // Map instance exists, check if it's loaded
                 if (map.loaded()) {
                   mapStatus.value = MapCreationStatus.Loaded;
-                  if (debug) {
-                    console.log('Map successfully registered with useMaplibre');
-                  }
+                  log('Map successfully registered with useMaplibre');
                 } else {
                   // Map exists but not loaded yet
                   mapStatus.value = MapCreationStatus.Loading;
 
-                  // Listen for load event
+                  // Listen for load event. `once` plus cleanup, so a replaced
+                  // map does not leave a listener behind on the old one.
                   const onLoad = () => {
                     mapStatus.value = MapCreationStatus.Loaded;
-                    if (debug) {
-                      console.log('Map loaded and registered with useMaplibre');
-                    }
-                    map.off('load', onLoad);
+                    log('Map loaded and registered with useMaplibre');
                   };
 
-                  map.on('load', onLoad);
+                  map.once('load', onLoad);
+                  onCleanUp(() => map.off('load', onLoad));
                 }
               } else {
                 // No map instance
@@ -203,7 +182,7 @@ export function useMaplibre(
               }
             } catch (error) {
               mapStatus.value = MapCreationStatus.Error;
-              logError('Error updating map status:', error);
+              logError('Error handling map instance change:', error);
             }
           },
           {
@@ -311,7 +290,7 @@ export function useMaplibre(
     const instance = getInstance();
     if (instance?.setMapOptions) {
       instance.setMapOptions(options);
-      if (debug) console.log('Map options updated', options);
+      log('Map options updated', options);
     } else {
       logError('Cannot set map options: no registered instance');
     }

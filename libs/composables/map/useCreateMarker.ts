@@ -1,11 +1,11 @@
 import { isBrowser } from '@libs/helpers';
 import {
-  watchEffect,
   watch,
   unref,
   shallowRef,
   computed,
   ref,
+  onScopeDispose,
   onUnmounted,
 } from 'vue';
 import { Marker } from 'maplibre-gl';
@@ -178,16 +178,37 @@ export function useCreateMarker({
     }
   }
 
-  // Watch for map changes and manage marker lifecycle
-  watchEffect((onCleanUp) => {
-    const map = mapInstance.value;
-    if (map && markerStatus.value === MarkerStatus.NotCreated) {
-      createMarker();
-    } else if (!map && markerStatus.value === MarkerStatus.Created) {
+  // Watch the map instance, not a `watchEffect` over `markerStatus`: both
+  // branches below write that status, so an effect tracked its own writes and
+  // its cleanup tore the marker down on every re-run.
+  watch(
+    mapInstance,
+    (map) => {
+      // A replaced map means the marker has to move with it.
+      if (marker.value) removeMarker();
+      if (map) createMarker();
+    },
+    { immediate: true },
+  );
+
+  // MapLibre bakes the element into the Marker at construction time, and a
+  // template ref is still `undefined` during `setup()`. A custom element that
+  // resolves after the map therefore has to rebuild the marker, not update it —
+  // otherwise the map keeps the default pin for good.
+  watch(
+    () => el?.value,
+    (element) => {
+      if (!element || !mapInstance.value) return;
+      if (marker.value?.getElement() === element) return;
+
       removeMarker();
-    }
-    onCleanUp(removeMarker);
-  });
+      createMarker();
+    },
+  );
+
+  // Release the marker when the owning scope stops, which `watchEffect`'s
+  // cleanup used to cover.
+  onScopeDispose(removeMarker);
 
   // Watch for popup changes
   watch(popupValue, (newPopup) => {

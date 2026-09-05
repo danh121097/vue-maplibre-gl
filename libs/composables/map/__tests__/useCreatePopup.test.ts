@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { nextTick, shallowRef } from 'vue';
+import { nextTick, ref, shallowRef } from 'vue';
 import { Popup } from 'maplibre-gl';
 import type { Map } from 'maplibre-gl';
 import { withSetup } from '../../../test-utils';
@@ -50,5 +50,25 @@ describe('useCreatePopup reactivity contract', () => {
 
     expect(popup.value).toBeNull();
     expect(isPopupCreated.value).toBe(false);
+  });
+
+  it('creates the popup when its content arrives after the map', async () => {
+    const map = shallowRef(new MockMap() as unknown as Map);
+    const html = ref('');
+
+    const { popup, popupStatus } = withSetup(() =>
+      useCreatePopup({ map, html, withMap: false }),
+    );
+
+    // Creation is gated on content, not just on the map: async html and
+    // template refs are both empty while setup runs.
+    expect(popup.value).toBeNull();
+    expect(popupStatus.value).toBe(PopupStatus.NotCreated);
+
+    html.value = '<b>loaded later</b>';
+    await nextTick();
+
+    expect(popup.value).toBeInstanceOf(Popup);
+    expect(popupStatus.value).toBe(PopupStatus.Created);
   });
 });

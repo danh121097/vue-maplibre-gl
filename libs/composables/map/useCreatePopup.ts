@@ -3,9 +3,9 @@ import {
   computed,
   shallowRef,
   unref,
-  watchEffect,
   ref,
   watch,
+  onScopeDispose,
   onUnmounted,
 } from 'vue';
 import { Popup } from 'maplibre-gl';
@@ -186,16 +186,29 @@ export function useCreatePopup({
     }
   }
 
-  // Watch for map changes and manage popup lifecycle
-  watchEffect((onCleanUp) => {
-    const map = mapInstance.value;
-    if (map && popupStatus.value === PopupStatus.NotCreated && autoCreate) {
-      createPopup();
-    } else if (!map && isPopupCreated.value) {
-      removePopup();
-    }
-    onCleanUp(removePopup);
+  // Watch the map instance, not a `watchEffect` over `popupStatus`: both
+  // branches below write that status, so an effect tracked its own writes and
+  // its cleanup tore the popup down on every re-run.
+  watch(
+    mapInstance,
+    (map) => {
+      // A replaced map means the popup has to move with it.
+      if (popup.value) removePopup();
+      if (map && autoCreate) createPopup();
+    },
+    { immediate: true },
+  );
+
+  // `createPopup` bails while both `el` and `html` are empty, and a template
+  // ref is still `undefined` during `setup()`. The map watcher above fires only
+  // on the map, so without this a popup whose map arrived first is never built.
+  watch([() => el?.value, htmlValue], () => {
+    if (!popup.value && mapInstance.value && autoCreate) createPopup();
   });
+
+  // Release the popup when the owning scope stops, which `watchEffect`'s
+  // cleanup used to cover.
+  onScopeDispose(removePopup);
 
   // Watch for HTML content changes
   watch(htmlValue, (newHtml) => {

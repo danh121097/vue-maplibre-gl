@@ -1,4 +1,4 @@
-import { watchEffect, ref, computed, unref } from 'vue';
+import { watch, ref, computed, unref } from 'vue';
 import { useLogger } from '@libs/composables';
 import type { Nullable, Undefinedable } from '@libs/types';
 import type { ComputedRef, MaybeRef } from 'vue';
@@ -94,12 +94,22 @@ export function useFitBounds(props: FitBoundsProps): FitBoundsActions {
     boundsStatus.value = BoundsStatus.NotSet;
   }
 
-  watchEffect(() => {
-    const map = mapInstance.value;
-    if (map && bounds.value && boundsStatus.value !== BoundsStatus.Setting) {
-      setFitBounds(bounds.value, boundsOptions.value);
-    }
-  });
+  // Re-fit when the map is replaced. `bounds` is only written after a
+  // successful fit against a live map, so there is never a pending value
+  // waiting for the first map — this is the replacement path only.
+  //
+  // A `watch` on the map, not a `watchEffect`: the body read `boundsStatus`,
+  // which `setFitBounds` writes, so the effect was its own dependency and
+  // re-fitted after every manual call.
+  watch(
+    mapInstance,
+    (map) => {
+      if (map && bounds.value && boundsStatus.value !== BoundsStatus.Setting) {
+        setFitBounds(bounds.value, boundsOptions.value);
+      }
+    },
+    { immediate: true },
+  );
 
   return {
     setFitBounds,
@@ -154,12 +164,17 @@ export function useCameraForBounds(props: CameraForBoundsProps): CameraForBounds
     cameraStatus.value = BoundsStatus.NotSet;
   }
 
-  watchEffect(() => {
-    const map = mapInstance.value;
-    if (map && bbox.value && cameraStatus.value !== BoundsStatus.Setting) {
-      cameraForBounds(bbox.value, cameraOptions.value);
-    }
-  });
+  // Re-apply the pending camera bounds when a map instance arrives. See the
+  // note in `useFitBounds` — `cameraForBounds` writes the status this reads.
+  watch(
+    mapInstance,
+    (map) => {
+      if (map && bbox.value && cameraStatus.value !== BoundsStatus.Setting) {
+        cameraForBounds(bbox.value, cameraOptions.value);
+      }
+    },
+    { immediate: true },
+  );
 
   return {
     cameraForBounds,

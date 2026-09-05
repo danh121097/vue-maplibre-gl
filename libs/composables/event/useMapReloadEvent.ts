@@ -1,4 +1,4 @@
-import { watchEffect, onUnmounted, unref, computed, ref } from 'vue';
+import { watch, onUnmounted, unref, computed, ref } from 'vue';
 import { useLogger } from '@libs/composables';
 import type { ComputedRef, MaybeRef } from 'vue';
 import type { Nullable } from '@libs/types';
@@ -121,10 +121,16 @@ export function useMapReloadEvent(
   }
 
   /**
-   * Enhanced load event handler with error handling and debugging
-   * @param isForced - Whether this is a forced load event
+   * Applies a load event.
+   *
+   * MapLibre calls listeners with the event object as their first argument, so
+   * this must never be registered directly — a listener bound here would
+   * receive a truthy event as `isForced` and defeat the "already loaded" guard
+   * on every `styledata` dispatch.
+   *
+   * @param isForced - Whether to re-run the callback even when already loaded
    */
-  function handleLoadEvent(isForced: boolean = false): void {
+  function applyLoad(isForced: boolean): void {
     const map = mapInstance.value;
 
     if (!map) return;
@@ -146,10 +152,17 @@ export function useMapReloadEvent(
   }
 
   /**
+   * MapLibre listener. Ignores the event argument and never forces.
+   */
+  function handleLoadEvent(): void {
+    applyLoad(false);
+  }
+
+  /**
    * Forces a load event to be triggered
    */
   function forceLoad(): void {
-    handleLoadEvent(true);
+    applyLoad(true);
   }
 
   /**
@@ -160,13 +173,9 @@ export function useMapReloadEvent(
   }
 
   /**
-   * Clears all event listeners from the map with enhanced error handling
+   * Detaches this composable's listeners from a specific map instance.
    */
-  function clear(): void {
-    const map = mapInstance.value;
-
-    if (!map) return;
-
+  function detachListeners(map: Map): void {
     try {
       map.off('styledata', handleLoadEvent);
       map.off('styledataloading', handleUnloadEvent);
@@ -176,37 +185,63 @@ export function useMapReloadEvent(
     }
   }
 
-  // Watch for map changes and manage event listener lifecycle
-  const stopEffect = watchEffect((onCleanUp) => {
+  /**
+   * Clears all event listeners from the current map
+   */
+  function clear(): void {
     const map = mapInstance.value;
 
     if (!map) return;
 
-    try {
-      // Set up event listeners
-      if (loadStatus.value === MapReloadEventStatus.NotLoaded && !map.isStyleLoaded()) {
-        map.on('load', handleLoadEvent);
-      } else if (
-        map.isStyleLoaded() &&
-        loadStatus.value !== MapReloadEventStatus.Loaded
-      ) {
-        // Map is already loaded, trigger load event
-        handleLoadEvent();
+    detachListeners(map);
+  }
+
+  // Watch for map changes and manage event listener lifecycle.
+  // A `watch` on the map instance, not a `watchEffect`: the body reads
+  // `loadStatus` and the load handler writes it, so an effect would have been
+  // its own dependency and re-registered listeners on every status change.
+  const stopEffect = watch(
+    mapInstance,
+    (map, previousMap, onCleanUp) => {
+      // A replacement map carries none of the previous map's load state. Without
+      // this reset both branches below fall through on a map that arrives
+      // already style-loaded, and `onLoad` never fires for it.
+      if (previousMap && previousMap !== map) {
+        loadStatus.value = MapReloadEventStatus.NotLoaded;
       }
 
-      map.on('styledata', handleLoadEvent);
-      map.on('styledataloading', handleUnloadEvent);
-    } catch (error) {
-      loadStatus.value = MapReloadEventStatus.Error;
-      logError('Error setting up map reload event listeners:', error);
+      if (!map) return;
 
-      if (props.callbacks.onError) {
-        props.callbacks.onError(error);
+      try {
+        // Set up event listeners
+        if (
+          loadStatus.value === MapReloadEventStatus.NotLoaded &&
+          !map.isStyleLoaded()
+        ) {
+          map.on('load', handleLoadEvent);
+        } else if (
+          map.isStyleLoaded() &&
+          loadStatus.value !== MapReloadEventStatus.Loaded
+        ) {
+          // Map is already loaded, trigger load event
+          handleLoadEvent();
+        }
+
+        map.on('styledata', handleLoadEvent);
+        map.on('styledataloading', handleUnloadEvent);
+      } catch (error) {
+        loadStatus.value = MapReloadEventStatus.Error;
+        logError('Error setting up map reload event listeners:', error);
+
+        if (props.callbacks.onError) {
+          props.callbacks.onError(error);
+        }
       }
-    }
 
-    onCleanUp(clear);
-  });
+      onCleanUp(() => detachListeners(map));
+    },
+    { immediate: true },
+  );
 
   // Cleanup function for removing listeners and stopping watchers
   function cleanup(): void {

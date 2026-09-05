@@ -1,5 +1,5 @@
 import { useLogger, useMapReloadEvent } from '@libs/composables';
-import { getMainVersion, getNanoid, hasSource } from '@libs/helpers';
+import { getNanoid, hasSource } from '@libs/helpers';
 import type { Nullable } from '@libs/types';
 import type {
   GeoJSONSource,
@@ -106,10 +106,7 @@ export function useCreateGeoJsonSource({
       const map = mapInstance.value;
       if (!map) return;
 
-      let isSourceLoaded = e.isSourceLoaded;
-      if (getMainVersion() > 0) isSourceLoaded = true;
-
-      if (!source.value && e.sourceId === sourceId && isSourceLoaded) {
+      if (!source.value && e.sourceId === sourceId) {
         // Use markRaw to prevent Vue reactivity overhead on MapLibre source objects
         source.value = markRaw(map.getSource(sourceId) as GeoJSONSource);
         sourceStatus.value = SourceStatus.Created;
