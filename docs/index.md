@@ -65,6 +65,7 @@ pnpm add vue3-maplibre-gl
 <script setup>
 import { ref } from 'vue';
 import { Maplibre, GeoJsonSource, FillLayer, CircleLayer, Marker } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const mapOptions = ref({

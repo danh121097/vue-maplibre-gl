@@ -1,3 +1,18 @@
+::: danger This page is out of date
+The snippets below import `NavigationControl`, `ScaleControl`, `FullscreenControl`, `AttributionControl` and `GeolocateControl` from `vue3-maplibre-gl` and use them as Vue components. **No such components exist** — the library exports `GeolocateControls` (plural) and nothing else in that family, so these examples do not build.
+
+Use `<GeolocateControls>` for geolocation, and add MapLibre's own controls through the map instance:
+
+```ts
+import { NavigationControl } from 'vue3-maplibre-gl/maplibre';
+
+const { mapInstance } = useMaplibre();
+watchEffect(() => mapInstance.value?.addControl(new NavigationControl()));
+```
+
+A rewrite of this page is tracked in the plan's documentation-reconciliation item.
+:::
+
 # Controls
 
 Learn how to add navigation controls, geolocation, and custom controls to your map.

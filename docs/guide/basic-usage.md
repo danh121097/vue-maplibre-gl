@@ -18,6 +18,7 @@ The most basic usage involves creating a map with the `Maplibre` component:
 <script setup>
 import { ref } from 'vue';
 import { Maplibre } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const mapOptions = ref({

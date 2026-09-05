@@ -50,7 +50,7 @@ export default defineNuxtConfig({
 
 The module automatically configures:
 
-1. **CSS Auto-Import** - `vue3-maplibre-gl/dist/style.css` injected
+1. **CSS Auto-Import** - `maplibre-gl/dist/maplibre-gl.css` and `vue3-maplibre-gl/dist/style.css` injected
 2. **Component Auto-Import** - All 10 components available without imports
 3. **Composable Auto-Import** - All 15+ composables available without imports
 4. **SSR Support** - Map components rendered only on client
@@ -204,7 +204,7 @@ bun add vue3-maplibre-gl
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  css: ['vue3-maplibre-gl/dist/style.css'],
+  css: ['maplibre-gl/dist/maplibre-gl.css', 'vue3-maplibre-gl/dist/style.css'],
   build: {
     transpile: ['vue3-maplibre-gl'],
   },
@@ -239,6 +239,7 @@ import {
   useMaplibre,
   useFlyTo,
 } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 // ... rest of component
@@ -388,6 +389,7 @@ build: {
 <script setup>
 import { ref } from 'vue';
 import { Maplibre, GeoJsonSource, FillLayer } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const mapOptions = ref({

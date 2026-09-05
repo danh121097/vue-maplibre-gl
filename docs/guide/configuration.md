@@ -304,7 +304,7 @@ const showLabels = ref(true);
 
 <script setup>
 import { ref } from 'vue';
-import { MaplibrePopup } from 'vue3-maplibre-gl';
+import { MaplibrePopup } from 'vue3-maplibre-gl/maplibre';
 
 const markerPosition = ref([0, 0]);
 
@@ -510,6 +510,7 @@ export default defineConfig({
 // main.js
 import { createApp } from 'vue';
 import VueMapLibreGl from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const app = createApp(App);

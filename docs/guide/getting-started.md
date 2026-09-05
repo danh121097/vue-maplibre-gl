@@ -50,6 +50,7 @@ pnpm add vue3-maplibre-gl
 Don't forget to import the CSS:
 
 ```js
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 ```
 
@@ -73,6 +74,7 @@ Here's a simple example to get you started:
 <script setup>
 import { ref } from 'vue';
 import { Maplibre } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const mapOptions = ref({
@@ -141,6 +143,7 @@ import {
   PopUp,
   GeolocateControls,
 } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const mapOptions = ref({

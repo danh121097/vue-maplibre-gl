@@ -125,6 +125,60 @@ So: `.value` for `register` / `@register` payloads and for composables called di
 
 A deprecated "snapshot" getter alongside the ref cannot work: the whole defect is that a snapshot never updates. Keeping one would preserve the bug under a different name, so v6 is a clean break.
 
+## Stylesheets are no longer bundled together
+
+`vue3-maplibre-gl/dist/style.css` used to `@import` MapLibre's own stylesheet, so a single import covered both. That shipped a 69 kB copy of upstream CSS inside this package — duplicated for the many apps that already follow MapLibre's documented setup and import it themselves.
+
+In v6 the package ships only its own rules (the `.maplibre-container` layout), and MapLibre's stylesheet is imported the way MapLibre documents it:
+
+```ts
+// v5
+import 'vue3-maplibre-gl/dist/style.css';
+
+// v6
+import 'maplibre-gl/dist/maplibre-gl.css';
+import 'vue3-maplibre-gl/dist/style.css';
+```
+
+Miss the first line and the map renders without controls, attribution, or popup styling.
+
+The Nuxt module handles this for you: `maplibre: { css: true }` (the default) now injects both stylesheets.
+
+## MapLibre runtime exports moved to a subpath
+
+The package root re-exported MapLibre's entire runtime — the `maplibregl` namespace plus `Map`, `NavigationControl`, `addProtocol` and some fifty more. A namespace re-export references every upstream export, so importing a single component from the root pinned the whole MapLibre runtime into the module graph.
+
+Those runtime values now live on `vue3-maplibre-gl/maplibre`:
+
+```ts
+// v5
+import { NavigationControl, maplibregl } from 'vue3-maplibre-gl';
+
+// v6
+import { NavigationControl, maplibregl } from 'vue3-maplibre-gl/maplibre';
+```
+
+Importing them straight from `maplibre-gl` works just as well and is one hop shorter — the subpath exists so the re-exports stay available, not because it is the preferred source.
+
+**Type-only imports are unaffected.** Every MapLibre _type_ (`Map`, `MapMouseEvent`, `MapOptions`, `LngLatLike`, …) is still exported from the package root, because types vanish at compile time and cost nothing:
+
+```ts
+import type { Map, MapMouseEvent } from 'vue3-maplibre-gl'; // unchanged
+```
+
+The subpath is ESM-only, and the UMD build exposes the root only. If you reach these names through `require()` or a script tag, take them from MapLibre itself — `require('maplibre-gl')`, or `window.maplibregl`, which the UMD setup already loads.
+
+## Tree-shaking now works
+
+The published build used `manualChunks`, an application code-splitting tool. In a library it collapsed the whole package into two chunks that the entry imported eagerly, so a bundler could never drop either one — `import { Marker }` pulled 179 kB raw / 28.5 kB gzip regardless of what you used.
+
+v6 ships preserved modules: one output file per source file. The same import now emits **12.3 kB raw / 2.8 kB gzip**, with no layer, source, camera, or MapLibre-runtime code in the output. No code change is needed on your side.
+
+Two side effects worth knowing:
+
+- The `vue3-maplibre-gl/components` and `vue3-maplibre-gl/composables` subpaths, which pointed at files the build never emitted, now resolve.
+- Sourcemaps are no longer published (the package dropped from 1.7 MB to roughly 0.7 MB). Build from the repository if you need to step through library source.
+
 ## Other fixes in v6
 
 These need no code change on your side.

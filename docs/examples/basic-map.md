@@ -20,6 +20,7 @@ The most basic example - just a map with a style:
 <script setup>
 import { ref } from 'vue';
 import { Maplibre } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const mapOptions = ref({

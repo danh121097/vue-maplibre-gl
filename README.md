@@ -85,6 +85,7 @@ import {
   PopUp,
   GeolocateControls,
 } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const mapOptions = ref({
@@ -220,28 +221,33 @@ const geoJsonData = ref<GeoJSONSourceSpecification['data']>({
 });
 ```
 
-It also re-exports `maplibre-gl`, so raw classes and types can come from the same package:
+MapLibre GL **types** come from the package root, because types cost nothing at runtime:
+
+```typescript
+import type { Map, MapOptions, StyleSpecification } from 'vue3-maplibre-gl';
+```
+
+MapLibre GL **runtime classes** live on the `/maplibre` subpath, so importing a component from the root does not pin the whole MapLibre runtime into your bundle:
 
 ```typescript
 import {
   Map,
   NavigationControl,
   MaplibreMarker,
-  type MapOptions,
-  type StyleSpecification,
-} from 'vue3-maplibre-gl';
+} from 'vue3-maplibre-gl/maplibre';
 ```
 
-For the two runtime names that collide with Vue components, use either the aliases or the namespace export:
+`Marker` and `Popup` collide with the Vue components of the same name, so they are re-exported as `MaplibreMarker` / `MaplibrePopup` — or reach them through the namespace:
 
 ```typescript
-import { MaplibrePopup, maplibregl, Marker } from 'vue3-maplibre-gl';
+import { MaplibrePopup, maplibregl } from 'vue3-maplibre-gl/maplibre';
+import { Marker } from 'vue3-maplibre-gl';
 
 const popup = new MaplibrePopup();
 const marker = new maplibregl.Marker();
 ```
 
-`Marker` in the example above is still the Vue component export.
+`Marker` in the example above is the Vue component; importing straight from `maplibre-gl` works too.
 
 ## 🌟 Advanced Example with Composables
 

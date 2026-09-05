@@ -6,6 +6,7 @@ import {
   useMaplibre,
   type MapOptions,
 } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const options = computed<MapOptions>(() => ({

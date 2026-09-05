@@ -16,6 +16,7 @@ npm install vue3-maplibre-gl
 
 ```typescript
 // main.ts or in your component
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 ```
 
@@ -33,6 +34,7 @@ import 'vue3-maplibre-gl/dist/style.css';
 <script setup>
 import { ref } from 'vue';
 import { Maplibre, GeoJsonSource, CircleLayer } from 'vue3-maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'vue3-maplibre-gl/dist/style.css';
 
 const mapOptions = ref({
@@ -314,7 +316,7 @@ You can copy any example code and paste it into your Vue 3 project. All examples
 ### Map Not Showing
 
 - **Check**: Container has height (e.g., `style="height: 500px"`)
-- **Check**: CSS is imported (`import 'vue3-maplibre-gl/dist/style.css'`)
+- **Check**: both stylesheets are imported (`maplibre-gl/dist/maplibre-gl.css` and `vue3-maplibre-gl/dist/style.css`)
 - **Check**: MapOptions includes valid `style` URL
 
 ### Events Not Firing
