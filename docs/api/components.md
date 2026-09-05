@@ -625,14 +625,18 @@ A component for adding geolocation controls to the map. Provides user location t
 
 ### Events
 
-| Event            | Payload                    | Description                              |
-| ---------------- | -------------------------- | ---------------------------------------- |
-| `register`       | `GeolocateControl`         | Fired when control is registered         |
-| `geolocate`      | `GeolocateSuccess`         | Fired when geolocation is successful     |
-| `error`          | `GeolocationPositionError` | Fired when geolocation error occurs      |
-| `trackingstart`  | `GeolocateSuccess`         | Fired when location tracking starts      |
-| `trackingend`    | `GeolocateSuccess`         | Fired when location tracking ends        |
-| `outofmaxbounds` | `GeolocateSuccess`         | Fired when location is out of max bounds |
+| Event                    | Payload                    | Description                              |
+| ------------------------ | -------------------------- | ---------------------------------------- |
+| `register`               | `GeolocateControl`         | Fired when control is registered         |
+| `geolocate`              | `GeolocateSuccess`         | Fired when geolocation is successful     |
+| `error`                  | `GeolocationPositionError` | Fired when geolocation error occurs      |
+| `trackuserlocationstart` | `GeolocateSuccess`         | Fired when location tracking starts      |
+| `trackuserlocationend`   | `GeolocateSuccess`         | Fired when location tracking ends        |
+| `outofmaxbounds`         | `GeolocateSuccess`         | Fired when location is out of max bounds |
+
+The event names are MapLibre's own, so `@trackuserlocationstart` — not
+`@trackingstart`. The `onTrackingStart` / `onTrackingEnd` **props** above keep
+the shorter names.
 
 ### Example
 

@@ -526,35 +526,42 @@ Creates and manages MapLibre GL Fill Layers with reactive updates and comprehens
 
 #### Parameters
 
-| Parameter | Type                   | Description              |
-| --------- | ---------------------- | ------------------------ |
-| `props`   | `CreateFillLayerProps` | Fill layer configuration |
+| Property      | Type                                                | Description                     |
+| ------------- | --------------------------------------------------- | ------------------------------- |
+| `map`         | `MaybeRef<Map \| null>`                             | Map instance reference          |
+| `source`      | `MaybeRef<string \| SourceSpecification \| object>` | Source id, or a spec with an id |
+| `style`       | `FillLayerStyle`                                    | Fill layer style configuration  |
+| `filter`      | `FilterSpecification`                               | Filter expression               |
+| `id`          | `string`                                            | Layer identifier                |
+| `beforeId`    | `string`                                            | Insert before this layer        |
+| `maxzoom`     | `number`                                            | Maximum zoom level              |
+| `minzoom`     | `number`                                            | Minimum zoom level              |
+| `metadata`    | `object`                                            | Layer metadata                  |
+| `sourceLayer` | `string`                                            | Source layer name               |
+| `debug`       | `boolean`                                           | Enable debug logging            |
+| `register`    | `(actions: CreateLayerActions, map: Map) => void`   | Registration callback           |
 
-#### CreateFillLayerProps Interface
-
-| Property      | Type                                              | Description                    |
-| ------------- | ------------------------------------------------- | ------------------------------ |
-| `map`         | `MaybeRef<Map \| null>`                           | Map instance reference         |
-| `source`      | `MaybeRef<string \| object>`                      | Data source for the layer      |
-| `style`       | `FillLayerStyle`                                  | Fill layer style configuration |
-| `filter`      | `FilterSpecification`                             | Filter expression              |
-| `id`          | `string`                                          | Layer identifier               |
-| `maxzoom`     | `number`                                          | Maximum zoom level             |
-| `minzoom`     | `number`                                          | Minimum zoom level             |
-| `metadata`    | `object`                                          | Layer metadata                 |
-| `sourceLayer` | `string`                                          | Source layer name              |
-| `register`    | `(actions: CreateLayerActions, map: Map) => void` | Registration callback          |
+A layer references its source by id, so an object passed to `source` must carry
+its own string `id`; a bare `{ type: 'geojson', data }` is rejected with an
+error rather than reaching `addLayer`.
 
 #### Returns
 
-| Property            | Type                                      | Description               |
-| ------------------- | ----------------------------------------- | ------------------------- |
-| `getLayer`          | `ComputedRef<LayerSpecification \| null>` | Get layer specification   |
-| `setBeforeId`       | `(beforeId?: string) => void`             | Set layer insertion point |
-| `setFilter`         | `(filter?: FilterSpecification) => void`  | Set layer filter          |
-| `setStyle`          | `(style: FillLayerStyle) => void`         | Set layer style           |
-| `setZoomRange`      | `(min: number, max: number) => void`      | Set zoom range            |
-| `setLayoutProperty` | `(name: string, value: any) => void`      | Set layout property       |
+| Property            | Type                                           | Description               |
+| ------------------- | ---------------------------------------------- | ------------------------- |
+| `layerId`           | `string`                                       | The layer's resolved id   |
+| `getLayer`          | `ComputedRef<LayerSpecification \| null>`      | Get layer specification   |
+| `setStyle`          | `(style?: FillLayerStyle) => void`             | Set layer style           |
+| `setBeforeId`       | `(beforeId?: string) => void`                  | Set layer insertion point |
+| `setFilter`         | `(filter?: FilterSpecification) => void`       | Set layer filter          |
+| `setZoomRange`      | `(minzoom?: number, maxzoom?: number) => void` | Set zoom range            |
+| `setPaintProperty`  | `(name, value, options?) => void`              | Set one paint property    |
+| `setLayoutProperty` | `(name, value, options?) => void`              | Set one layout property   |
+| `removeLayer`       | `() => void`                                   | Remove the layer          |
+
+Plus the fill-specific setters `setColor`, `setOpacity`, `setOutlineColor`,
+`setPattern`, `setAntialias`, `setSortKey` and `setVisibility`, each taking the
+value and an optional `StyleSetterOptions`.
 
 #### Example
 
@@ -595,7 +602,11 @@ Creates and manages MapLibre GL Circle Layers for point data visualization.
 
 #### Parameters
 
-Similar to `useCreateFillLayer` but with `CircleLayerStyle` for styling.
+The same props as `useCreateFillLayer`, with `CircleLayerStyle` for `style`.
+
+**Returns**: the same shape, with `setRadius`, `setColor`, `setOpacity`,
+`setStrokeWidth`, `setStrokeColor`, `setStrokeOpacity` and `setVisibility` in
+place of the fill-specific setters.
 
 #### Example
 
@@ -621,7 +632,12 @@ Creates and manages MapLibre GL Line Layers for linear features.
 
 #### Parameters
 
-Similar to `useCreateFillLayer` but with `LineLayerStyle` for styling.
+The same props as `useCreateFillLayer`, with `LineLayerStyle` for `style`.
+
+**Returns**: the same shape, with `setColor`, `setWidth`, `setOpacity`,
+`setBlur`, `setCap`, `setJoin`, `setOffset`, `setGapWidth`, `setDashArray`,
+`setGradient`, `setPattern`, `setSortKey` and `setVisibility` in place of the
+fill-specific setters.
 
 #### Example
 
@@ -646,7 +662,15 @@ Creates and manages MapLibre GL Symbol Layers for icons and text.
 
 #### Parameters
 
-Similar to `useCreateFillLayer` but with `SymbolLayerStyle` for styling.
+The same props as `useCreateFillLayer`, with `SymbolLayerStyle` for `style`.
+
+**Returns**: the same shape, with the icon and text setters in place of the
+fill-specific ones — `setIconImage`, `setIconSize`, `setIconColor`,
+`setIconOpacity`, `setIconRotate`, `setIconOffset`, `setIconAnchor`,
+`setIconHaloColor`, `setIconHaloWidth`, `setIconHaloBlur`, `setTextField`,
+`setTextFont`, `setTextSize`, `setTextColor`, `setTextOpacity`,
+`setTextRotate`, `setTextOffset`, `setTextAnchor`, `setTextHaloColor`,
+`setTextHaloWidth`, `setTextHaloBlur`, `setSortKey` and `setVisibility`.
 
 #### Example
 

@@ -169,6 +169,7 @@ Create and manage fill (polygon) layers with typed paint/layout properties.
   setOutlineColor: (color: string, options?) => void,
   setPattern: (pattern: string, options?) => void,
   setAntialias: (antialias: boolean, options?) => void,
+  setSortKey: (sortKey: number, options?) => void,
   setVisibility: (visibility: 'visible' | 'none', options?) => void,
   removeLayer: () => void
 }
