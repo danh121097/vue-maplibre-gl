@@ -79,7 +79,7 @@
     "test:coverage": "vitest run --coverage",
     "type-check": "vue-tsc --noEmit",
     "test:build": "bun run build && bun pm pack --dry-run",
-    "prepublishOnly": "bun run format:check && bun run lint:check && bun run type-check && bun run build",
+    "prepublishOnly": "bun run format:check && bun run lint:check && bun run type-check && bun run test:coverage && bun run build",
     "publish:vue": "bun run build && npm publish --access public",
     "publish:nuxt": "npm --prefix nuxt version patch --no-git-tag-version && cd nuxt && bun install && bun run build && npm --prefix nuxt publish --access public",
     "docs:dev": "vitepress dev docs",

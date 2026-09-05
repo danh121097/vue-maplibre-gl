@@ -1,10 +1,18 @@
 # Composables Overview
 
-Comprehensive reference for all 20+ composables available in vue3-maplibre-gl v5.
+Comprehensive reference for all 20+ composables available in vue3-maplibre-gl.
 
-## Architecture (v5)
+Every composable takes a single props object unless noted. The zoom, pan,
+rotate and `useJumpTo` composables also keep a legacy positional
+`(map, options?)` overload, which returns only that composable's action method
+— not the full result documented here.
 
-All composables in v5 follow the **factory pattern** for code reuse and maintainability:
+Every state field is a `ComputedRef`; read it with `.value` in script, unwrapped
+in templates. See [Migration from v5 to v6](/guide/migration-v6) for the list.
+
+## Architecture
+
+All composables follow the **factory pattern** for code reuse and maintainability:
 
 - **Event Listeners** (3 composables) → 1 factory (`createEventListenerComposable`)
 - **Camera Animations** (7+ composables) → 1 factory (`createCameraAnimation`)
@@ -33,14 +41,19 @@ Create and manage a MapLibre GL instance with full lifecycle support.
   isMapReady: ComputedRef<boolean>,
   isMapLoading: ComputedRef<boolean>,
   hasMapError: ComputedRef<boolean>,
+  getCurrentCamera: () => CameraOptions | null,
+  getCurrentStyle: () => StyleSpecification | undefined,
   // Camera setters (reactive)
   setStyle, setCenter, setZoom, setBearing, setPitch,
   setMinZoom, setMaxZoom, setMinPitch, setMaxPitch,
   setMaxBounds, setRenderWorldCopies,
-  // Callbacks
-  register?, onLoad?, onError?
+  // Lifecycle
+  initMap, removeMap, destroyMap
 }
 ```
+
+`register`, `onLoad` and `onError` are props, not return fields. Everything
+except the three lifecycle methods is also passed to `register`.
 
 **Features**:
 
@@ -66,156 +79,190 @@ watch(isMapReady, () => {
 });
 ```
 
-### `useMaplibre()`
+### `useMaplibre(options?)`
 
-Access the map context in child components without prop drilling.
+Hold a map created by `<Maplibre>` so the surrounding component can drive it.
+It creates no map: pass its `register` to `<Maplibre>`'s `@register`.
 
 **Returns**: the same camera setters and map accessors as `useCreateMaplibre`,
-read from the injected context. The status field is named `mapStatus`, not
-`mapCreationStatus`, and there is no `initMap` / `removeMap` / `destroyMap` —
-the owning `<Maplibre>` controls the lifecycle.
+plus `register`, `isRegistered` and `setMapOptions`. The status field is named
+`mapStatus`, not `mapCreationStatus`, and there is no
+`initMap` / `removeMap` / `destroyMap` — `<Maplibre>` controls the lifecycle.
 
-**Throws**: Error if not within `<Maplibre>` component
+**Before registration**: `mapInstance` is `null` and every method no-ops. It
+does not throw.
 
 **Example**:
 
-```typescript
-// In any child component under Maplibre
-const { mapInstance, isMapReady, setZoom } = useMaplibre();
+```vue
+<script setup>
+const { register: registerMap, isMapReady, setZoom } = useMaplibre();
 
 const zoomToFit = () => {
   if (isMapReady.value) setZoom(10);
 };
+</script>
+
+<template>
+  <Maplibre :options="options" @register="registerMap" />
+</template>
 ```
 
-### `useMaplibreConfig(mapInstance, options)`
+To reach the map from a component nested **inside** `<Maplibre>`, inject
+`MapProvideKey` — that is what the built-in child components do.
 
-Reactively update map configuration options.
+### `useMaplibreConfig(options?)`
 
-**Parameters**:
+Set MapLibre's **global** performance settings. It configures the library, not a
+map instance, so it takes no map and should be called once at application level.
 
-- `mapInstance: MaybeRef<Map | null>`
-- `options: Partial<MapOptions>` - Options to update
+**Parameters** (`MaplibreConfigOptions`):
 
-**Returns**: `void` (configuration applied immediately)
+- `workerCount?: number` — web workers for tile loading (default `4`)
+- `maxParallelImageRequests?: number` — default `16`
+- `prewarmResources?: boolean` — prewarm on init (default `true`)
+- `debug?: boolean`
+
+**Returns**: `{ clearPrewarmedResources: () => void }`
 
 **Example**:
 
 ```typescript
-const maxZoom = ref(15);
-watch(maxZoom, (newMax) => {
-  useMaplibreConfig(mapInstance, { maxZoom: newMax });
+// main.ts or App.vue setup
+const { clearPrewarmedResources } = useMaplibreConfig({
+  workerCount: 8,
+  prewarmResources: true,
 });
+
+onUnmounted(clearPrewarmedResources);
 ```
 
 ## Layer Management (4)
 
 All layer composables use the **factory pattern** for type-safe property setters.
 
-### `useCreateFillLayer(mapInstance, sourceId, layerId?, style?)`
+### `useCreateFillLayer(props)`
 
 Create and manage fill (polygon) layers with typed paint/layout properties.
 
-**Type Safety**: `setPaint` only accepts `FillPaint` types (compile-time validation)
+**Props**: `map`, `source` (id or specification), and optional `id`, `beforeId`,
+`filter`, `style`, `minzoom`, `maxzoom`, `metadata`, `sourceLayer`, `debug`,
+`register`.
+
+**Type Safety**: `style` and `setStyle` only accept `FillLayerStyle` properties
+(compile-time validation).
 
 **Returns**:
 
 ```typescript
 {
-  layerInstance: ShallowRef<Layer | null>,
-  setPaint: (paint: FillPaint) => void,
-  setLayout: (layout: FillLayout) => void,
-  setFilter: (filter: FilterSpecification) => void,
-  setOpacity: (opacity: number) => void,
-  remove: () => void
+  layerId: string,
+  getLayer: ComputedRef<Layer | null>,
+  setStyle: (style?: FillLayerStyle) => void,
+  setPaintProperty: (name, value, options?) => void,
+  setLayoutProperty: (name, value, options?) => void,
+  setFilter: (filter?: FilterSpecification) => void,
+  setBeforeId: (beforeId?: string) => void,
+  setZoomRange: (minzoom?: number, maxzoom?: number) => void,
+  setOpacity: (opacity: number, options?) => void,
+  setColor: (color: string, options?) => void,
+  setOutlineColor: (color: string, options?) => void,
+  setPattern: (pattern: string, options?) => void,
+  setAntialias: (antialias: boolean, options?) => void,
+  setVisibility: (visibility: 'visible' | 'none', options?) => void,
+  removeLayer: () => void
 }
 ```
 
 **Example**:
 
 ```typescript
-const { setPaint, setFilter } = useCreateFillLayer(
-  mapInstance,
-  'cities-source',
-  'cities-layer',
-);
+const { setStyle, setFilter } = useCreateFillLayer({
+  map: mapInstance,
+  source: 'cities-source',
+  id: 'cities-layer',
+});
 
 // Reactive property updates (type-safe)
-watch(
-  () => selectedColor.value,
-  (color) => {
-    setPaint({ 'fill-color': color, 'fill-opacity': 0.8 });
-  },
-);
+watch(selectedColor, (color) => {
+  setStyle({ 'fill-color': color, 'fill-opacity': 0.8 });
+});
 
-watch(
-  () => selectedRegion.value,
-  (region) => {
-    setFilter(['==', 'region', region]);
-  },
-);
+watch(selectedRegion, (region) => {
+  setFilter(['==', 'region', region]);
+});
 ```
 
-### `useCreateCircleLayer(mapInstance, sourceId, layerId?, style?)`
+### `useCreateCircleLayer(props)`
 
 Create circle (point) layers with type-safe `CirclePaint` properties.
 
 **Returns**: Same pattern as `useCreateFillLayer` (CirclePaint types)
 
-### `useCreateLineLayer(mapInstance, sourceId, layerId?, style?)`
+### `useCreateLineLayer(props)`
 
 Create line layers with type-safe `LinePaint` properties.
 
 **Returns**: Same pattern as `useCreateFillLayer` (LinePaint types)
 
-### `useCreateSymbolLayer(mapInstance, sourceId, layerId?, style?)`
+### `useCreateSymbolLayer(props)`
 
 Create symbol (text/icon) layers with type-safe `SymbolPaint` properties.
 
 **Returns**: Same pattern as `useCreateFillLayer` (SymbolPaint types)
 
-### `useLayer<T extends LayerSpecification>(mapInstance, sourceId, config)`
+### `useLayer<T extends LayerSpecification>(props?)`
 
-Generic layer composable for advanced use cases.
+Reads the layer registered by an ancestor layer component rather than creating
+one — the layer counterpart to `useMaplibre`. It takes no map and no source.
 
-**Type Parameter**: `T` - Layer specification type (enables generic type preservation)
+**Props**: `debug?: boolean`, `autoCleanup?: boolean` (default `true`)
+
+**Returns**: `register`, `layerId`, `layer`, `layerStatus`, `isLayerRegistered`,
+`isLayerReady`, plus the getters and setters of the registered layer
+(`getFilter`, `getPaintProperty`, `setFilter`, `setPaintProperty`, …).
 
 **Example**:
 
 ```typescript
-const { setPaint } = useLayer<CircleLayerSpecification>(
-  mapInstance,
-  'source-id',
-  { type: 'circle', id: 'layer-id' },
-);
+// inside a child of <FillLayer>
+const { layerId, isLayerReady, setFilter } = useLayer();
+
+watch(isLayerReady, (ready) => {
+  if (ready) setFilter(['==', 'region', 'north']);
+});
 ```
 
 ## Source Management (2)
 
-### `useCreateGeoJsonSource(map, sourceId, data, options?)`
+### `useCreateGeoJsonSource(props)`
 
 Create and manage GeoJSON data sources with reactive updates.
+
+**Props**: `map`, and optional `id`, `data`, `options`, `debug`, `register`.
 
 **Returns**:
 
 ```typescript
 {
-  sourceInstance: ShallowRef<GeoJSONSource | null>,
+  sourceId: string,
+  getSource: () => GeoJSONSource | undefined,
   setData: (data: GeoJSON.Feature[] | GeoJSON.FeatureCollection) => void,
-  updateFeature: (featureId: any, properties: any) => void,
-  getFeatures: () => Feature[] | undefined,
-  queryFeatures: (bbox?: LngLatBoundsLike) => Feature[] | undefined
+  removeSource: () => void,
+  refreshSource: () => void,
+  sourceStatus: ComputedRef<SourceStatus>,
+  isSourceReady: ComputedRef<boolean>
 }
 ```
 
 **Example**:
 
 ```typescript
-const { setData } = useCreateGeoJsonSource(
-  mapInstance,
-  'cities-source',
-  citiesGeoJSON,
-);
+const { setData } = useCreateGeoJsonSource({
+  map: mapInstance,
+  id: 'cities-source',
+  data: citiesGeoJSON,
+});
 
 // Update data reactively
 watch(
@@ -227,11 +274,13 @@ watch(
 );
 ```
 
-### `useGeoJsonSource()`
+### `useGeoJsonSource(props?)`
 
-Access GeoJSON source from context (for child components).
+Access the GeoJSON source registered by an ancestor `<GeoJsonSource>`.
 
-**Returns**: Source instance and methods (same as `useCreateGeoJsonSource`)
+**Props**: `debug?: boolean`, `autoRefresh?: boolean` (default `true`)
+
+**Returns**: the registered source's methods, plus `register`.
 
 ## Event Listeners (3)
 
@@ -322,7 +371,7 @@ Listen to geolocation control events.
 
 All camera animations use the **factory pattern** with promise-wrapping for `async/await` support.
 
-### `useFlyTo(map, options?)`
+### `useFlyTo(props)`
 
 Smooth flight animation to a new location.
 
@@ -330,9 +379,13 @@ Smooth flight animation to a new location.
 
 ```typescript
 {
-  flyTo: (target: Partial<CameraOptions>) => Promise<void>,
-  isAnimating: boolean,
-  animationStatus: AnimationStatus
+  flyTo: (options?: FlyToOptions) => Promise<void>,
+  flyToCenter / flyToZoom / flyToBearing / flyToPitch: (value, options?) => Promise<void>,
+  stopFlying: () => void,
+  getCurrentCamera: () => CameraOptions | null,
+  flyStatus: ComputedRef<FlyStatus>,
+  isFlying: ComputedRef<boolean>,
+  cleanup: () => void
 }
 ```
 
@@ -341,7 +394,7 @@ Smooth flight animation to a new location.
 **Example**:
 
 ```typescript
-const { flyTo, isAnimating } = useFlyTo(mapInstance);
+const { flyTo, isFlying } = useFlyTo({ map: mapInstance });
 
 const handleFlyTo = async () => {
   try {
@@ -353,33 +406,36 @@ const handleFlyTo = async () => {
 };
 ```
 
-### `useEaseTo(map, options?)`
+### `useEaseTo(props)`
 
 Smooth easing animation (similar to flyTo but different curve).
 
-**Returns**: Same as `useFlyTo`
+**Returns**: Same as `useFlyTo` with `ease` in place of `fly`, minus `cleanup`
 
 **Completes on**: `moveend` event or timeout
 
-### `useJumpTo(map, options?)`
+### `useJumpTo(props)`
 
 Instant camera jump (no animation).
 
-**Returns**: Same as `useFlyTo`
+**Returns**: `jumpTo`, the four per-axis `jumpTo*` helpers, `getCurrentCamera`,
+`validateJumpOptions`, `jumpStatus` and `isJumping` — all synchronous
 
 **Completes on**: Immediately (synchronous)
 
-### `useFitBounds(map, options?)`
+### `useFitBounds(props)`
 
 Zoom/pan to fit bounds with animation.
 
-**Returns**: Same as `useFlyTo`
+**Returns**: `setFitBounds`, `clearBounds`, `getCurrentBounds`, `bounds`,
+`boundsStatus`, `isBoundsSet`
 
 **Example**:
 
 ```typescript
-const { fitBounds } = useFitBounds(mapInstance);
-await fitBounds(
+const { setFitBounds, isBoundsSet } = useFitBounds({ map: mapInstance });
+
+setFitBounds(
   [
     [-74, 40],
     [-73, 41],
@@ -388,11 +444,12 @@ await fitBounds(
 );
 ```
 
-### `useCameraForBounds(map, options?)`
+### `useCameraForBounds(props)`
 
 Calculate optimal camera position for bounds (without animating).
 
-**Returns**: Synchronous camera options
+**Returns**: `cameraForBounds`, `clearCamera`, `getCurrentBounds`, `bbox`,
+`cameraStatus`, `isCameraSet`
 
 ### `useZoomTo(map, options?)`
 
@@ -438,7 +495,7 @@ Snap to nearest north angle (0°, 90°, 180°, 270°).
 
 ## Controls (1)
 
-### `useGeolocateControl(mapInstance, options?)`
+### `useGeolocateControl(props)`
 
 Programmatic access to geolocation control.
 
@@ -446,32 +503,43 @@ Programmatic access to geolocation control.
 
 ```typescript
 {
-  geolocateInstance: ShallowRef<GeolocateControl | null>,
-  trigger: () => void,
-  startTracking: () => void,
-  stopTracking: () => void
+  geolocateControl: ShallowRef<GeolocateControl | null>,
+  isControlAdded: ShallowRef<boolean>,
+  addControl: () => void,
+  removeControl: () => void,
+  trigger: () => void
 }
 ```
 
+Tracking is configured through `options.trackUserLocation`, which MapLibre's own
+control handles; there is no separate start/stop pair.
+
 ## Utility Composables
 
-### `useCreateMarker(map, lnglat, options?)`
+### `useCreateMarker(props)`
 
 Create markers programmatically.
 
-**Returns**: `{ markerInstance: ShallowRef<Marker | null>, setLngLat, remove }`
+**Returns**: `marker`, `markerStatus`, `isMarkerCreated`, plus `addMarker`,
+`removeMarker`, `setLngLat`, `setPopup`, `setOffset`, `setDraggable`,
+`setRotation`, `setOpacity`, `togglePopup`, `getElement`, `getLngLat` and the
+other getters
 
-### `useCreatePopup(map, options?)`
+### `useCreatePopup(props)`
 
 Create popups programmatically.
 
-**Returns**: `{ popupInstance: ShallowRef<Popup | null>, setLngLat, show, hide }`
+**Returns**: `popup`, `popupStatus`, `isPopupCreated`, `isPopupOpen`, plus
+`createPopup`, `addToMap`, `removePopup`, `show`, `hide`, `toggle`, `setLngLat`,
+`setHTMLContent`, `setDOMContent`, `setText`, `setOffset`, `setMaxWidth`,
+`addClassName`, `removeClassName` and the getters
 
-### `useCreateImage(map, id, url, coordinates?)`
+### `useCreateImage(props)`
 
 Add images to map for image layers.
 
-**Returns**: `{ imageInstance: ShallowRef<HTMLImageElement | null>, updateUrl, updateCoordinates }`
+**Returns**: `imageStatus`, `isImageReady`, `loadPromise`, plus `loadImage`,
+`updateImage`, `refreshImage`, `hasImage` and `remove`
 
 ## Best Practices
 
@@ -481,10 +549,6 @@ Add images to map for image layers.
 4. **Clean up listeners** (automatic via composables)
 5. **Use type-safe layer composables** for compile-time validation
 
-| Composable            | Description                        |
-| --------------------- | ---------------------------------- |
-| `useGeolocateControl` | User location tracking with events |
-
 ## Utilities
 
 | Composable    | Description                                            |
@@ -492,16 +556,12 @@ Add images to map for image layers.
 | `useLogger`   | Consistent debug logging (controlled via `debug` prop) |
 | `useDebounce` | Debounced function execution                           |
 
-## Factory Functions (Advanced)
+## Factory Functions (Internal)
 
-These are used internally but exported for custom extensions:
+`createEventListenerComposable`, `createCameraAnimation`,
+`createPropertySetter`, `createSetStyle` and `LAYER_STYLE_CONFIG` back the
+composables above, but they are **not** part of the public API — the package
+root does not export them, so importing one fails.
 
-```typescript
-import {
-  createEventListenerComposable, // Build custom event listeners
-  createCameraAnimation, // Build custom camera animations
-  createPropertySetter, // Build typed layer property setters
-  createSetStyle, // Build setStyle for custom layers
-  LAYER_STYLE_CONFIG, // Paint/layout key definitions
-} from 'vue3-maplibre-gl';
-```
+To build a custom listener or animation, compose the public composables, or
+copy the factory into your own project.

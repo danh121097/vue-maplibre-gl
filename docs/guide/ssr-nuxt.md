@@ -106,7 +106,7 @@ const { mapInstance, isMapReady } = useMaplibre();
 
 watch(isMapReady, async () => {
   // Map is ready
-  const { flyTo } = useFlyTo(mapInstance);
+  const { flyTo } = useFlyTo({ map: mapInstance });
   await flyTo({ center: [100, 50], zoom: 10 });
 });
 </script>

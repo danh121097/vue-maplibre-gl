@@ -188,7 +188,7 @@ watch(
 ### Camera Animations
 
 ```typescript
-const { flyTo } = useFlyTo(mapInstance);
+const { flyTo } = useFlyTo({ map: mapInstance });
 
 const animateToLocation = async (location) => {
   try {
@@ -202,25 +202,32 @@ const animateToLocation = async (location) => {
 ### Event Handling
 
 ```typescript
-const { isListenerAttached } = useMapEventListener('click', (e) => {
-  console.log('Clicked at:', e.lngLat);
-  // Get features at click point
-  const features = mapInstance.value?.queryRenderedFeatures({
-    layers: ['my-layer'],
-  });
+const { isListenerAttached } = useMapEventListener({
+  map: mapInstance,
+  event: 'click',
+  on: (e) => {
+    console.log('Clicked at:', e.lngLat);
+    // Get features at click point
+    const features = mapInstance.value?.queryRenderedFeatures({
+      layers: ['my-layer'],
+    });
+  },
 });
 ```
 
 ### Layer Styling
 
 ```typescript
-const { setPaint, setFilter } = useCreateCircleLayer(mapInstance, sourceId);
+const { setStyle, setFilter } = useCreateCircleLayer({
+  map: mapInstance,
+  source: sourceId,
+});
 
 // Type-safe property updates
 watch(
   () => settings.radius,
   (newRadius) => {
-    setPaint({ 'circle-radius': newRadius, 'circle-color': '#088' });
+    setStyle({ 'circle-radius': newRadius, 'circle-color': '#088' });
   },
 );
 
@@ -264,8 +271,8 @@ You can copy any example code and paste it into your Vue 3 project. All examples
 2. **Use type-safe layer composables** for compile-time validation
 
    ```typescript
-   const { setPaint } = useCreateFillLayer(map, source);
-   // setPaint only accepts FillPaint types
+   const { setStyle } = useCreateFillLayer({ map, source });
+   // setStyle only accepts FillLayerStyle properties
    ```
 
 3. **Await camera animations** for sequential operations
@@ -278,7 +285,11 @@ You can copy any example code and paste it into your Vue 3 project. All examples
 4. **Clean up listeners** (automatic with composables)
 
    ```typescript
-   const { removeListener } = useMapEventListener('click', handler);
+   const { removeListener } = useMapEventListener({
+     map: mapInstance,
+     event: 'click',
+     on: handler,
+   });
    // Removed on component unmount automatically
    ```
 

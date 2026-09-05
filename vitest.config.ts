@@ -31,6 +31,11 @@ export default defineConfig({
        * numbers are the floor for `libs/` as a whole, which is low because most
        * layer, camera and control composables still have no tests at all.
        *
+       * Each number is rounded down a couple of points from the measured value.
+       * Without that slack an entry that sits exactly on its measurement turns
+       * any unrelated edit adding one uncovered line into a red build, which
+       * would make the gate something to route around rather than keep.
+       *
        * Raising a number after adding tests is expected. Lowering one needs a
        * reason in the commit message.
        */
@@ -41,22 +46,22 @@ export default defineConfig({
         lines: 31,
 
         'libs/composables/event/createEventListenerComposable.ts': {
-          statements: 87,
-          branches: 71,
-          functions: 90,
-          lines: 89,
+          statements: 85,
+          branches: 69,
+          functions: 88,
+          lines: 87,
         },
         'libs/composables/event/useMapReloadEvent.ts': {
-          statements: 53,
-          branches: 50,
-          functions: 56,
-          lines: 56,
+          statements: 51,
+          branches: 48,
+          functions: 54,
+          lines: 54,
         },
         'libs/composables/layers/createLayerPropertySetters.ts': {
-          statements: 90,
-          branches: 84,
-          functions: 100,
-          lines: 94,
+          statements: 88,
+          branches: 82,
+          functions: 98,
+          lines: 92,
         },
         'libs/composables/layers/useCreateLayer.ts': {
           statements: 48,
@@ -89,10 +94,10 @@ export default defineConfig({
           lines: 41,
         },
         'libs/composables/map/useMaplibre.ts': {
-          statements: 35,
-          branches: 36,
-          functions: 14,
-          lines: 35,
+          statements: 33,
+          branches: 34,
+          functions: 12,
+          lines: 33,
         },
         'libs/composables/sources/useCreateGeoJsonSource.ts': {
           statements: 56,
@@ -107,16 +112,16 @@ export default defineConfig({
           lines: 83,
         },
         'libs/composables/utils/useFitScreenCoordinates.ts': {
-          statements: 62,
-          branches: 50,
-          functions: 64,
-          lines: 65,
+          statements: 60,
+          branches: 48,
+          functions: 62,
+          lines: 63,
         },
         'libs/helpers/index.ts': {
-          statements: 30,
-          branches: 31,
-          functions: 40,
-          lines: 30,
+          statements: 28,
+          branches: 29,
+          functions: 38,
+          lines: 28,
         },
       },
     },

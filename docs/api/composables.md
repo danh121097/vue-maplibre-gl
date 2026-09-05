@@ -16,14 +16,17 @@ The core composable for creating and managing MapLibre GL Maps with enhanced err
 | `styleRef` | `MaybeRef<StyleSpecification \| string>` | Reference to the map style              |
 | `props`    | `CreateMaplibreProps`                    | Configuration options for the map       |
 
-#### CreateMaplibreProps Interface
+`props` also accepts every `MapOptions` field except `container` and `style`,
+which come from `elRef` and `styleRef`.
 
-| Property   | Type                                               | Default     | Description                          |
-| ---------- | -------------------------------------------------- | ----------- | ------------------------------------ |
-| `register` | `(actions: EnhancedCreateMaplibreActions) => void` | `undefined` | Callback for registering map actions |
-| `debug`    | `boolean`                                          | `false`     | Enable debug logging                 |
-| `onLoad`   | `(map: Map) => void`                               | `undefined` | Load success callback                |
-| `onError`  | `(error: any) => void`                             | `undefined` | Error handling callback              |
+#### `props` fields
+
+| Property   | Type                   | Default     | Description                          |
+| ---------- | ---------------------- | ----------- | ------------------------------------ |
+| `register` | `(actions) => void`    | `undefined` | Callback for registering map actions |
+| `debug`    | `boolean`              | `false`     | Enable debug logging                 |
+| `onLoad`   | `(map: Map) => void`   | `undefined` | Load success callback                |
+| `onError`  | `(error: any) => void` | `undefined` | Error handling callback              |
 
 #### Returns
 
@@ -41,11 +44,19 @@ The core composable for creating and managing MapLibre GL Maps with enhanced err
 | `setMinPitch`          | `(pitch: number) => void`                       | Set minimum pitch            |
 | `setMinZoom`           | `(zoom: number) => void`                        | Set minimum zoom             |
 | `setRenderWorldCopies` | `(render: boolean) => void`                     | Set world copies rendering   |
+| `mapCreationStatus`    | `ComputedRef<MapCreationStatus>`                | Current creation status      |
 | `isMapReady`           | `ComputedRef<boolean>`                          | Whether the map is ready     |
 | `isMapLoading`         | `ComputedRef<boolean>`                          | Whether the map is loading   |
 | `hasMapError`          | `ComputedRef<boolean>`                          | Whether the map has an error |
-| `refreshMap`           | `() => void`                                    | Refresh the map instance     |
+| `getCurrentCamera`     | `() => CameraOptions \| null`                   | Read the camera as it is now |
+| `getCurrentStyle`      | `() => StyleSpecification \| undefined`         | Read the active style        |
+| `initMap`              | `() => void`                                    | Create the map               |
+| `removeMap`            | `() => void`                                    | Remove the map from the DOM  |
 | `destroyMap`           | `() => void`                                    | Destroy the map instance     |
+
+`initMap` runs on its own once the container and style are available; call it
+only if you removed the map yourself. Everything except the three lifecycle
+methods is also handed to `register`.
 
 #### Example
 
@@ -78,8 +89,9 @@ watch(isMapReady, (ready) => {
 
 ### useMaplibre
 
-Reads the map registered by an ancestor `<Maplibre>` rather than creating one,
-so it is the composable to reach for inside a child component.
+Holds a map created elsewhere, so a component that renders `<Maplibre>` can
+drive it without reaching into a template ref. It creates no map of its own:
+hand it the actions `<Maplibre>` emits, via `@register`.
 
 #### Parameters
 
@@ -112,18 +124,32 @@ lifecycle methods: `initMap`, `removeMap` and `destroyMap` belong to
 
 #### Example
 
-```typescript
-import { useMaplibre } from 'vue3-maplibre-gl';
+```vue
+<script setup>
+import { Maplibre, useMaplibre } from 'vue3-maplibre-gl';
 
-const { mapInstance, isMapReady, mapStatus } = useMaplibre({
-  debug: true,
-});
+const {
+  register: registerMap,
+  mapInstance,
+  isMapReady,
+} = useMaplibre({ debug: true });
 
 // Every field is a ComputedRef — read it with .value in script, unwrapped in template
 watch(isMapReady, (ready) => {
   if (ready) console.log(mapInstance.value?.getZoom());
 });
+</script>
+
+<template>
+  <Maplibre :options="options" @register="registerMap" />
+</template>
 ```
+
+Before `register` runs, `mapInstance` is `null` and every method is a no-op —
+`isMapReady` is the signal that the map is usable.
+
+To reach the map from a component _nested inside_ `<Maplibre>`, inject
+`MapProvideKey` instead; that is what the built-in child components do.
 
 ### useMaplibreConfig
 
@@ -1365,10 +1391,10 @@ Provides smooth animated transitions with easing functions for map camera change
 
 #### Returns
 
-The same shape as [`useFlyTo`](#useflyto) with `ease` in place of `fly`:
 `easeTo`, `easeToCenter`, `easeToZoom`, `easeToBearing`, `easeToPitch`,
-`stopEasing`, `getCurrentCamera`, `easeStatus` and `isEasing`. Each `easeTo*`
-returns a promise that resolves when the animation settles.
+`stopEasing`, `getCurrentCamera`, `easeStatus` and `isEasing` — the same shape
+as [`useFlyTo`](#useflyto) with `ease` in place of `fly`, minus `cleanup`. Each
+`easeTo*` returns a promise that resolves when the animation settles.
 
 #### Example
 
@@ -1399,7 +1425,7 @@ Provides instant map position changes without animation.
 | ---------- | ----------------------- | ------- | ------------------------------------ |
 | `map`      | `MaybeRef<Map \| null>` | —       | Map instance reference               |
 | `options`  | `JumpToOptions`         | —       | Default options for every call       |
-| `autoJump` | `boolean`               | `false` | Jump as soon as the map is available |
+| `autoJump` | `boolean`               | `true`  | Jump as soon as the map is available |
 | `debug`    | `boolean`               | `false` | Enable debug logging                 |
 
 #### Returns
