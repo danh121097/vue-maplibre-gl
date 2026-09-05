@@ -19,7 +19,14 @@ export default defineConfig({
     }),
     dts({
       include: ['libs/**/*'],
-      exclude: ['examples/**/*', 'node_modules/**/*'],
+      // Tests are still type-checked by `vue-tsc --noEmit`; they just must not
+      // emit declarations into the published package.
+      exclude: [
+        'examples/**/*',
+        'node_modules/**/*',
+        'libs/**/__tests__/**',
+        'libs/test-utils.ts',
+      ],
       insertTypesEntry: true,
       rollupTypes: false, // Disable rollup types to avoid API extractor issues
       copyDtsFiles: false,
