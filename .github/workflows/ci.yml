@@ -38,6 +38,28 @@ jobs:
           test -f dist/index.js || exit 1
           test -f dist/index.umd.cjs || exit 1
           test -f dist/style.css || exit 1
+          test -f dist/maplibre-reexports.js || exit 1
+          # Barrels backing the ./components and ./composables subpaths. Rollup
+          # elides a pure re-export module unless it is declared a build entry,
+          # so these silently disappear if the entry list regresses.
+          test -f dist/components/index.js || exit 1
+          test -f dist/composables/index.js || exit 1
+          # npm strips every node_modules directory from a published tarball, so
+          # a bundled dependency emitted there would vanish on install.
+          test ! -d dist/node_modules || exit 1
+          # The `types` condition of every exports subpath.
+          test -f dist/index.d.ts || exit 1
+          test -f dist/maplibre-reexports.d.ts || exit 1
+          test -f dist/components/index.d.ts || exit 1
+          test -f dist/composables/index.d.ts || exit 1
+          # Sourcemaps are deliberately not published; the shipped JS carries no
+          # sourceMappingURL, so emitting maps again would only bloat the tarball.
+          test -z "$(find dist -name '*.map' -print -quit)" || exit 1
+          # This package ships its own rules only. If MapLibre's stylesheet gets
+          # re-bundled, or the UMD pass overwrites the ES pass's CSS with a
+          # narrower module graph, this catches it.
+          grep -q 'maplibre-container' dist/style.css || exit 1
+          test "$(wc -c < dist/style.css)" -lt 2000 || exit 1
           echo "All dist files present"
 
   # Build the VitePress docs and deploy to Cloudflare Pages.
