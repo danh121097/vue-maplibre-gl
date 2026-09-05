@@ -17,12 +17,24 @@ export function normalizeClassTokens(value: unknown): string[] {
   return [];
 }
 import { getVersion } from 'maplibre-gl';
-import { nanoid } from 'nanoid';
 import type { LngLatLike, Map } from 'maplibre-gl';
 
-export function getNanoid(id?: string) {
+/** Monotonic within the module instance, which is what makes ids collision-free. */
+let generatedIdCount = 0;
+
+/**
+ * Returns `id` when the caller supplied one, otherwise mints a fallback id for
+ * a layer or source.
+ *
+ * These ids only have to be unique among the layers and sources of the maps on
+ * one page, so a module-scoped counter is sufficient and the timestamp is there
+ * purely to keep ids readable across reloads. The name predates dropping the
+ * `nanoid` dependency, which was declared under devDependencies yet imported at
+ * runtime — correct only for as long as it stayed bundled.
+ */
+export function getNanoid(id?: string): string {
   if (id) return id;
-  return nanoid();
+  return `vml-${Date.now().toString(36)}-${(generatedIdCount++).toString(36)}`;
 }
 
 export function getMainVersion(): number {
