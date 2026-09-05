@@ -1,7 +1,7 @@
 import { watchEffect, ref, computed, unref } from 'vue';
 import { useLogger } from '@libs/composables';
 import type { Nullable, Undefinedable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type {
   Map,
   LngLatBoundsLike,
@@ -27,9 +27,9 @@ interface FitBoundsActions {
   setFitBounds: (boundsVal: LngLatBoundsLike, options?: FitBoundsOptions) => void;
   clearBounds: () => void;
   getCurrentBounds: () => LngLatBounds | null;
-  bounds: LngLatBoundsLike | undefined;
-  boundsStatus: Readonly<BoundsStatus>;
-  isBoundsSet: boolean;
+  bounds: ComputedRef<LngLatBoundsLike | undefined>;
+  boundsStatus: ComputedRef<BoundsStatus>;
+  isBoundsSet: ComputedRef<boolean>;
 }
 
 interface CameraForBoundsProps {
@@ -42,9 +42,9 @@ interface CameraForBoundsActions {
   cameraForBounds: (boundsVal: LngLatBoundsLike, options?: CameraForBoundsOptions) => void;
   clearCamera: () => void;
   getCurrentBounds: () => LngLatBounds | null;
-  bbox: LngLatBoundsLike | undefined;
-  cameraStatus: Readonly<BoundsStatus>;
-  isCameraSet: boolean;
+  bbox: ComputedRef<LngLatBoundsLike | undefined>;
+  cameraStatus: ComputedRef<BoundsStatus>;
+  isCameraSet: ComputedRef<boolean>;
 }
 
 /**
@@ -105,9 +105,9 @@ export function useFitBounds(props: FitBoundsProps): FitBoundsActions {
     setFitBounds,
     clearBounds,
     getCurrentBounds,
-    bounds: bounds.value,
-    boundsStatus: boundsStatus.value as Readonly<BoundsStatus>,
-    isBoundsSet: isBoundsSet.value,
+    bounds: computed(() => bounds.value),
+    boundsStatus: computed(() => boundsStatus.value),
+    isBoundsSet,
   };
 }
 
@@ -165,8 +165,8 @@ export function useCameraForBounds(props: CameraForBoundsProps): CameraForBounds
     cameraForBounds,
     clearCamera,
     getCurrentBounds,
-    bbox: bbox.value,
-    cameraStatus: cameraStatus.value as Readonly<BoundsStatus>,
-    isCameraSet: isCameraSet.value,
+    bbox: computed(() => bbox.value),
+    cameraStatus: computed(() => cameraStatus.value),
+    isCameraSet,
   };
 }

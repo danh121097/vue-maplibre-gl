@@ -6,7 +6,7 @@ import {
   type EventListenerActions,
 } from './createEventListenerComposable';
 import type { Nullable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, MapLayerEventType, LayerSpecification } from 'maplibre-gl';
 
 // Re-export with original name for backward compatibility
@@ -22,7 +22,7 @@ interface LayerEventListenerProps<T extends keyof MapLayerEventType> {
 }
 
 interface LayerEventListenerActions extends EventListenerActions {
-  layerId: string | null;
+  layerId: ComputedRef<string | null>;
 }
 
 /**
@@ -64,6 +64,6 @@ export function useLayerEventListener<T extends keyof MapLayerEventType>(
 
   return {
     ...result,
-    layerId: layerId.value,
+    layerId,
   };
 }

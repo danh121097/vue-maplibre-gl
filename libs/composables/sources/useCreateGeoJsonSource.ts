@@ -7,7 +7,7 @@ import type {
   Map,
   MapSourceDataEvent,
 } from 'maplibre-gl';
-import type { MaybeRef, ShallowRef } from 'vue';
+import type { ComputedRef, MaybeRef, ShallowRef } from 'vue';
 import {
   computed,
   markRaw,
@@ -35,8 +35,8 @@ export interface CreateGeoJsonSourceActions {
   setData: (data: GeoJSONSourceSpecification['data']) => void;
   removeSource: () => void;
   refreshSource: () => void;
-  sourceStatus: Readonly<SourceStatus>;
-  isSourceReady: boolean;
+  sourceStatus: ComputedRef<SourceStatus>;
+  isSourceReady: ComputedRef<boolean>;
 }
 
 interface CreateGeoJsonSourceProps {
@@ -78,6 +78,7 @@ export function useCreateGeoJsonSource({
 
   // Computed properties for better reactivity and performance
   const getSource = computed(() => source.value);
+  const sourceStatusComputed = computed(() => sourceStatus.value);
   const mapInstance = computed(() => unref(mapRef));
   const isSourceReady = computed(
     () =>
@@ -120,8 +121,8 @@ export function useCreateGeoJsonSource({
             setData,
             removeSource,
             refreshSource,
-            sourceStatus: sourceStatus.value as Readonly<SourceStatus>,
-            isSourceReady: isSourceReady.value,
+            sourceStatus: sourceStatusComputed,
+            isSourceReady,
           },
           map,
         );
@@ -226,7 +227,7 @@ export function useCreateGeoJsonSource({
     setData,
     removeSource,
     refreshSource,
-    sourceStatus: sourceStatus.value as Readonly<SourceStatus>,
-    isSourceReady: isSourceReady.value,
+    sourceStatus: sourceStatusComputed,
+    isSourceReady,
   };
 }

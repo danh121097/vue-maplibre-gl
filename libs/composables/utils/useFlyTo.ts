@@ -2,7 +2,7 @@ import { watchEffect, ref, computed, unref } from 'vue';
 import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, FlyToOptions, LngLatLike, CameraOptions } from 'maplibre-gl';
 
 /**
@@ -41,8 +41,8 @@ interface FlyToActions {
   ) => Promise<void>;
   stopFlying: () => void;
   getCurrentCamera: () => CameraOptions | null;
-  flyStatus: Readonly<FlyStatus>;
-  isFlying: boolean;
+  flyStatus: ComputedRef<FlyStatus>;
+  isFlying: ComputedRef<boolean>;
   cleanup: () => void;
 }
 
@@ -143,8 +143,8 @@ export function useFlyTo(props: FlyToProps): FlyToActions {
     flyToPitch,
     stopFlying,
     getCurrentCamera,
-    flyStatus: flyStatus.value as Readonly<FlyStatus>,
-    isFlying: isFlying.value,
+    flyStatus: computed(() => flyStatus.value),
+    isFlying,
     cleanup,
   };
 }

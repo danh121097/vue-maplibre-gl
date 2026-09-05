@@ -2,7 +2,7 @@ import { watchEffect, ref, computed, unref, onUnmounted } from 'vue';
 import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, JumpToOptions, LngLatLike, CameraOptions } from 'maplibre-gl';
 
 export enum JumpStatus {
@@ -27,8 +27,8 @@ interface JumpToActions {
   jumpToPitch: (pitch: number, options?: Omit<JumpToOptions, 'pitch'>) => void;
   getCurrentCamera: () => CameraOptions | null;
   validateJumpOptions: (options: JumpToOptions) => boolean;
-  jumpStatus: Readonly<JumpStatus>;
-  isJumping: boolean;
+  jumpStatus: ComputedRef<JumpStatus>;
+  isJumping: ComputedRef<boolean>;
 }
 
 /**
@@ -136,7 +136,7 @@ export function useJumpTo(
     jumpToPitch,
     getCurrentCamera,
     validateJumpOptions,
-    jumpStatus: jumpStatus.value as Readonly<JumpStatus>,
-    isJumping: isJumping.value,
+    jumpStatus: computed(() => jumpStatus.value),
+    isJumping,
   };
 }

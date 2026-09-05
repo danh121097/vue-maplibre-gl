@@ -2,7 +2,7 @@ import { watchEffect, ref, computed, unref, onUnmounted } from 'vue';
 import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, AnimationOptions, CameraOptions } from 'maplibre-gl';
 
 export enum ZoomStatus {
@@ -19,8 +19,8 @@ interface ZoomToActions {
   getCurrentZoom: () => number | null;
   getCurrentCamera: () => CameraOptions | null;
   validateZoomLevel: (zoom: number) => boolean;
-  zoomStatus: Readonly<ZoomStatus>;
-  isZooming: boolean;
+  zoomStatus: ComputedRef<ZoomStatus>;
+  isZooming: ComputedRef<boolean>;
 }
 interface ZoomInProps { map: MaybeRef<Nullable<Map>>; options?: AnimationOptions; debug?: boolean; autoZoom?: boolean; }
 interface ZoomInActions {
@@ -28,8 +28,8 @@ interface ZoomInActions {
   stopZooming: () => void;
   getCurrentZoom: () => number | null;
   getCurrentCamera: () => CameraOptions | null;
-  zoomStatus: Readonly<ZoomStatus>;
-  isZooming: boolean;
+  zoomStatus: ComputedRef<ZoomStatus>;
+  isZooming: ComputedRef<boolean>;
 }
 interface ZoomOutProps { map: MaybeRef<Nullable<Map>>; options?: AnimationOptions; debug?: boolean; autoZoom?: boolean; }
 interface ZoomOutActions {
@@ -37,8 +37,8 @@ interface ZoomOutActions {
   stopZooming: () => void;
   getCurrentZoom: () => number | null;
   getCurrentCamera: () => CameraOptions | null;
-  zoomStatus: Readonly<ZoomStatus>;
-  isZooming: boolean;
+  zoomStatus: ComputedRef<ZoomStatus>;
+  isZooming: ComputedRef<boolean>;
 }
 
 // --- Shared helpers ---
@@ -117,7 +117,7 @@ export function useZoomTo(
     return { zoomTo: (zoomVal: number, options?: AnimationOptions) => { zoomTo(zoomVal, options).catch((e) => logError('Error in legacy zoomTo:', e)); } };
   }
 
-  return { zoomTo, stopZooming, getCurrentZoom, getCurrentCamera, validateZoomLevel, zoomStatus: zoomStatus.value as Readonly<ZoomStatus>, isZooming: isZooming.value };
+  return { zoomTo, stopZooming, getCurrentZoom, getCurrentCamera, validateZoomLevel, zoomStatus: computed(() => zoomStatus.value), isZooming };
 }
 
 // --- useZoomIn ---
@@ -174,7 +174,7 @@ export function useZoomIn(
     return { zoomIn: (options?: AnimationOptions) => { zoomIn(options).catch((e) => logError('Error in legacy zoomIn:', e)); } };
   }
 
-  return { zoomIn, stopZooming, getCurrentZoom, getCurrentCamera, zoomStatus: zoomStatus.value as Readonly<ZoomStatus>, isZooming: isZooming.value };
+  return { zoomIn, stopZooming, getCurrentZoom, getCurrentCamera, zoomStatus: computed(() => zoomStatus.value), isZooming };
 }
 
 // --- useZoomOut ---
@@ -231,5 +231,5 @@ export function useZoomOut(
     return { zoomOut: (options?: AnimationOptions) => { zoomOut(options).catch((e) => logError('Error in legacy zoomOut:', e)); } };
   }
 
-  return { zoomOut, stopZooming, getCurrentZoom, getCurrentCamera, zoomStatus: zoomStatus.value as Readonly<ZoomStatus>, isZooming: isZooming.value };
+  return { zoomOut, stopZooming, getCurrentZoom, getCurrentCamera, zoomStatus: computed(() => zoomStatus.value), isZooming };
 }

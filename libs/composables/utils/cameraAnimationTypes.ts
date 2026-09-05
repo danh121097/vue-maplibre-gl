@@ -1,5 +1,5 @@
 import type { Nullable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, CameraOptions } from 'maplibre-gl';
 
 /**
@@ -30,9 +30,9 @@ export interface CameraAnimationResult {
   /** Stop any in-flight animation */
   stopAnimation: () => void;
   /** Current animation status */
-  animationStatus: AnimationStatus;
+  animationStatus: ComputedRef<AnimationStatus>;
   /** Whether animation is currently running */
-  isAnimating: boolean;
+  isAnimating: ComputedRef<boolean>;
   /** Resolved map instance (computed) */
-  mapInstance: Map | null;
+  mapInstance: ComputedRef<Nullable<Map>>;
 }

@@ -2,7 +2,7 @@ import { watchEffect, ref, computed, unref, onUnmounted } from 'vue';
 import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, AnimationOptions, PointLike, LngLatLike, CameraOptions } from 'maplibre-gl';
 
 export enum PanStatus {
@@ -18,8 +18,8 @@ interface PanByActions {
   stopPanning: () => void;
   getCurrentCamera: () => CameraOptions | null;
   validatePanOffset: (offset: PointLike) => boolean;
-  panStatus: Readonly<PanStatus>;
-  isPanning: boolean;
+  panStatus: ComputedRef<PanStatus>;
+  isPanning: ComputedRef<boolean>;
 }
 interface PanToProps { map: MaybeRef<Nullable<Map>>; lnglat?: LngLatLike; options?: AnimationOptions; debug?: boolean; autoPan?: boolean; }
 interface PanToActions {
@@ -27,8 +27,8 @@ interface PanToActions {
   stopPanning: () => void;
   getCurrentCamera: () => CameraOptions | null;
   validatePanTarget: (lnglat: LngLatLike) => boolean;
-  panStatus: Readonly<PanStatus>;
-  isPanning: boolean;
+  panStatus: ComputedRef<PanStatus>;
+  isPanning: ComputedRef<boolean>;
 }
 
 function validatePanOffset(offset: PointLike): boolean {
@@ -116,7 +116,7 @@ export function usePanBy(
     return { panBy: (offsetVal: PointLike, options?: AnimationOptions) => { panBy(offsetVal, options).catch((e) => logError('Error in legacy panBy:', e)); } };
   }
 
-  return { panBy, stopPanning, getCurrentCamera, validatePanOffset, panStatus: panStatus.value as Readonly<PanStatus>, isPanning: isPanning.value };
+  return { panBy, stopPanning, getCurrentCamera, validatePanOffset, panStatus: computed(() => panStatus.value), isPanning };
 }
 
 // --- usePanTo ---
@@ -178,5 +178,5 @@ export function usePanTo(
     return { panTo: (lnglatVal: LngLatLike, options?: AnimationOptions) => { panTo(lnglatVal, options).catch((e) => logError('Error in legacy panTo:', e)); } };
   }
 
-  return { panTo, stopPanning, getCurrentCamera, validatePanTarget, panStatus: panStatus.value as Readonly<PanStatus>, isPanning: isPanning.value };
+  return { panTo, stopPanning, getCurrentCamera, validatePanTarget, panStatus: computed(() => panStatus.value), isPanning };
 }

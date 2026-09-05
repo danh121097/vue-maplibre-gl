@@ -27,10 +27,10 @@ export type Undefinedable<T> = T | undefined;
 
 export interface CreateMaplibreActions {
   mapInstance: ComputedRef<Map | null>;
-  mapCreationStatus: MapCreationStatus;
-  isMapReady: boolean;
-  isMapLoading: boolean;
-  hasMapError: boolean;
+  mapCreationStatus: ComputedRef<MapCreationStatus>;
+  isMapReady: ComputedRef<boolean>;
+  isMapLoading: ComputedRef<boolean>;
+  hasMapError: ComputedRef<boolean>;
   setStyle: (style: string | StyleSpecification) => void;
   setCenter: (center: LngLatLike) => void;
   setBearing: (bearing: number) => void;

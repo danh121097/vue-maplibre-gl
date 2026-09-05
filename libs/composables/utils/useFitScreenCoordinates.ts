@@ -1,7 +1,7 @@
 import { watchEffect, ref, computed, unref, onUnmounted } from 'vue';
 import { useLogger } from '@libs/composables';
 import type { Nullable, Undefinedable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, FitBoundsOptions, PointLike } from 'maplibre-gl';
 
 /**
@@ -43,11 +43,11 @@ interface FitScreenCoordinatesActions {
   /** Clear current screen coordinates */
   clearCoordinates: () => void;
   /** Current status */
-  readonly status: Readonly<FitScreenCoordinatesStatus>;
+  readonly status: ComputedRef<FitScreenCoordinatesStatus>;
   /** Computed state flags */
-  readonly isCoordinatesSet: boolean;
-  readonly isFitting: boolean;
-  readonly hasError: boolean;
+  readonly isCoordinatesSet: ComputedRef<boolean>;
+  readonly isFitting: ComputedRef<boolean>;
+  readonly hasError: ComputedRef<boolean>;
 }
 
 /**
@@ -297,9 +297,9 @@ export function useFitScreenCoordinates(
   return {
     fitScreenCoordinates,
     clearCoordinates,
-    status: status.value as Readonly<FitScreenCoordinatesStatus>,
-    isCoordinatesSet: isCoordinatesSet.value,
-    isFitting: isFitting.value,
-    hasError: hasError.value,
+    status: computed(() => status.value),
+    isCoordinatesSet,
+    isFitting,
+    hasError,
   };
 }

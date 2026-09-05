@@ -12,7 +12,7 @@ import { Marker } from 'maplibre-gl';
 import { lngLatLikeHasValue } from '@libs/helpers';
 import { useLogger } from '@libs/composables';
 import type { Nullable } from '@libs/types';
-import type { MaybeRef, Ref } from 'vue';
+import type { ComputedRef, MaybeRef, Ref } from 'vue';
 import type {
   Alignment,
   Listener,
@@ -52,9 +52,9 @@ interface CreateMarkerProps {
 }
 
 interface CreateMarkerActions {
-  marker: Readonly<Nullable<Marker>>;
-  markerStatus: Readonly<MarkerStatus>;
-  isMarkerCreated: boolean;
+  marker: ComputedRef<Nullable<Marker>>;
+  markerStatus: ComputedRef<MarkerStatus>;
+  isMarkerCreated: ComputedRef<boolean>;
   setLngLat: (lnglat: LngLatLike) => void;
   setPopup: (popup?: Popup | null) => void;
   setOffset: (offset: PointLike) => void;
@@ -478,9 +478,9 @@ export function useCreateMarker({
   onUnmounted(cleanup);
 
   return {
-    marker: marker.value,
-    markerStatus: markerStatus.value,
-    isMarkerCreated: isMarkerCreated.value,
+    marker: computed(() => marker.value),
+    markerStatus: computed(() => markerStatus.value),
+    isMarkerCreated,
     setLngLat,
     setPopup,
     setOffset,

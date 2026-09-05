@@ -12,7 +12,7 @@ import type {
   StyleSwapOptions,
 } from 'maplibre-gl';
 import { Map } from 'maplibre-gl';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import {
   computed,
   markRaw,
@@ -35,10 +35,10 @@ interface SimplifiedCreateMaplibreActions extends CreateMaplibreActions {
   getCurrentCamera: () => CameraOptions | null;
 
   // Essential status and state
-  mapCreationStatus: Readonly<MapCreationStatus>;
-  isMapReady: boolean;
-  isMapLoading: boolean;
-  hasMapError: boolean;
+  mapCreationStatus: ComputedRef<MapCreationStatus>;
+  isMapReady: ComputedRef<boolean>;
+  isMapLoading: ComputedRef<boolean>;
+  hasMapError: ComputedRef<boolean>;
 
   // Essential style management
   getCurrentStyle: () => StyleSpecification | string | null;
@@ -506,10 +506,10 @@ export function useCreateMaplibre(
 
     // Simplified essential actions
     getCurrentCamera,
-    mapCreationStatus: mapCreationStatusComputed.value,
-    isMapReady: isMapReady.value,
-    isMapLoading: isMapLoading.value,
-    hasMapError: hasMapError.value,
+    mapCreationStatus: mapCreationStatusComputed,
+    isMapReady,
+    isMapLoading,
+    hasMapError,
     getCurrentStyle,
   };
 

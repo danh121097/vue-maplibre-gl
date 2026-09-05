@@ -138,8 +138,8 @@ export function createCameraAnimation(
     executeAnimation,
     getCurrentCamera,
     stopAnimation,
-    animationStatus: animationStatus.value as AnimationStatus,
-    isAnimating: isAnimating.value,
-    mapInstance: mapInstance.value,
+    animationStatus: computed(() => animationStatus.value),
+    isAnimating,
+    mapInstance,
   };
 }

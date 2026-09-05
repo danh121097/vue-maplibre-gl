@@ -2,7 +2,7 @@ import { watchEffect, ref, computed, unref } from 'vue';
 import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, EaseToOptions, LngLatLike, CameraOptions } from 'maplibre-gl';
 
 export enum EaseStatus {
@@ -26,8 +26,8 @@ interface EaseToActions {
   easeToPitch: (pitch: number, options?: Omit<EaseToOptions, 'pitch'>) => Promise<void>;
   stopEasing: () => void;
   getCurrentCamera: () => CameraOptions | null;
-  easeStatus: Readonly<EaseStatus>;
-  isEasing: boolean;
+  easeStatus: ComputedRef<EaseStatus>;
+  isEasing: ComputedRef<boolean>;
 }
 
 /**
@@ -112,7 +112,7 @@ export function useEaseTo(props: EaseToProps): EaseToActions {
     easeToPitch,
     stopEasing,
     getCurrentCamera,
-    easeStatus: easeStatus.value as Readonly<EaseStatus>,
-    isEasing: isEasing.value,
+    easeStatus: computed(() => easeStatus.value),
+    isEasing,
   };
 }

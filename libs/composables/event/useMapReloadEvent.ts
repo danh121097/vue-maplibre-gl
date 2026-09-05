@@ -1,6 +1,6 @@
 import { watchEffect, onUnmounted, unref, computed, ref } from 'vue';
 import { useLogger } from '@libs/composables';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Nullable } from '@libs/types';
 import type { Map } from 'maplibre-gl';
 
@@ -31,8 +31,8 @@ interface MapReloadEventActions {
   clear: () => void;
   forceLoad: () => void;
   forceUnload: () => void;
-  isMapLoaded: boolean;
-  loadStatus: Readonly<MapReloadEventStatus>;
+  isMapLoaded: ComputedRef<boolean>;
+  loadStatus: ComputedRef<MapReloadEventStatus>;
 }
 
 /**
@@ -227,7 +227,7 @@ export function useMapReloadEvent(
     clear,
     forceLoad,
     forceUnload,
-    isMapLoaded: isMapLoaded.value,
-    loadStatus: loadStatus.value,
+    isMapLoaded,
+    loadStatus: computed(() => loadStatus.value),
   };
 }

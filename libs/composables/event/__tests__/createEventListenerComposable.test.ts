@@ -41,7 +41,7 @@ describe('createEventListenerComposable', () => {
           detach: (t, e, h) => t.off(e, h),
         },
       });
-      expect(result.listenerStatus).toBe(EventListenerStatus.Attached);
+      expect(result.listenerStatus.value).toBe(EventListenerStatus.Attached);
     });
 
     expect(target.getHandlerCount('click')).toBe(1);
@@ -60,7 +60,7 @@ describe('createEventListenerComposable', () => {
           detach: vi.fn(),
         },
       });
-      expect(result.listenerStatus).toBe(EventListenerStatus.NotAttached);
+      expect(result.listenerStatus.value).toBe(EventListenerStatus.NotAttached);
     });
   });
 
@@ -143,7 +143,7 @@ describe('createEventListenerComposable', () => {
           validate: () => false,
         },
       });
-      expect(result.listenerStatus).toBe(EventListenerStatus.NotAttached);
+      expect(result.listenerStatus.value).toBe(EventListenerStatus.NotAttached);
     });
 
     expect(target.getHandlerCount('click')).toBe(0);

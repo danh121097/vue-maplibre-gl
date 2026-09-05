@@ -8,7 +8,7 @@ import type {
   SourceSpecification,
   StyleSetterOptions,
 } from 'maplibre-gl';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import { computed, markRaw, ref, shallowRef, unref, watch } from 'vue';
 
 /**
@@ -40,8 +40,8 @@ export interface CreateBaseLayerProps<Layer extends LayerSpecification> {
 
 export interface EnhancedLayerActions<Layer extends LayerSpecification>
   extends CreateBaseLayerActions<Layer> {
-  layerStatus: Readonly<LayerStatus>;
-  isLayerReady: boolean;
+  layerStatus: ComputedRef<LayerStatus>;
+  isLayerReady: ComputedRef<boolean>;
   refreshLayer: () => void;
   updateLayer: (updates: {
     filter?: FilterSpecification;
@@ -410,8 +410,8 @@ export function useCreateLayer<Layer extends LayerSpecification>(
     setZoomRange,
     setPaintProperty,
     setLayoutProperty,
-    layerStatus: layerStatus.value as Readonly<LayerStatus>,
-    isLayerReady: isLayerReady.value,
+    layerStatus: computed(() => layerStatus.value),
+    isLayerReady,
     refreshLayer,
     updateLayer,
   };

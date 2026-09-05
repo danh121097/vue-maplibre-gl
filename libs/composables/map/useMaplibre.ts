@@ -125,10 +125,10 @@ export function useMaplibre(
       if (debug) {
         console.log('🔄 Registering MapLibre instance with useMaplibre', {
           hasMapInstance: !!instance.mapInstance,
-          currentMapCreationStatus: instance.mapCreationStatus,
-          isMapReady: instance.isMapReady,
-          isMapLoading: instance.isMapLoading,
-          hasMapError: instance.hasMapError,
+          currentMapCreationStatus: instance.mapCreationStatus.value,
+          isMapReady: instance.isMapReady.value,
+          isMapLoading: instance.isMapLoading.value,
+          hasMapError: instance.hasMapError.value,
         });
       }
       instanceRef.value = instance;
@@ -162,7 +162,7 @@ export function useMaplibre(
         );
 
         // Set initial status from instance
-        mapStatus.value = instance.mapCreationStatus;
+        mapStatus.value = instance.mapCreationStatus.value;
 
         // Watch for map instance changes to determine status
         watch(
@@ -193,9 +193,9 @@ export function useMaplibre(
                 }
               } else {
                 // No map instance
-                if (instance.hasMapError) {
+                if (instance.hasMapError.value) {
                   mapStatus.value = MapCreationStatus.Error;
-                } else if (instance.isMapLoading) {
+                } else if (instance.isMapLoading.value) {
                   mapStatus.value = MapCreationStatus.Loading;
                 } else {
                   mapStatus.value = MapCreationStatus.NotInitialized;

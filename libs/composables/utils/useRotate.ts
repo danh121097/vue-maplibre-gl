@@ -2,7 +2,7 @@ import { watchEffect, ref, computed, unref, onUnmounted } from 'vue';
 import { useLogger } from '@libs/composables';
 import { createCameraAnimation } from './createCameraAnimation';
 import type { Nullable, Undefinedable } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, AnimationOptions, CameraOptions } from 'maplibre-gl';
 
 export enum RotationStatus {
@@ -19,8 +19,8 @@ interface RotateToActions {
   getCurrentBearing: () => number | null;
   getCurrentCamera: () => CameraOptions | null;
   validateBearing: (bearing: number) => boolean;
-  rotationStatus: Readonly<RotationStatus>;
-  isRotating: boolean;
+  rotationStatus: ComputedRef<RotationStatus>;
+  isRotating: ComputedRef<boolean>;
 }
 interface ResetNorthProps { map: MaybeRef<Nullable<Map>>; options?: AnimationOptions; debug?: boolean; autoReset?: boolean; }
 interface ResetNorthActions {
@@ -28,8 +28,8 @@ interface ResetNorthActions {
   stopRotating: () => void;
   getCurrentBearing: () => number | null;
   getCurrentCamera: () => CameraOptions | null;
-  rotationStatus: Readonly<RotationStatus>;
-  isRotating: boolean;
+  rotationStatus: ComputedRef<RotationStatus>;
+  isRotating: ComputedRef<boolean>;
 }
 interface ResetNorthPitchProps { map: MaybeRef<Nullable<Map>>; options?: AnimationOptions; debug?: boolean; autoReset?: boolean; }
 interface ResetNorthPitchActions {
@@ -38,8 +38,8 @@ interface ResetNorthPitchActions {
   getCurrentBearing: () => number | null;
   getCurrentPitch: () => number | null;
   getCurrentCamera: () => CameraOptions | null;
-  rotationStatus: Readonly<RotationStatus>;
-  isRotating: boolean;
+  rotationStatus: ComputedRef<RotationStatus>;
+  isRotating: ComputedRef<boolean>;
 }
 interface SnapToNorthProps { map: MaybeRef<Nullable<Map>>; options?: AnimationOptions; debug?: boolean; autoSnap?: boolean; }
 interface SnapToNorthActions {
@@ -47,8 +47,8 @@ interface SnapToNorthActions {
   stopRotating: () => void;
   getCurrentBearing: () => number | null;
   getCurrentCamera: () => CameraOptions | null;
-  rotationStatus: Readonly<RotationStatus>;
-  isRotating: boolean;
+  rotationStatus: ComputedRef<RotationStatus>;
+  isRotating: ComputedRef<boolean>;
 }
 
 // --- Shared helpers ---
@@ -180,7 +180,7 @@ export function useRotateTo(
     return { rotateTo: (bearingVal: number, options?: AnimationOptions) => { rotateTo(bearingVal, options).catch((e) => logError('Error in legacy rotateTo:', e)); } };
   }
 
-  return { rotateTo, stopRotating, getCurrentBearing, getCurrentCamera, validateBearing, rotationStatus: rotationStatus.value as Readonly<RotationStatus>, isRotating: isRotating.value };
+  return { rotateTo, stopRotating, getCurrentBearing, getCurrentCamera, validateBearing, rotationStatus: computed(() => rotationStatus.value), isRotating };
 }
 
 // --- useResetNorth ---
@@ -203,7 +203,7 @@ export function useResetNorth(
     return { resetNorth: (options?: AnimationOptions) => { execute(options).catch((e) => logError('Error in legacy resetNorth:', e)); } };
   }
 
-  return { resetNorth: execute, stopRotating, getCurrentBearing, getCurrentCamera, rotationStatus: rotationStatus.value as Readonly<RotationStatus>, isRotating: isRotating.value };
+  return { resetNorth: execute, stopRotating, getCurrentBearing, getCurrentCamera, rotationStatus: computed(() => rotationStatus.value), isRotating };
 }
 
 // --- useResetNorthPitch ---
@@ -228,7 +228,7 @@ export function useResetNorthPitch(
     return { resetNorthPitch: (options?: AnimationOptions) => { execute(options).catch((e) => logError('Error in legacy resetNorthPitch:', e)); } };
   }
 
-  return { resetNorthPitch: execute, stopRotating, getCurrentBearing, getCurrentPitch, getCurrentCamera, rotationStatus: rotationStatus.value as Readonly<RotationStatus>, isRotating: isRotating.value };
+  return { resetNorthPitch: execute, stopRotating, getCurrentBearing, getCurrentPitch, getCurrentCamera, rotationStatus: computed(() => rotationStatus.value), isRotating };
 }
 
 // --- useSnapToNorth ---
@@ -251,5 +251,5 @@ export function useSnapToNorth(
     return { snapToNorth: (options?: AnimationOptions) => { execute(options).catch((e) => logError('Error in legacy snapToNorth:', e)); } };
   }
 
-  return { snapToNorth: execute, stopRotating, getCurrentBearing, getCurrentCamera, rotationStatus: rotationStatus.value as Readonly<RotationStatus>, isRotating: isRotating.value };
+  return { snapToNorth: execute, stopRotating, getCurrentBearing, getCurrentCamera, rotationStatus: computed(() => rotationStatus.value), isRotating };
 }

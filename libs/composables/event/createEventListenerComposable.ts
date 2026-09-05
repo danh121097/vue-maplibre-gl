@@ -1,6 +1,6 @@
 import { onUnmounted, unref, watchEffect, computed, ref } from 'vue';
 import { useLogger } from '@libs/composables';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Nullable } from '@libs/types';
 
 /**
@@ -36,8 +36,8 @@ export interface EventListenerConfig<TTarget> {
 export interface EventListenerActions {
   removeListener: () => void;
   attachListener: () => void;
-  isListenerAttached: boolean;
-  listenerStatus: Readonly<EventListenerStatus>;
+  isListenerAttached: ComputedRef<boolean>;
+  listenerStatus: ComputedRef<EventListenerStatus>;
 }
 
 /**
@@ -133,7 +133,7 @@ export function createEventListenerComposable<TTarget>(
   return {
     removeListener,
     attachListener,
-    isListenerAttached: isListenerAttached.value,
-    listenerStatus: listenerStatus.value as Readonly<EventListenerStatus>,
+    isListenerAttached,
+    listenerStatus: computed(() => listenerStatus.value),
   };
 }

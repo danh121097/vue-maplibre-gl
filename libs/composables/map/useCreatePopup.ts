@@ -12,7 +12,7 @@ import { Popup } from 'maplibre-gl';
 import { lngLatLikeHasValue } from '@libs/helpers';
 import { useLogger } from '@libs/composables';
 import type { Nullable } from '@libs/types';
-import type { Ref, MaybeRef } from 'vue';
+import type { ComputedRef, Ref, MaybeRef } from 'vue';
 import type { LngLatLike, Map, PopupOptions, PointLike } from 'maplibre-gl';
 
 /**
@@ -49,10 +49,10 @@ interface CreatePopupProps {
 }
 
 interface CreatePopupActions {
-  popup: Readonly<Nullable<Popup>>;
-  popupStatus: Readonly<PopupStatus>;
-  isPopupCreated: boolean;
-  isPopupOpen: boolean;
+  popup: ComputedRef<Nullable<Popup>>;
+  popupStatus: ComputedRef<PopupStatus>;
+  isPopupCreated: ComputedRef<boolean>;
+  isPopupOpen: ComputedRef<boolean>;
   setLngLat: (lnglat: LngLatLike) => void;
   setOffset: (offset: PointLike) => void;
   addClassName: (className: string) => void;
@@ -457,10 +457,10 @@ export function useCreatePopup({
   onUnmounted(cleanup);
 
   return {
-    popup: popup.value,
-    popupStatus: popupStatus.value,
-    isPopupCreated: isPopupCreated.value,
-    isPopupOpen: isPopupOpen.value,
+    popup: computed(() => popup.value),
+    popupStatus: computed(() => popupStatus.value),
+    isPopupCreated,
+    isPopupOpen,
     setLngLat,
     setOffset,
     addClassName,
