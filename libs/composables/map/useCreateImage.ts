@@ -1,7 +1,7 @@
-import { unref, watchEffect, computed, ref, onUnmounted } from 'vue';
+import { unref, watchEffect, computed, ref, onScopeDispose } from 'vue';
 import { useLogger } from '@libs/composables';
 import type { Nullable, ImageDatas } from '@libs/types';
-import type { MaybeRef } from 'vue';
+import type { ComputedRef, MaybeRef } from 'vue';
 import type { Map, StyleImageMetadata } from 'maplibre-gl';
 
 /**
@@ -35,8 +35,8 @@ interface CreateImageActions {
   updateImage: (newImage: ImageDatas | string) => Promise<void>;
   refreshImage: () => Promise<void>;
   hasImage: () => boolean;
-  imageStatus: Readonly<ImageStatus>;
-  isImageReady: boolean;
+  imageStatus: ComputedRef<ImageStatus>;
+  isImageReady: ComputedRef<boolean>;
   loadPromise: Promise<void>;
 }
 
@@ -62,13 +62,39 @@ export function useCreateImage(props: CreateImageProps): CreateImageActions {
       imageStatus.value === ImageStatus.Updated,
   );
 
-  let resolveFn: (value?: any) => void;
-  let rejectFn: (reason?: any) => void;
+  // Set once the owning scope is stopped. `onScopeDispose` can only tear down
+  // synchronous state; an `updateImage` call suspended on `await loadImage(...)`
+  // keeps running and would re-add the image with no owner left to remove it.
+  let isDisposed = false;
+
+  let settleResolve: (value?: any) => void;
+  let settleReject: (reason?: any) => void;
+  let isPromiseSettled = false;
 
   const promise = new Promise<void>((resolve, reject) => {
-    resolveFn = resolve;
-    rejectFn = reject;
+    settleResolve = resolve;
+    settleReject = reject;
   });
+
+  // `loadPromise` is public but consumers are not required to await it. Attach a
+  // no-op handler so a genuine load failure never surfaces as an
+  // `unhandledrejection` (which fails strict test runners and error SDKs).
+  // Consumers awaiting `loadPromise` still observe the rejection on their own handle.
+  promise.catch(() => {});
+
+  /** Resolves the load promise once; later calls are no-ops. */
+  function resolveFn(value?: any): void {
+    if (isPromiseSettled) return;
+    isPromiseSettled = true;
+    settleResolve(value);
+  }
+
+  /** Rejects the load promise once; later calls are no-ops. */
+  function rejectFn(reason?: any): void {
+    if (isPromiseSettled) return;
+    isPromiseSettled = true;
+    settleReject(reason);
+  }
 
   /**
    * Validates if image operations can be performed safely
@@ -180,6 +206,14 @@ export function useCreateImage(props: CreateImageProps): CreateImageActions {
         imageData = newImage;
       }
 
+      if (isDisposed) {
+        // Scope stopped while the image was loading — drop the result rather
+        // than adding an image nothing will ever remove.
+        imageStatus.value = ImageStatus.NotCreated;
+        resolveFn();
+        return;
+      }
+
       // Update or add the image
       if (hasImage()) {
         // Check if we should force recreation when dimensions change
@@ -263,7 +297,12 @@ export function useCreateImage(props: CreateImageProps): CreateImageActions {
   function remove(): void {
     const map = mapInstance.value;
 
-    if (!map) return;
+    if (!map) {
+      // Nothing to remove, but the promise must still settle or an awaiting
+      // consumer (and `<Image>`'s `Promise.allSettled`) hangs forever.
+      resolveFn();
+      return;
+    }
 
     try {
       if (hasImage()) {
@@ -274,7 +313,9 @@ export function useCreateImage(props: CreateImageProps): CreateImageActions {
       logError('Error removing image:', error, { imageId: props.id });
       imageStatus.value = ImageStatus.Error;
     } finally {
-      rejectFn(new Error('Image removed'));
+      // Removing before the image ever loaded is not a failure the consumer
+      // must handle — settle as resolved rather than rejecting on every unmount.
+      resolveFn();
     }
   }
 
@@ -288,8 +329,10 @@ export function useCreateImage(props: CreateImageProps): CreateImageActions {
     }
   });
 
-  // Cleanup on unmount
-  onUnmounted(() => {
+  // Cleanup when the owning effect scope is disposed. A component's setup scope
+  // is disposed on unmount, so this also covers direct use inside a component.
+  onScopeDispose(() => {
+    isDisposed = true;
     remove();
   });
 
@@ -299,8 +342,8 @@ export function useCreateImage(props: CreateImageProps): CreateImageActions {
     updateImage,
     refreshImage,
     hasImage,
-    imageStatus: imageStatus.value as Readonly<ImageStatus>,
-    isImageReady: isImageReady.value,
+    imageStatus: computed(() => imageStatus.value),
+    isImageReady,
     loadPromise: promise,
   };
 }
