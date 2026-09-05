@@ -6,7 +6,7 @@ import {
 } from '@nuxt/kit';
 
 export interface ModuleOptions {
-  /** Auto-import vue3-maplibre-gl CSS (default: true) */
+  /** Auto-import the MapLibre GL and vue3-maplibre-gl stylesheets (default: true) */
   css?: boolean;
   /** Prefix for auto-imported composables (default: none) */
   prefix?: string;
@@ -33,8 +33,11 @@ export default defineNuxtModule<ModuleOptions>({
   setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url);
 
-    // Auto-import CSS
+    // Auto-import CSS. MapLibre's own stylesheet is no longer re-bundled into
+    // the library's style.css, so both are pushed: upstream first, then this
+    // package's container rules.
     if (options.css) {
+      nuxt.options.css.push('maplibre-gl/dist/maplibre-gl.css');
       nuxt.options.css.push('vue3-maplibre-gl/dist/style.css');
     }
 
