@@ -184,7 +184,6 @@ const stopPropsWatcher = watch(
     }
   },
   {
-    deep: true,
     flush: 'post', // Run after DOM updates for better performance
   },
 );

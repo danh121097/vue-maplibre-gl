@@ -192,7 +192,6 @@ const stopDataWatcher = useDebouncedWatch(
   },
   {
     delay: props.debounceDelay,
-    deep: true,
     immediate: true,
     flush: 'post', // Optimize by running after DOM updates
     debug: props.debug,

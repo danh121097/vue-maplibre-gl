@@ -171,7 +171,7 @@ watch(
   (newImages) => {
     loadImages(newImages);
   },
-  { deep: true, immediate: false },
+  { immediate: false },
 );
 
 // Load images on mount

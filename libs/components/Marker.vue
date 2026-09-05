@@ -166,7 +166,8 @@ const { setDraggable, setLngLat } = useCreateMarker({
   on: eventHandlers,
 });
 
-// Reactive watchers for prop changes with error handling
+// Reference watch: pass a new coordinate value to move the marker. Mutating
+// the existing `lnglat` array or object in place no longer triggers an update.
 watch(
   () => props.lnglat,
   (newLnglat) => {
@@ -174,7 +175,6 @@ watch(
       setLngLat(newLnglat);
     }
   },
-  { deep: true },
 );
 
 watch(

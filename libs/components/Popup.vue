@@ -142,6 +142,8 @@ watch(
   },
 );
 
+// Reference watch: pass a new coordinate value to move the popup. Mutating
+// the existing `lnglat` array or object in place no longer triggers an update.
 watch(
   () => props.lnglat,
   (newLnglat) => {
@@ -149,7 +151,6 @@ watch(
       setLngLat(newLnglat);
     }
   },
-  { deep: true },
 );
 </script>
 <template>
