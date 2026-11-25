@@ -55,6 +55,7 @@ export class MockMap {
   setMinZoom = vi.fn();
   setRenderWorldCopies = vi.fn();
   fitScreenCoordinates = vi.fn();
+  setMissingStyleImageResolver = vi.fn();
   remove = vi.fn();
 
   constructor(options: Record<string, any> = {}) {
@@ -219,8 +220,17 @@ export class MockMap {
   }
 
   // --- source API ---
+  /**
+   * `setData` resolves, as MapLibre 6's does once the worker has applied the
+   * data. It never rejects there: a failed update is reported through the
+   * map's `error` event instead.
+   */
   addSource(id: string, spec: unknown): void {
-    this.sources.set(id, { id, ...(spec as object), setData: vi.fn() });
+    this.sources.set(id, {
+      id,
+      ...(spec as object),
+      setData: vi.fn(() => Promise.resolve()),
+    });
   }
 
   getSource(id: string): unknown {

@@ -51,6 +51,7 @@ export default defineConfig({
         text: 'v6.1.1',
         items: [
           { text: 'Changelog', link: '/changelog' },
+          { text: 'Migration from v6', link: '/guide/migration-v7' },
           { text: 'Migration from v5', link: '/guide/migration-v6' },
           { text: 'Migration from v4', link: '/guide/migration-v5' },
         ],
@@ -81,6 +82,7 @@ export default defineConfig({
           text: 'Advanced',
           items: [
             { text: 'SSR / Nuxt', link: '/guide/ssr-nuxt' },
+            { text: 'Migration from v6', link: '/guide/migration-v7' },
             { text: 'Migration from v5', link: '/guide/migration-v6' },
             { text: 'Migration from v4', link: '/guide/migration-v5' },
           ],

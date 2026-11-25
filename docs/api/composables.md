@@ -21,38 +21,40 @@ which come from `elRef` and `styleRef`.
 
 #### `props` fields
 
-| Property   | Type                   | Default     | Description                                |
-| ---------- | ---------------------- | ----------- | ------------------------------------------ |
-| `register` | `(actions) => void`    | `undefined` | Callback for registering map actions       |
-| `debug`    | `boolean`              | —           | Enable debug logging; omitted logs nothing |
-| `onLoad`   | `(map: Map) => void`   | `undefined` | Load success callback                      |
-| `onError`  | `(error: any) => void` | `undefined` | Error handling callback                    |
+| Property                    | Type                                | Default     | Description                                                        |
+| --------------------------- | ----------------------------------- | ----------- | ------------------------------------------------------------------ |
+| `register`                  | `(actions) => void`                 | `undefined` | Callback for registering map actions                               |
+| `debug`                     | `boolean`                           | —           | Enable debug logging; omitted logs nothing                         |
+| `onLoad`                    | `(map: Map) => void`                | `undefined` | Load success callback                                              |
+| `onError`                   | `(error: any) => void`              | `undefined` | Error handling callback                                            |
+| `missingStyleImageResolver` | `MissingStyleImageResolver \| null` | `undefined` | Supplies missing style images; installed as soon as the map exists |
 
 #### Returns
 
-| Property               | Type                                            | Description                  |
-| ---------------------- | ----------------------------------------------- | ---------------------------- |
-| `mapInstance`          | `ComputedRef<Map \| null>`                      | Reactive map instance        |
-| `setCenter`            | `(center: LngLatLike) => void`                  | Set map center coordinates   |
-| `setBearing`           | `(bearing: number) => void`                     | Set map bearing (rotation)   |
-| `setZoom`              | `(zoom: number) => void`                        | Set map zoom level           |
-| `setPitch`             | `(pitch: number) => void`                       | Set map pitch (tilt)         |
-| `setStyle`             | `(style: StyleSpecification \| string) => void` | Set map style                |
-| `setMaxBounds`         | `(bounds: LngLatBoundsLike) => void`            | Set maximum bounds           |
-| `setMaxPitch`          | `(pitch: number) => void`                       | Set maximum pitch            |
-| `setMaxZoom`           | `(zoom: number) => void`                        | Set maximum zoom             |
-| `setMinPitch`          | `(pitch: number) => void`                       | Set minimum pitch            |
-| `setMinZoom`           | `(zoom: number) => void`                        | Set minimum zoom             |
-| `setRenderWorldCopies` | `(render: boolean) => void`                     | Set world copies rendering   |
-| `mapCreationStatus`    | `ComputedRef<MapCreationStatus>`                | Current creation status      |
-| `isMapReady`           | `ComputedRef<boolean>`                          | Whether the map is ready     |
-| `isMapLoading`         | `ComputedRef<boolean>`                          | Whether the map is loading   |
-| `hasMapError`          | `ComputedRef<boolean>`                          | Whether the map has an error |
-| `getCurrentCamera`     | `() => CameraOptions \| null`                   | Read the camera as it is now |
-| `getCurrentStyle`      | `() => StyleSpecification \| string \| null`    | Read the active style        |
-| `initMap`              | `() => void`                                    | Create the map               |
-| `removeMap`            | `() => void`                                    | Remove the map from the DOM  |
-| `destroyMap`           | `() => void`                                    | Destroy the map instance     |
+| Property                       | Type                                                    | Description                                 |
+| ------------------------------ | ------------------------------------------------------- | ------------------------------------------- |
+| `mapInstance`                  | `ComputedRef<Map \| null>`                              | Reactive map instance                       |
+| `setCenter`                    | `(center: LngLatLike) => void`                          | Set map center coordinates                  |
+| `setBearing`                   | `(bearing: number) => void`                             | Set map bearing (rotation)                  |
+| `setZoom`                      | `(zoom: number) => void`                                | Set map zoom level                          |
+| `setPitch`                     | `(pitch: number) => void`                               | Set map pitch (tilt)                        |
+| `setStyle`                     | `(style: StyleSpecification \| string) => void`         | Set map style                               |
+| `setMaxBounds`                 | `(bounds: LngLatBoundsLike) => void`                    | Set maximum bounds                          |
+| `setMaxPitch`                  | `(pitch: number) => void`                               | Set maximum pitch                           |
+| `setMaxZoom`                   | `(zoom: number) => void`                                | Set maximum zoom                            |
+| `setMinPitch`                  | `(pitch: number) => void`                               | Set minimum pitch                           |
+| `setMinZoom`                   | `(zoom: number) => void`                                | Set minimum zoom                            |
+| `setRenderWorldCopies`         | `(render: boolean) => void`                             | Set world copies rendering                  |
+| `setMissingStyleImageResolver` | `(resolver: MissingStyleImageResolver \| null) => void` | Replace or clear the missing-image resolver |
+| `mapCreationStatus`            | `ComputedRef<MapCreationStatus>`                        | Current creation status                     |
+| `isMapReady`                   | `ComputedRef<boolean>`                                  | Whether the map is ready                    |
+| `isMapLoading`                 | `ComputedRef<boolean>`                                  | Whether the map is loading                  |
+| `hasMapError`                  | `ComputedRef<boolean>`                                  | Whether the map has an error                |
+| `getCurrentCamera`             | `() => CameraOptions \| null`                           | Read the camera as it is now                |
+| `getCurrentStyle`              | `() => StyleSpecification \| string \| null`            | Read the active style                       |
+| `initMap`                      | `() => void`                                            | Create the map                              |
+| `removeMap`                    | `() => void`                                            | Remove the map from the DOM                 |
+| `destroyMap`                   | `() => void`                                            | Destroy the map instance                    |
 
 `initMap` runs on its own once the container and style are available; call it
 only if you removed the map yourself. Everything except the three lifecycle
@@ -807,15 +809,15 @@ Creates and manages MapLibre GL GeoJSON Sources with reactive data updates and c
 
 #### Returns
 
-| Property        | Type                                                 | Description             |
-| --------------- | ---------------------------------------------------- | ----------------------- |
-| `sourceId`      | `string`                                             | Source identifier       |
-| `getSource`     | `ShallowRef<GeoJSONSource \| null>`                  | Get source instance     |
-| `setData`       | `(data: GeoJSONSourceSpecification['data']) => void` | Update source data      |
-| `removeSource`  | `() => void`                                         | Remove source from map  |
-| `refreshSource` | `() => void`                                         | Refresh source          |
-| `sourceStatus`  | `ComputedRef<SourceStatus>`                          | Source status           |
-| `isSourceReady` | `ComputedRef<boolean>`                               | Whether source is ready |
+| Property        | Type                                                          | Description                                               |
+| --------------- | ------------------------------------------------------------- | --------------------------------------------------------- |
+| `sourceId`      | `string`                                                      | Source identifier                                         |
+| `getSource`     | `ShallowRef<GeoJSONSource \| null>`                           | Get source instance                                       |
+| `setData`       | `(data: GeoJSONSourceSpecification['data']) => Promise<void>` | Update source data; resolves once MapLibre has applied it |
+| `removeSource`  | `() => void`                                                  | Remove source from map                                    |
+| `refreshSource` | `() => void`                                                  | Refresh source                                            |
+| `sourceStatus`  | `ComputedRef<SourceStatus>`                                   | Source status                                             |
+| `isSourceReady` | `ComputedRef<boolean>`                                        | Whether source is ready                                   |
 
 #### Example
 
@@ -876,15 +878,15 @@ A simplified composable for managing GeoJSON source instances with enhanced erro
 
 #### Returns
 
-| Property        | Type                                                 | Description                                |
-| --------------- | ---------------------------------------------------- | ------------------------------------------ |
-| `sourceId`      | `ComputedRef<string \| undefined>`                   | Source identifier                          |
-| `getSource`     | `ComputedRef<GeoJSONSource \| null>`                 | Get source instance                        |
-| `setData`       | `(data: GeoJSONSourceSpecification['data']) => void` | Update source data                         |
-| `refreshSource` | `() => void`                                         | Refresh source                             |
-| `isSourceReady` | `ComputedRef<boolean>`                               | Whether source is ready                    |
-| `sourceStatus`  | `ComputedRef<GeoJsonSourceStatus>`                   | Source status                              |
-| `register`      | `(instance: CreateGeoJsonSourceActions) => void`     | Bind a source created by `<GeoJsonSource>` |
+| Property        | Type                                                          | Description                                |
+| --------------- | ------------------------------------------------------------- | ------------------------------------------ |
+| `sourceId`      | `ComputedRef<string \| undefined>`                            | Source identifier                          |
+| `getSource`     | `ComputedRef<GeoJSONSource \| null>`                          | Get source instance                        |
+| `setData`       | `(data: GeoJSONSourceSpecification['data']) => Promise<void>` | Update source data                         |
+| `refreshSource` | `() => void`                                                  | Refresh source                             |
+| `isSourceReady` | `ComputedRef<boolean>`                                        | Whether source is ready                    |
+| `sourceStatus`  | `ComputedRef<GeoJsonSourceStatus>`                            | Source status                              |
+| `register`      | `(instance: CreateGeoJsonSourceActions) => void`              | Bind a source created by `<GeoJsonSource>` |
 
 #### Example
 

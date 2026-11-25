@@ -31,7 +31,7 @@ const SCRIPT_RE = /\b(?:bun|npm|pnpm|yarn)\s+run\s+([a-z0-9:_-]+)/g;
 /**
  * A path into this package's own build output, however it is spelled: an
  * import specifier (`vue3-maplibre-gl/dist/style.css`) or a CDN URL
- * (`unpkg.com/vue3-maplibre-gl@latest/dist/index.umd.cjs`). MapLibre's own
+ * (`unpkg.com/vue3-maplibre-gl@latest/dist/index.js`). MapLibre's own
  * `dist/` paths are left alone; they are not this build's to keep true.
  */
 const DIST_RE = /vue3-maplibre-gl(?:@[^/\s]+)?\/(dist\/[A-Za-z0-9._/-]+)/g;

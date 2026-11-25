@@ -32,7 +32,13 @@ export enum SourceStatus {
 export interface CreateGeoJsonSourceActions {
   sourceId: string;
   getSource: ShallowRef<Nullable<GeoJSONSource>>;
-  setData: (data: GeoJSONSourceSpecification['data']) => void;
+  /**
+   * Resolves once MapLibre has applied the data, or at once when there is no
+   * source on the map yet (the data is then used when the source is created).
+   * It does not reject: MapLibre reports a failed update through the map's
+   * `error` event.
+   */
+  setData: (data: GeoJSONSourceSpecification['data']) => Promise<void>;
   removeSource: () => void;
   refreshSource: () => void;
   sourceStatus: ComputedRef<SourceStatus>;
@@ -171,21 +177,24 @@ export function useCreateGeoJsonSource({
    * Sets new data for the GeoJSON source with error handling and validation
    * @param newData - New GeoJSON data to set
    */
-  function setData(newData: GeoJSONSourceSpecification['data']): void {
-    if (!newData) return;
+  function setData(newData: GeoJSONSourceSpecification['data']): Promise<void> {
+    if (!newData) return Promise.resolve();
 
     currentData = newData;
 
     const map = mapInstance.value;
 
-    if (!map) return;
+    if (!map) return Promise.resolve();
 
-    if (!source.value || !hasSource(map, sourceId)) return;
+    if (!source.value || !hasSource(map, sourceId)) return Promise.resolve();
 
     try {
-      source.value.setData(newData);
+      // MapLibre 6 returns a promise for the worker's update. It replaces the
+      // `waitForCompletion` flag and the `this` return of v5.
+      return source.value.setData(newData);
     } catch (error) {
       logError('Error setting GeoJSON source data:', error, { sourceId });
+      return Promise.resolve();
     }
   }
 

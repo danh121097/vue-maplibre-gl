@@ -29,7 +29,8 @@ export enum GeoJsonSourceStatus {
 interface GeoJsonSourceMethods {
   sourceId: ComputedRef<string | undefined>;
   getSource: ComputedRef<Nullable<GeoJSONSource>>;
-  setData: (data: GeoJSONSourceSpecification['data']) => void;
+  /** Resolves once MapLibre has applied the data; see `useCreateGeoJsonSource`. */
+  setData: (data: GeoJSONSourceSpecification['data']) => Promise<void>;
   refreshSource: () => void;
   isSourceReady: ComputedRef<boolean>;
   sourceStatus: ComputedRef<GeoJsonSourceStatus>;
@@ -147,15 +148,14 @@ export function useGeoJsonSource(
    * Enhanced setData method with validation and error handling
    * @param data - The GeoJSON data to set
    */
-  function setData(data: GeoJSONSourceSpecification['data']): void {
+  function setData(data: GeoJSONSourceSpecification['data']): Promise<void> {
     try {
-      if (!instanceRef.value) return;
+      if (!instanceRef.value?.setData) return Promise.resolve();
 
-      if (!instanceRef.value.setData) return;
-
-      instanceRef.value.setData(data);
+      return instanceRef.value.setData(data);
     } catch (error) {
       logError('Error setting GeoJSON source data:', error);
+      return Promise.resolve();
     }
   }
 

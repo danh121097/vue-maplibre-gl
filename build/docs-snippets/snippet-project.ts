@@ -57,6 +57,14 @@ const SHIMS = `// Stylesheet imports carry no types; a bundler resolves them, ts
 declare module '*.css';
 declare module '*.scss';
 
+// Vite's worker-URL import, which the MapLibre 6 setup in the docs uses. A Vite
+// consumer has this from \`vite/client\`; the snippets deliberately load no
+// ambient types, so it is declared here the way Vite declares it.
+declare module '*?worker&url' {
+  const src: string;
+  export default src;
+}
+
 /**
  * Every shape a composable can return, intersected.
  *

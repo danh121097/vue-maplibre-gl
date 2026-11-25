@@ -1,3 +1,4 @@
+import type { Feature } from 'geojson';
 import type { MapMouseEvent, MapTouchEvent, MapWheelEvent } from 'maplibre-gl';
 import type { GeolocateSuccess, GeolocationPositionError } from './index';
 
@@ -10,10 +11,10 @@ export type MapWheelHandler = (e: MapWheelEvent) => void;
 
 // Layer event handlers
 export type LayerClickHandler = (
-  e: MapMouseEvent & { features?: GeoJSON.Feature[] },
+  e: MapMouseEvent & { features?: Feature[] },
 ) => void;
 export type LayerMouseHandler = (
-  e: MapMouseEvent & { features?: GeoJSON.Feature[] },
+  e: MapMouseEvent & { features?: Feature[] },
 ) => void;
 
 // Geolocate event handlers

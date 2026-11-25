@@ -13,7 +13,7 @@ import {
 } from './build/vite-shared-options';
 
 /**
- * ES build pass.
+ * Library build.
  *
  * Emits preserved modules — one output file per source file, mirroring `libs/`
  * — so a consumer importing a single component pulls only that component's
@@ -21,7 +21,8 @@ import {
  * `dist/composables/index.js` and `dist/maplibre-reexports.js`, which back the
  * package's `exports` subpaths.
  *
- * The UMD single-file bundle is a second pass: see `vite.config.umd.ts`.
+ * ES modules only, like MapLibre 6 itself; see `build/vite-shared-options.ts`
+ * for why the UMD pass is gone.
  */
 export default defineConfig({
   plugins: [
@@ -53,10 +54,8 @@ export default defineConfig({
   build: {
     // Optimize chunk size
     chunkSizeWarningLimit: 1000,
-    // This pass runs first and owns the clean slate. Running it on its own
-    // therefore leaves a dist/ with no index.umd.cjs, which `main` and the
-    // `require` condition still point at — always build via `bun run build`,
-    // which chains the UMD pass after it.
+    // `bun run build` chains the combined-stylesheet step after this, so build
+    // through it rather than running `vite build` alone.
     emptyOutDir: true,
     lib: {
       entry: {

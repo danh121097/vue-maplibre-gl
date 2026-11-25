@@ -10,6 +10,7 @@ import type {
   Map,
   MapEventType,
   MapOptions,
+  MissingStyleImageResolver,
   PaddingOptions,
   Point,
   PointLike,
@@ -50,6 +51,9 @@ export interface CreateMaplibreActions {
   setMaxPitch: (pitch: number) => void;
   setMaxBounds: (bounds: LngLatBoundsLike) => void;
   setRenderWorldCopies: (renderWorldCopies: boolean) => void;
+  setMissingStyleImageResolver: (
+    resolver: MissingStyleImageResolver | null,
+  ) => void;
 }
 
 export type MaplibreActions = CreateMaplibreActions & {
@@ -92,7 +96,6 @@ export type MaplibreMethods = CreateMaplibreActions & {
   isMoving: () => boolean | undefined;
   isZooming: () => boolean | undefined;
   isRotating: () => boolean | undefined;
-  isEasing: () => boolean | undefined;
   resize: () => void;
   remove: () => void;
   setFeatureState: (

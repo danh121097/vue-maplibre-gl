@@ -159,4 +159,43 @@ describe('useCreateGeoJsonSource lifecycle', () => {
     const source = map.getSource('data-later') as { data: unknown };
     expect(source.data).toBe(ONE_FEATURE);
   });
+
+  it('settles setData only once MapLibre has applied the data', async () => {
+    const map = new MockMap();
+    const { sourceId, setData } = withSetup(() =>
+      useCreateGeoJsonSource({
+        map: shallowRef(map as unknown as Map),
+        id: 'awaited',
+        data: EMPTY_FC as any,
+      }),
+    );
+    settleSource(map, sourceId);
+    await nextTick();
+
+    // MapLibre 6 hands back a promise for the worker's update, in place of the
+    // `waitForCompletion` flag v5 took.
+    let applyData!: () => void;
+    const source = map.getSource('awaited') as {
+      setData: ReturnType<typeof vi.fn>;
+    };
+    source.setData.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        applyData = resolve;
+      }),
+    );
+
+    let applied = false;
+    const pending = setData(ONE_FEATURE as any);
+    expect(pending).toBeInstanceOf(Promise);
+    void pending.then(() => {
+      applied = true;
+    });
+
+    await Promise.resolve();
+    expect(applied).toBe(false);
+
+    applyData();
+    await pending;
+    expect(applied).toBe(true);
+  });
 });

@@ -635,8 +635,8 @@ export function useCreateFillLayer<
 - Tree-shakeable exports enable dead-code elimination
 - Factory consolidation reduces generated code
 - CSS extracted and optimized
-- Build output: UMD 20 KB gzipped, ES entry chunks 2 KB gzipped, with
-  `maplibre-gl` externalized in both
+- Build output: ES entry chunks 2 KB gzipped, with `maplibre-gl`
+  externalized
 
 ## SSR/Nuxt Integration
 
@@ -756,7 +756,7 @@ export function useCustomListener(target: MapInstance, handler: Callback) {
 
 ### Test Coverage
 
-241 tests across 35 files, run with Vitest under happy-dom. Coverage is enforced
+249 tests across 36 files, run with Vitest under happy-dom. Coverage is enforced
 as a ratchet in `vitest.config.ts` — see
 [`code-standards.md`](./code-standards.md).
 

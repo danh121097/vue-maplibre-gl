@@ -377,7 +377,7 @@ optional `once` / `debug`. There is no positional
 - Mouse: `click`, `dblclick`, `mousemove`, `mouseup`, `mousedown`, `mouseout`, `mouseover`, `contextmenu`
 - Movement: `movestart`, `move`, `moveend`, `zoomstart`, `zoom`, `zoomend`, `dragstart`, `drag`, `dragend`
 - Rotation: `rotatestart`, `rotate`, `rotateend`, `pitchstart`, `pitch`, `pitchend`
-- Data: `data`, `tiledataloading`, `sourcedata`, `styledata`
+- Data: `data`, `sourcedata`, `styledata`
 - Other: `wheel`, `load`, `error`, `idle`, `render`, `remove`, `terrain`
 
 **Handler Type**: `(e: MapMouseEvent) => void` (or appropriate event type)

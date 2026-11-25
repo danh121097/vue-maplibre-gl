@@ -12,6 +12,15 @@ import type { ComputedRef, MaybeRef } from 'vue';
 import { computed, markRaw, ref, shallowRef, unref, watch } from 'vue';
 
 /**
+ * MapLibre 6 types the property name as a key of its own paint and layout
+ * specs. This composable still takes any string, as it always has, so the
+ * name is narrowed at the call into MapLibre; an unknown name is reported by
+ * MapLibre's own validation at runtime, the same as before.
+ */
+type PaintPropertyName = Parameters<Map['setPaintProperty']>[1];
+type LayoutPropertyName = Parameters<Map['setLayoutProperty']>[1];
+
+/**
  * Layer creation status enum for better state management
  */
 export enum LayerStatus {
@@ -208,7 +217,7 @@ export function useCreateLayer<Layer extends LayerSpecification>(
 
     try {
       const map = mapInstance.value!;
-      map.setPaintProperty(layerId, name, value, options);
+      map.setPaintProperty(layerId, name as PaintPropertyName, value, options);
     } catch (error) {
       logError('Error setting paint property:', error, {
         property: name,
@@ -233,7 +242,12 @@ export function useCreateLayer<Layer extends LayerSpecification>(
 
     try {
       const map = mapInstance.value!;
-      map.setLayoutProperty(layerId, name, value, options);
+      map.setLayoutProperty(
+        layerId,
+        name as LayoutPropertyName,
+        value,
+        options,
+      );
     } catch (error) {
       logError('Error setting layout property:', error, {
         property: name,

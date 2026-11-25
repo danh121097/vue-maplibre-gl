@@ -51,8 +51,8 @@ const mapOptions = ref({
   doubleClickZoom: true,
   touchZoomRotate: true,
 
-  // Controls
-  attributionControl: true,
+  // Controls: `false` hides the attribution, an object configures it
+  attributionControl: { compact: true },
 
   // Performance
   antialias: true,

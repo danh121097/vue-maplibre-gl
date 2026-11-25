@@ -226,7 +226,10 @@ export function useLayer<T extends LayerSpecification>(
     try {
       const map = mapInstanceRef.value!;
       const layerId = layerIdRef.value!;
-      const value = map.getLayoutProperty(layerId, name as string);
+      const value = map.getLayoutProperty(
+        layerId,
+        name as Parameters<Map['getLayoutProperty']>[1],
+      );
 
       return value;
     } catch (error) {
@@ -243,7 +246,10 @@ export function useLayer<T extends LayerSpecification>(
     try {
       const map = mapInstanceRef.value!;
       const layerId = layerIdRef.value!;
-      const value = map.getPaintProperty(layerId, name as string);
+      const value = map.getPaintProperty(
+        layerId,
+        name as Parameters<Map['getPaintProperty']>[1],
+      );
       return value;
     } catch (error) {
       logError('Error getting paint property:', error, {

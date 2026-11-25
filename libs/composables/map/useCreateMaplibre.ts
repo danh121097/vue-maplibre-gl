@@ -7,6 +7,7 @@ import type {
   LngLatBoundsLike,
   LngLatLike,
   MapOptions,
+  MissingStyleImageResolver,
   StyleOptions,
   StyleSpecification,
   StyleSwapOptions,
@@ -24,6 +25,13 @@ import {
 } from 'vue';
 
 export interface CreateMaplibreProps extends MapOptions {
+  /**
+   * Supplies images the style asks for but the map does not have. MapLibre 6
+   * no longer lets a `styleimagemissing` listener do this; the event only
+   * reports an image that is still missing after this resolver ran. Installed
+   * on the map as soon as it is created, so the first render is covered.
+   */
+  missingStyleImageResolver?: MissingStyleImageResolver | null;
   register?: (actions: SimplifiedCreateMaplibreActions) => void;
   debug?: boolean;
   onLoad?: (map: Map) => void;
@@ -58,7 +66,8 @@ export function useCreateMaplibre(
   styleRef: MaybeRef<StyleSpecification | string>,
   props: Omit<CreateMaplibreProps, 'container' | 'style'> = {},
 ) {
-  const { register, onLoad, onError, ...options } = props;
+  const { register, onLoad, onError, missingStyleImageResolver, ...options } =
+    props;
   const { log, logError, logWarn } = useLogger(props.debug ?? false);
 
   // Enhanced state management
@@ -70,6 +79,10 @@ export function useCreateMaplibre(
     shallowRef<Omit<MapOptions, 'container' | 'style'>>(options);
   const retryCount = ref<number>(0);
   const currentStyle = shallowRef<StyleSpecification | string | null>(null);
+  // Kept here as well as on the map, so a resolver set before the map exists
+  // (or across a remove/re-create) is the one the next map starts with.
+  let currentResolver: MissingStyleImageResolver | null =
+    missingStyleImageResolver ?? null;
 
   // Computed properties for better reactivity and performance
   const mapInstanceComputed = computed(() => mapInstance.value);
@@ -158,6 +171,10 @@ export function useCreateMaplibre(
           container: el,
         }),
       );
+
+      if (currentResolver) {
+        mapInstance.value.setMissingStyleImageResolver(currentResolver);
+      }
 
       // Use explicit type assertion to avoid deep type instantiation
       currentStyle.value = style as any;
@@ -466,6 +483,25 @@ export function useCreateMaplibre(
   }
 
   /**
+   * Installs, replaces or (with `null`) clears the resolver MapLibre asks for
+   * style images the map does not have.
+   * @param resolver - Called with the missing image id; may be async
+   */
+  function setMissingStyleImageResolver(
+    resolver: MissingStyleImageResolver | null,
+  ): void {
+    currentResolver = resolver;
+    const map = mapInstance.value;
+    if (!map) return;
+
+    try {
+      map.setMissingStyleImageResolver(resolver);
+    } catch (error) {
+      logError('Error setting missing style image resolver:', error);
+    }
+  }
+
+  /**
    * Destroys the map permanently
    */
   function destroyMap(): void {
@@ -505,6 +541,7 @@ export function useCreateMaplibre(
     setZoom,
     setBearing,
     setCenter,
+    setMissingStyleImageResolver,
 
     // Simplified essential actions
     getCurrentCamera,

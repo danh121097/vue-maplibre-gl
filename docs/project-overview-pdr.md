@@ -46,7 +46,7 @@ Consumer-facing detail is in [the v6 migration guide](./guide/migration-v6.md).
 | **Correctness**   | v6 fixed reactive status, camera promise settlement, listener attachment ordering, and post-load error recovery  |
 | **SSR Support**   | Full Nuxt SSR/SSG compatibility with browser guards                                                              |
 | **Nuxt Module**   | nuxt-maplibre-gl v2.1.0, auto-importing all 38 composables                                                       |
-| **Testing**       | 241 tests across 35 files, with a coverage ratchet in CI                                                         |
+| **Testing**       | 249 tests across 36 files, with a coverage ratchet in CI                                                         |
 | **Documentation** | VitePress docs with API reference, guides, and examples                                                          |
 
 ## Feature Set
@@ -208,20 +208,21 @@ Maplibre (Root Provider)
 ### Dependencies
 
 - **Vue 3**: `^3.0.0` (peer)
-- **MapLibre GL JS**: `^5.6.1` (peer — the app installs it, so one copy is shared)
+- **MapLibre GL JS**: `^6.4.1` (peer — the app installs it, so one copy is shared)
 - **TypeScript**: `^5.4.5` (dev — build and type generation)
 
 ### Browser Support
 
-- Chrome/Edge 90+
-- Firefox 88+
-- Safari 15+
-- Mobile browsers (iOS Safari 15+, Chrome Android)
+MapLibre 6 sets the floor: it needs WebGL2 and ships ES2022 code.
+
+- Chrome/Edge 94+
+- Firefox 93+
+- Safari 16.4+
+- Mobile browsers (iOS Safari 16.4+, Chrome Android)
 
 ### Build Output
 
 - **ESM** (ES modules) - tree-shakeable, modern tooling
-- **UMD** (Universal Module Definition) - CDN usage, legacy projects
 - **TypeScript Declarations** - Full type support
 - **CSS** - `dist/style.css`, this package's own rules only. MapLibre's own
   stylesheet is imported separately, the way MapLibre documents it.
@@ -230,14 +231,13 @@ Maplibre (Root Provider)
 
 ### Package Size
 
-Measured on the built `dist`, with `maplibre-gl` externalized in both builds —
+Measured on the built `dist`, with `maplibre-gl` externalized —
 it is a peer dependency, so it is never bundled in these numbers.
 
-| Artifact              | Raw    | Gzipped |
-| --------------------- | ------ | ------- |
-| UMD (`index.umd.cjs`) | 84 KB  | 20 KB   |
-| ES entry chunks       | 8.4 KB | 2.0 KB  |
-| `style.css`           | 78 B   | —       |
+| Artifact        | Raw    | Gzipped |
+| --------------- | ------ | ------- |
+| ES entry chunks | 8.4 KB | 2.0 KB  |
+| `style.css`     | 78 B   | —       |
 
 `style-with-maplibre.css` is 70 KB raw: `style.css` plus MapLibre's own
 stylesheet verbatim. It is an alternative to `style.css`, never an addition, so
@@ -251,7 +251,7 @@ components and composables it imports rather than the figure above.
 ### Code Quality
 
 - **Framework**: TypeScript with strict mode
-- **Testing**: vitest, 241 tests across 35 files, with a coverage ratchet
+- **Testing**: vitest, 249 tests across 36 files, with a coverage ratchet
 - **Linting**: ESLint with Vue 3 plugin
 - **Formatting**: Prettier with consistent style
 
@@ -279,7 +279,7 @@ gone rather than restated.
 | -------------- | --------------------------------------------------------- | -------------------------------------------------------------------- |
 | Components     | 10                                                        | `libs/components`                                                    |
 | Composables    | 38                                                        | exported from the package root, all auto-imported by the Nuxt module |
-| Tests          | 35 test files                                             | `bun run test`                                                       |
+| Tests          | 36 test files                                             | `bun run test`                                                       |
 | Coverage floor | 39% statements / 34% branches / 37% functions / 40% lines | ratchet in `vitest.config.ts`; CI fails if it drops                  |
 | Type safety    | strict TypeScript, types generated on build               | `tsconfig.json`, `bun run build`                                     |
 

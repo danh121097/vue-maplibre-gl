@@ -1,11 +1,10 @@
 /**
- * Options shared by the two library build passes.
+ * Options for the library build (`vite.config.ts`).
  *
- * The ES pass (`vite.config.ts`) emits preserved modules so consumers can
- * tree-shake at file granularity; the UMD pass (`vite.config.umd.ts`) emits a
- * single self-contained bundle. Rollup cannot do both in one pass — UMD is a
- * code-splitting-free format and preserved modules are code splitting — so the
- * pieces both passes need live here rather than being duplicated.
+ * There used to be a second, UMD pass sharing these. It was dropped with
+ * MapLibre 6, which ships ES modules only: a CommonJS or script-tag build of
+ * this package would `require('maplibre-gl')` or read `window.maplibregl`,
+ * and neither exists any more.
  */
 import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue';
@@ -14,12 +13,6 @@ import type { PreRenderedAsset, PreRenderedChunk } from 'rollup';
 
 /** Dependencies the consumer supplies; never bundled into the output. */
 export const externalDependencies = ['vue', 'maplibre-gl'];
-
-/** Global names for the UMD build's externals. */
-export const umdGlobals = {
-  vue: 'Vue',
-  'maplibre-gl': 'maplibregl',
-} as const;
 
 /**
  * Path aliases used across `libs/`.
@@ -36,7 +29,7 @@ export function createResolveAliases(projectRoot: string) {
   };
 }
 
-/** The Vue SFC plugin, configured identically for both passes. */
+/** The Vue SFC plugin. */
 export function createVuePlugin(): PluginOption {
   return vue({
     template: {

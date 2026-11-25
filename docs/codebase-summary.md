@@ -168,7 +168,7 @@ Measured, not estimated. Re-measure before quoting these anywhere public.
 | ----------------------- | -------------------------------- |
 | **Components**          | 10                               |
 | **Composables**         | 38                               |
-| **Unit Tests**          | 241 across 35 files              |
+| **Unit Tests**          | 249 across 36 files              |
 | **Documentation Pages** | 23 Markdown pages under `docs`   |
 | **Lines of Code**       | 11,153 in `libs`, tests excluded |
 
@@ -396,7 +396,7 @@ export type GeolocateHandler = (e: GeolocateSuccess) => void;
 ### Build Configuration
 
 - **Tool**: Vite with TypeScript
-- **Output**: ESM, UMD, CJS, type definitions
+- **Output**: ESM and type definitions (ES modules only, as MapLibre 6 is)
 - **CSS**: Extracted and optimized
 
 ### Package Configuration
@@ -406,7 +406,6 @@ export type GeolocateHandler = (e: GeolocateSuccess) => void;
 - **Name**: `vue3-maplibre-gl`
 - **Version**: `6.1.1`
 - **Main**: `dist/index.js` (ESM default)
-- **UMD**: `dist/index.umd.cjs`
 - **Exports**: Named exports, subpaths for components/composables
 
 **Nuxt Module** (`nuxt/`):
@@ -424,7 +423,7 @@ export type GeolocateHandler = (e: GeolocateSuccess) => void;
 - **Configuration**: `vitest.config.ts`
 - **Test Files**: `__tests__/` directories
 
-### Test Coverage (241 tests across 35 files)
+### Test Coverage (249 tests across 36 files)
 
 - `create-event-listener-composable.test.ts` - Factory pattern tests
 - `create-layer-property-setters.test.ts` - Type preservation tests
@@ -464,7 +463,7 @@ export type GeolocateHandler = (e: GeolocateSuccess) => void;
 Both runtime dependencies are peers, so the app owns the versions:
 
 - **Vue**: `^3.0.0` (peer)
-- **MapLibre GL JS**: `^5.6.1` (peer)
+- **MapLibre GL JS**: `^6.4.1` (peer)
 - **TypeScript**: `^5.4.5` (dev — build and type generation)
 
 ### Nuxt Module
@@ -478,14 +477,13 @@ Both runtime dependencies are peers, so the app owns the versions:
 
 ### Bundle Size
 
-Measured on the built `dist`. `maplibre-gl` is externalized in both builds, so
-it is not counted here.
+Measured on the built `dist`. `maplibre-gl` is externalized, so it is not
+counted here.
 
-| Artifact              | Raw    | Gzipped |
-| --------------------- | ------ | ------- |
-| UMD (`index.umd.cjs`) | 84 KB  | 20 KB   |
-| ES entry chunks       | 8.4 KB | 2.0 KB  |
-| `style.css`           | 78 B   | —       |
+| Artifact        | Raw    | Gzipped |
+| --------------- | ------ | ------- |
+| ES entry chunks | 8.4 KB | 2.0 KB  |
+| `style.css`     | 78 B   | —       |
 
 `style-with-maplibre.css` (70 KB raw) is the opt-in alternative to `style.css`:
 the same rules with MapLibre's own stylesheet prepended, so one import covers
@@ -516,10 +514,12 @@ Nothing here is benchmarked, so no figures are claimed. What the code does do:
 
 ### Browser Support
 
-- Chrome/Edge 90+
-- Firefox 88+
-- Safari 15+
-- Mobile: iOS Safari 15+, Chrome Android
+MapLibre 6 needs WebGL2 and ES2022:
+
+- Chrome/Edge 94+
+- Firefox 93+
+- Safari 16.4+
+- Mobile: iOS Safari 16.4+, Chrome Android
 
 ### Framework Support
 

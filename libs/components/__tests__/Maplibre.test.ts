@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { createApp, defineComponent, h, nextTick, shallowReactive } from 'vue';
 import type { App, Component } from 'vue';
-import type { MapOptions, StyleSpecification } from 'maplibre-gl';
+import type {
+  MapOptions,
+  MissingStyleImageResolver,
+  StyleSpecification,
+} from 'maplibre-gl';
 import type { MaplibreActions } from '@libs/types';
 import type { MockMap } from '../../__tests__/mock-maplibre';
 
@@ -33,8 +37,9 @@ afterEach(() => {
 async function mountMaplibre(
   options: Partial<MapOptions>,
   onError?: (error: unknown) => void,
+  missingStyleImageResolver?: MissingStyleImageResolver | null,
 ) {
-  const props = shallowReactive({ options });
+  const props = shallowReactive({ options, missingStyleImageResolver });
   let actions: MaplibreActions | null = null;
   const host = document.createElement('div');
 
@@ -46,6 +51,7 @@ async function mountMaplibre(
             Maplibre,
             {
               options: props.options,
+              missingStyleImageResolver: props.missingStyleImageResolver,
               onError,
               register: (registered: MaplibreActions) => {
                 // `mapInstance` is a live ref, so it resolves once the map exists
@@ -208,5 +214,46 @@ describe('<Maplibre> error state', () => {
     await nextTick();
 
     expect(onError).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('<Maplibre> attribution control', () => {
+  it.each([
+    ['off', false],
+    ['customised', { compact: true, customAttribution: '© Example' }],
+  ] as const)(
+    'hands a %s attributionControl to the map it creates',
+    async (_label, attributionControl) => {
+      const { getMap } = await mountMaplibre({
+        style: STYLE,
+        attributionControl,
+      });
+
+      expect(getMap().options.attributionControl).toEqual(attributionControl);
+    },
+  );
+});
+
+describe('<Maplibre> missingStyleImageResolver', () => {
+  it('installs the resolver on the map and follows prop changes', async () => {
+    const first = vi.fn();
+    const { props, getMap } = await mountMaplibre(
+      { style: STYLE },
+      undefined,
+      first,
+    );
+    const map = getMap();
+    expect(map.setMissingStyleImageResolver).toHaveBeenCalledWith(first);
+
+    const second = vi.fn();
+    props.missingStyleImageResolver = second;
+    await nextTick();
+    await nextTick();
+    expect(map.setMissingStyleImageResolver).toHaveBeenLastCalledWith(second);
+
+    props.missingStyleImageResolver = null;
+    await nextTick();
+    await nextTick();
+    expect(map.setMissingStyleImageResolver).toHaveBeenLastCalledWith(null);
   });
 });

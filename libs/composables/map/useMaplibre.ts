@@ -15,6 +15,7 @@ import type {
   LngLatLike,
   Map,
   MapOptions,
+  MissingStyleImageResolver,
   PaddingOptions,
   PointLike,
   QueryRenderedFeaturesOptions,
@@ -218,10 +219,18 @@ export function useMaplibre(
     getMaxPitch: () => getMapInstance()?.getMaxPitch(),
     getFilter: (layerId: string) => getMapInstance()?.getFilter(layerId),
     getLayer: (layerId: string) => getMapInstance()?.getLayer(layerId),
+    // MapLibre 6 narrows `name` to its own property keys; this API keeps
+    // taking any string, so the name is narrowed at the call.
     getLayoutProperty: (layerId: string, name: string) =>
-      getMapInstance()?.getLayoutProperty(layerId, name),
+      getMapInstance()?.getLayoutProperty(
+        layerId,
+        name as Parameters<Map['getLayoutProperty']>[1],
+      ),
     getPaintProperty: (layerId: string, name: string) =>
-      getMapInstance()?.getPaintProperty(layerId, name),
+      getMapInstance()?.getPaintProperty(
+        layerId,
+        name as Parameters<Map['getPaintProperty']>[1],
+      ),
     getSource: (sourceId: string) => getMapInstance()?.getSource(sourceId),
     project: (lnglat: LngLatLike) => getMapInstance()?.project(lnglat),
     unproject: (point: PointLike) => getMapInstance()?.unproject(point),
@@ -239,7 +248,6 @@ export function useMaplibre(
     isMoving: () => getMapInstance()?.isMoving(),
     isZooming: () => getMapInstance()?.isZooming(),
     isRotating: () => getMapInstance()?.isRotating(),
-    isEasing: () => getMapInstance()?.isEasing(),
     resize: () => getMapInstance()?.resize(),
     remove: () => getMapInstance()?.remove(),
     triggerRepaint: () => getMapInstance()?.triggerRepaint(),
@@ -267,6 +275,9 @@ export function useMaplibre(
     setZoom: (zoom: number) => getInstance()?.setZoom?.(zoom),
     setBearing: (bearing: number) => getInstance()?.setBearing?.(bearing),
     setCenter: (center: LngLatLike) => getInstance()?.setCenter?.(center),
+    setMissingStyleImageResolver: (
+      resolver: MissingStyleImageResolver | null,
+    ) => getInstance()?.setMissingStyleImageResolver?.(resolver),
   };
 
   // Cleanup on component unmount

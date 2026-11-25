@@ -29,7 +29,6 @@ export type MaplibreEvent =
   | 'webglcontextrestored'
   | 'dataloading'
   | 'data'
-  | 'tiledataloading'
   | 'sourcedataloading'
   | 'sourcedata'
   | 'styledata'
@@ -85,7 +84,6 @@ export const MaplibreEvents = [
   'webglcontextrestored',
   'dataloading',
   'data',
-  'tiledataloading',
   'sourcedataloading',
   'sourcedata',
   'styledata',

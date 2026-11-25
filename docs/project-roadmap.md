@@ -24,7 +24,7 @@ a style switch left them off the map.
 | ----------- | --------------------------------------------------------- |
 | Components  | 10                                                        |
 | Composables | 38, all exported from the package root                    |
-| Tests       | 241 across 35 files                                       |
+| Tests       | 249 across 36 files                                       |
 | Coverage    | 42% statements / 37% branches / 40% functions / 43% lines |
 | Nuxt module | `nuxt-maplibre-gl` 2.1.0                                  |
 
@@ -83,8 +83,6 @@ the property-setter and lifecycle logic that the v6 fixes touched.
   consumer hits it. The camera event bugs fixed in v6 were exactly this.
 - **No expression type hints.** MapLibre style expressions are typed as loose
   arrays; a malformed expression fails at runtime.
-- **UMD build externalizes `maplibre-gl`,** so the CDN snippet needs the global
-  `maplibregl` script loaded first. Documented, but a footgun.
 - **No benchmark backs any performance claim.** The maintainer docs now state
   only measured bundle sizes and describe what the code does, because the
   figures they used to assert (frame rates, memory ceilings, adoption numbers)
@@ -114,8 +112,6 @@ Only breaking work belongs here. Nothing is committed.
   learn, and cannot change without a major.
 - **Consolidate the four layer composables** onto `useCreateLayer` with a
   discriminated type, if the tests in 6.x show the wrappers add nothing.
-- **Drop the UMD build** if usage data does not justify maintaining a second
-  build pass and its CSS-ordering hazard.
 
 ## Compatibility
 
@@ -124,7 +120,7 @@ Current declared support, from `package.json`:
 | Dependency    | Range    | Kind                            |
 | ------------- | -------- | ------------------------------- |
 | `vue`         | `^3.0.0` | peer                            |
-| `maplibre-gl` | `^5.6.1` | peer                            |
+| `maplibre-gl` | `^6.4.1` | peer                            |
 | `typescript`  | `^5.4.5` | dev — build and type generation |
 
 `nuxt-maplibre-gl` declares `nuxt >=3.0.0` as a peer and keeps `maplibre-gl` in

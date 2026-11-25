@@ -36,26 +36,44 @@ pnpm add vue3-maplibre-gl maplibre-gl
 
 :::
 
-## CDN Installation
+## Point MapLibre at its worker
 
-You can also use Vue MapLibre GL directly from a CDN.
+MapLibre 6 loads its web worker from a file next to its own module. A bundler
+moves that module, so the worker is not found and the map stays blank with
+"Worker failed to load" in the console. Tell MapLibre where the worker is, once,
+before the first map is created — in your app's entry file.
 
-For the UMD build, load the global `maplibregl` script first: `maplibre-gl` is externalized there, exactly as it is for a package-manager install.
+With Vite, `?worker&url` emits the worker as its own asset and returns its URL:
 
-Pin the majors rather than `@latest`. `maplibre-gl@latest` now resolves to v6, which is outside this package's `^5.6.1` peer range and no longer ships `dist/maplibre-gl.js` at all, so the tag silently 404s.
+```ts
+import { setWorkerUrl } from 'maplibre-gl';
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 
-```html
-<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
-<script src="https://unpkg.com/vue3-maplibre-gl@6/dist/index.umd.cjs"></script>
-<link
-  href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css"
-  rel="stylesheet"
-/>
-<link
-  href="https://unpkg.com/vue3-maplibre-gl@6/dist/style.css"
-  rel="stylesheet"
-/>
+setWorkerUrl(workerUrl);
 ```
+
+With webpack 5, rspack or rsbuild:
+
+```ts
+import { setWorkerUrl } from 'maplibre-gl';
+
+setWorkerUrl(
+  new URL(
+    'maplibre-gl/dist/maplibre-gl-worker.mjs',
+    import.meta.url,
+  ).toString(),
+);
+```
+
+MapLibre's [installation guide](https://maplibre.org/maplibre-gl-js/docs/#installation)
+covers the other bundlers. `setWorkerUrl` is also exported from
+`vue3-maplibre-gl/maplibre`, if you would rather not import `maplibre-gl` directly.
+
+## No script-tag build
+
+Since 7.0 this package ships ES modules only, as MapLibre 6 does. There is no
+UMD file to load with a `<script>` tag: install both packages and import them
+through a bundler.
 
 ## Stylesheets
 

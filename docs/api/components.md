@@ -8,71 +8,71 @@ The main map component that renders the MapLibre GL JS map. This is the core com
 
 ### Props
 
-| Prop             | Type                                 | Default     | Description                                                                                        |
-| ---------------- | ------------------------------------ | ----------- | -------------------------------------------------------------------------------------------------- |
-| `options`        | `Partial<MapOptions>`                | see below   | Map configuration options from MapLibre GL                                                         |
-| `register`       | `(actions: MaplibreActions) => void` | `undefined` | Callback for registering map actions                                                               |
-| `debug`          | `boolean`                            | `false`     | Enable debug logging                                                                               |
-| `autoCleanup`    | `boolean`                            | `true`      | Automatically cleanup resources on unmount                                                         |
-| `containerId`    | `string`                             | random      | Container id, generated per instance as `maplibre-<random>`, so two maps on one page never collide |
-| `containerClass` | `string`                             | `''`        | Custom container class names                                                                       |
-| `onMapError`     | `(error: any) => void`               | `undefined` | Error handling callback. Not `onError`, which is the `error` emit's handler key                    |
-| `onMapLoad`      | `(map: Map) => void`                 | `undefined` | Load success callback. Not `onLoad`, which is the `load` emit's handler key                        |
+| Prop                        | Type                                 | Default     | Description                                                                                                      |
+| --------------------------- | ------------------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------- |
+| `options`                   | `Partial<MapOptions>`                | see below   | Map configuration options from MapLibre GL, including `attributionControl`; read once, at creation               |
+| `missingStyleImageResolver` | `MissingStyleImageResolver`          | `undefined` | Supplies style images the map does not have, through MapLibre's `setMissingStyleImageResolver`; `null` clears it |
+| `register`                  | `(actions: MaplibreActions) => void` | `undefined` | Callback for registering map actions                                                                             |
+| `debug`                     | `boolean`                            | `false`     | Enable debug logging                                                                                             |
+| `autoCleanup`               | `boolean`                            | `true`      | Automatically cleanup resources on unmount                                                                       |
+| `containerId`               | `string`                             | random      | Container id, generated per instance as `maplibre-<random>`, so two maps on one page never collide               |
+| `containerClass`            | `string`                             | `''`        | Custom container class names                                                                                     |
+| `onMapError`                | `(error: any) => void`               | `undefined` | Error handling callback. Not `onError`, which is the `error` emit's handler key                                  |
+| `onMapLoad`                 | `(map: Map) => void`                 | `undefined` | Load success callback. Not `onLoad`, which is the `load` emit's handler key                                      |
 
 ### Events
 
-| Event                  | Payload                                                              | Description                                          |
-| ---------------------- | -------------------------------------------------------------------- | ---------------------------------------------------- |
-| `register`             | `MaplibreActions`                                                    | Fired when map actions are registered                |
-| `load`                 | `MapLibreEvent`                                                      | Fired when the map has finished loading              |
-| `error`                | `ErrorEvent`                                                         | Fired when an error occurs                           |
-| `click`                | `MapMouseEvent`                                                      | Fired when the map is clicked                        |
-| `dblclick`             | `MapMouseEvent`                                                      | Fired when the map is double-clicked                 |
-| `contextmenu`          | `MapMouseEvent`                                                      | Fired when right-clicking the map                    |
-| `mousemove`            | `MapMouseEvent`                                                      | Fired when mouse moves over the map                  |
-| `mouseup`              | `MapMouseEvent`                                                      | Fired when mouse button is released                  |
-| `mousedown`            | `MapMouseEvent`                                                      | Fired when mouse button is pressed                   |
-| `mouseout`             | `MapMouseEvent`                                                      | Fired when mouse leaves the map                      |
-| `mouseover`            | `MapMouseEvent`                                                      | Fired when mouse enters the map                      |
-| `movestart`            | `MapLibreEvent<MouseEvent \| TouchEvent \| WheelEvent \| undefined>` | Fired when map movement starts                       |
-| `move`                 | `MapLibreEvent<MouseEvent \| TouchEvent \| WheelEvent \| undefined>` | Fired during map movement                            |
-| `moveend`              | `MapLibreEvent<MouseEvent \| TouchEvent \| WheelEvent \| undefined>` | Fired when map movement ends                         |
-| `zoomstart`            | `MapLibreEvent<MouseEvent \| TouchEvent \| WheelEvent \| undefined>` | Fired when zoom starts                               |
-| `zoom`                 | `MapLibreEvent<MouseEvent \| TouchEvent \| WheelEvent \| undefined>` | Fired during zoom                                    |
-| `zoomend`              | `MapLibreEvent<MouseEvent \| TouchEvent \| WheelEvent \| undefined>` | Fired when zoom ends                                 |
-| `rotatestart`          | `MapLibreEvent<MouseEvent \| TouchEvent \| undefined>`               | Fired when rotation starts                           |
-| `rotate`               | `MapLibreEvent<MouseEvent \| TouchEvent \| undefined>`               | Fired during rotation                                |
-| `rotateend`            | `MapLibreEvent<MouseEvent \| TouchEvent \| undefined>`               | Fired when rotation ends                             |
-| `dragstart`            | `MapLibreEvent<MouseEvent \| TouchEvent \| undefined>`               | Fired when dragging starts                           |
-| `drag`                 | `MapLibreEvent<MouseEvent \| TouchEvent \| undefined>`               | Fired during dragging                                |
-| `dragend`              | `MapLibreEvent<MouseEvent \| TouchEvent \| undefined>`               | Fired when dragging ends                             |
-| `pitchstart`           | `MapLibreEvent<MouseEvent \| TouchEvent \| undefined>`               | Fired when pitch starts                              |
-| `pitch`                | `MapLibreEvent<MouseEvent \| TouchEvent \| undefined>`               | Fired during pitch                                   |
-| `pitchend`             | `MapLibreEvent<MouseEvent \| TouchEvent \| undefined>`               | Fired when pitch ends                                |
-| `wheel`                | `MapWheelEvent`                                                      | Fired on mouse wheel events                          |
-| `terrain`              | `MapTerrainEvent`                                                    | Fired on terrain events                              |
-| `touchstart`           | `MapTouchEvent`                                                      | Fired when a touch begins                            |
-| `touchmove`            | `MapTouchEvent`                                                      | Fired as a touch moves                               |
-| `touchend`             | `MapTouchEvent`                                                      | Fired when a touch ends                              |
-| `touchcancel`          | `MapTouchEvent`                                                      | Fired when a touch is interrupted                    |
-| `boxzoomstart`         | `MapLibreZoomEvent`                                                  | Fired when a box zoom begins                         |
-| `boxzoomend`           | `MapLibreZoomEvent`                                                  | Fired when a box zoom completes                      |
-| `boxzoomcancel`        | `MapLibreZoomEvent`                                                  | Fired when a box zoom is cancelled                   |
-| `idle`                 | `MapLibreEvent`                                                      | Fired when the map stops rendering                   |
-| `render`               | `MapLibreEvent`                                                      | Fired on every frame the map draws                   |
-| `resize`               | `MapLibreEvent`                                                      | Fired when the map container resizes                 |
-| `remove`               | `MapLibreEvent`                                                      | Fired when the map is destroyed                      |
-| `data`                 | `MapDataEvent`                                                       | Fired when any map data loads or changes             |
-| `dataloading`          | `MapDataEvent`                                                       | Fired when data begins loading                       |
-| `dataabort`            | `MapDataEvent`                                                       | Fired when a data request is aborted                 |
-| `tiledataloading`      | `MapDataEvent`                                                       | Fired when a tile begins loading                     |
-| `sourcedata`           | `MapSourceDataEvent`                                                 | Fired when source data loads or changes              |
-| `sourcedataloading`    | `MapSourceDataEvent`                                                 | Fired when source data begins loading                |
-| `sourcedataabort`      | `MapSourceDataEvent`                                                 | Fired when a source request is aborted               |
-| `styledata`            | `MapStyleDataEvent`                                                  | Fired when the style loads or changes                |
-| `styleimagemissing`    | `MapStyleImageMissingEvent`                                          | Fired when the style needs an image it does not have |
-| `webglcontextlost`     | `MapContextEvent`                                                    | Fired when the WebGL context is lost                 |
-| `webglcontextrestored` | `MapContextEvent`                                                    | Fired when the WebGL context is restored             |
+| Event                  | Payload                                   | Description                                                                                                   |
+| ---------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `register`             | `MaplibreActions`                         | Fired when map actions are registered                                                                         |
+| `load`                 | `MapLibreEvent`                           | Fired when the map has finished loading                                                                       |
+| `error`                | `ErrorEvent`                              | Fired when an error occurs                                                                                    |
+| `click`                | `MapMouseEvent`                           | Fired when the map is clicked                                                                                 |
+| `dblclick`             | `MapMouseEvent`                           | Fired when the map is double-clicked                                                                          |
+| `contextmenu`          | `MapMouseEvent`                           | Fired when right-clicking the map                                                                             |
+| `mousemove`            | `MapMouseEvent`                           | Fired when mouse moves over the map                                                                           |
+| `mouseup`              | `MapMouseEvent`                           | Fired when mouse button is released                                                                           |
+| `mousedown`            | `MapMouseEvent`                           | Fired when mouse button is pressed                                                                            |
+| `mouseout`             | `MapMouseEvent`                           | Fired when mouse leaves the map                                                                               |
+| `mouseover`            | `MapMouseEvent`                           | Fired when mouse enters the map                                                                               |
+| `movestart`            | `MapMovementEvent`                        | Fired when map movement starts                                                                                |
+| `move`                 | `MapMovementEvent`                        | Fired during map movement                                                                                     |
+| `moveend`              | `MapMovementEvent`                        | Fired when map movement ends                                                                                  |
+| `zoomstart`            | `MapMovementEvent`                        | Fired when zoom starts                                                                                        |
+| `zoom`                 | `MapMovementEvent`                        | Fired during zoom                                                                                             |
+| `zoomend`              | `MapMovementEvent`                        | Fired when zoom ends                                                                                          |
+| `rotatestart`          | `MapMovementEvent`                        | Fired when rotation starts                                                                                    |
+| `rotate`               | `MapMovementEvent`                        | Fired during rotation                                                                                         |
+| `rotateend`            | `MapMovementEvent`                        | Fired when rotation ends                                                                                      |
+| `dragstart`            | `MapMovementEvent`                        | Fired when dragging starts                                                                                    |
+| `drag`                 | `MapMovementEvent`                        | Fired during dragging                                                                                         |
+| `dragend`              | `MapMovementEvent`                        | Fired when dragging ends                                                                                      |
+| `pitchstart`           | `MapMovementEvent`                        | Fired when pitch starts                                                                                       |
+| `pitch`                | `MapMovementEvent`                        | Fired during pitch                                                                                            |
+| `pitchend`             | `MapMovementEvent`                        | Fired when pitch ends                                                                                         |
+| `wheel`                | `MapWheelEvent`                           | Fired on mouse wheel events                                                                                   |
+| `terrain`              | `MapTerrainEvent`                         | Fired on terrain events                                                                                       |
+| `touchstart`           | `MapTouchEvent`                           | Fired when a touch begins                                                                                     |
+| `touchmove`            | `MapTouchEvent`                           | Fired as a touch moves                                                                                        |
+| `touchend`             | `MapTouchEvent`                           | Fired when a touch ends                                                                                       |
+| `touchcancel`          | `MapTouchEvent`                           | Fired when a touch is interrupted                                                                             |
+| `boxzoomstart`         | `MapBoxZoomEvent`                         | Fired when a box zoom begins                                                                                  |
+| `boxzoomend`           | `MapBoxZoomEvent`                         | Fired when a box zoom completes                                                                               |
+| `boxzoomcancel`        | `MapBoxZoomEvent`                         | Fired when a box zoom is cancelled                                                                            |
+| `idle`                 | `MapLibreEvent`                           | Fired when the map stops rendering                                                                            |
+| `render`               | `MapLibreEvent`                           | Fired on every frame the map draws                                                                            |
+| `resize`               | `MapLibreEvent`                           | Fired when the map container resizes                                                                          |
+| `remove`               | `MapLibreEvent`                           | Fired when the map is destroyed                                                                               |
+| `data`                 | `MapSourceDataEvent \| MapStyleDataEvent` | Fired when any map data loads or changes                                                                      |
+| `dataloading`          | `MapSourceDataEvent \| MapStyleDataEvent` | Fired when data begins loading                                                                                |
+| `dataabort`            | `MapSourceDataEvent`                      | Fired when a data request is aborted                                                                          |
+| `sourcedata`           | `MapSourceDataEvent`                      | Fired when source data loads or changes                                                                       |
+| `sourcedataloading`    | `MapSourceDataEvent`                      | Fired when source data begins loading                                                                         |
+| `sourcedataabort`      | `MapSourceDataEvent`                      | Fired when a source request is aborted                                                                        |
+| `styledata`            | `MapStyleDataEvent`                       | Fired when the style loads or changes                                                                         |
+| `styleimagemissing`    | `MapStyleImageMissingEvent`               | Fired when a style image is still missing after `missingStyleImageResolver` ran. Notify-only since MapLibre 6 |
+| `webglcontextlost`     | `MapContextEvent`                         | Fired when the WebGL context is lost                                                                          |
+| `webglcontextrestored` | `MapContextEvent`                         | Fired when the WebGL context is restored                                                                      |
 
 ### Slots
 
@@ -134,6 +134,45 @@ function onMapLoad(map) {
 
 function onMapError(error) {
   console.error('Map error:', error);
+}
+</script>
+```
+
+### Attribution and missing style images
+
+`attributionControl` is a MapLibre constructor option, so it goes in `options`: `false` removes the control, an object configures it. MapLibre reads it once, when the map is created.
+
+Since MapLibre 6, a `@styleimagemissing` listener can no longer supply the image: the event only reports an image that is still missing. Supply images through `missingStyleImageResolver` instead. It may be async, and must add the image before it settles.
+
+```vue
+<template>
+  <Maplibre
+    :options="mapOptions"
+    :missing-style-image-resolver="resolveImage"
+    :register="onRegister"
+  />
+</template>
+
+<script setup lang="ts">
+import { Maplibre } from 'vue3-maplibre-gl';
+import type { MaplibreActions, MapOptions } from 'vue3-maplibre-gl';
+
+const mapOptions: Partial<MapOptions> = {
+  style: 'https://demotiles.maplibre.org/style.json',
+  // `false` hides it; this keeps it, collapsed, with your own credit added
+  attributionControl: { compact: true, customAttribution: '© My data' },
+};
+
+let actions: MaplibreActions | undefined;
+function onRegister(registered: MaplibreActions) {
+  actions = registered;
+}
+
+async function resolveImage(id: string) {
+  const map = actions?.mapInstance.value;
+  if (!map) return;
+  const { data } = await map.loadImage(`/icons/${id}.png`);
+  if (!map.hasImage(id)) map.addImage(id, data);
 }
 </script>
 ```

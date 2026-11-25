@@ -135,3 +135,58 @@ describe('useCreateMaplibre error classification', () => {
     expect(onError).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('useCreateMaplibre missing style images', () => {
+  it('installs the resolver as soon as the map exists, before load', async () => {
+    const resolver = vi.fn();
+    const el = shallowRef<HTMLElement | null>(null);
+    const style = ref('https://example.test/style.json');
+    const actions = withSetup(() =>
+      useCreateMaplibre(el, style, { missingStyleImageResolver: resolver }),
+    );
+
+    el.value = document.createElement('div');
+    await nextTick();
+    const map = actions.mapInstance.value as unknown as MockMap;
+
+    // MapLibre 6 asks the resolver, not `styleimagemissing` listeners, for a
+    // missing image. Installed after `load`, it would miss the images the
+    // first style render asks for.
+    expect(actions.isMapReady.value).toBe(false);
+    expect(map.setMissingStyleImageResolver).toHaveBeenCalledWith(resolver);
+    // It is this package's option, not a MapLibre constructor option.
+    expect(map.options).not.toHaveProperty('missingStyleImageResolver');
+  });
+
+  it('replaces and clears the resolver through its action', async () => {
+    const el = shallowRef<HTMLElement | null>(null);
+    const style = ref('https://example.test/style.json');
+    const actions = withSetup(() => useCreateMaplibre(el, style));
+
+    el.value = document.createElement('div');
+    await nextTick();
+    const map = actions.mapInstance.value as unknown as MockMap;
+    expect(map.setMissingStyleImageResolver).not.toHaveBeenCalled();
+
+    const resolver = vi.fn();
+    actions.setMissingStyleImageResolver(resolver);
+    expect(map.setMissingStyleImageResolver).toHaveBeenLastCalledWith(resolver);
+
+    actions.setMissingStyleImageResolver(null);
+    expect(map.setMissingStyleImageResolver).toHaveBeenLastCalledWith(null);
+  });
+
+  it('applies a resolver set before the map exists once it is created', async () => {
+    const el = shallowRef<HTMLElement | null>(null);
+    const style = ref('https://example.test/style.json');
+    const actions = withSetup(() => useCreateMaplibre(el, style));
+
+    const resolver = vi.fn();
+    actions.setMissingStyleImageResolver(resolver);
+
+    el.value = document.createElement('div');
+    await nextTick();
+    const map = actions.mapInstance.value as unknown as MockMap;
+    expect(map.setMissingStyleImageResolver).toHaveBeenCalledWith(resolver);
+  });
+});

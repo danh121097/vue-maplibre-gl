@@ -36,6 +36,9 @@ interface CreateMaplibreActions {
   setMinPitch: (pitch: number) => void;
   setMinZoom: (zoom: number) => void;
   setRenderWorldCopies: (render: boolean) => void;
+  setMissingStyleImageResolver: (
+    resolver: MissingStyleImageResolver | null,
+  ) => void;
 }
 ```
 
@@ -84,7 +87,6 @@ type MaplibreMethods = CreateMaplibreActions & {
   isMoving: () => boolean | undefined;
   isZooming: () => boolean | undefined;
   isRotating: () => boolean | undefined;
-  isEasing: () => boolean | undefined;
   resize: () => void;
   remove: () => void;
   setFeatureState: (
@@ -107,7 +109,8 @@ Actions interface for GeoJSON source management.
 interface CreateGeoJsonSourceActions {
   sourceId: string;
   getSource: ShallowRef<GeoJSONSource | null>;
-  setData: (data: GeoJSONSourceSpecification['data']) => void;
+  /** Resolves once MapLibre has applied the data */
+  setData: (data: GeoJSONSourceSpecification['data']) => Promise<void>;
   removeSource: () => void;
   refreshSource: () => void;
   sourceStatus: ComputedRef<SourceStatus>;
@@ -378,7 +381,8 @@ type ImageDatas =
       width: number;
       height: number;
       data: Uint8Array | Uint8ClampedArray;
-    };
+    }
+  | StyleImageInterface;
 ```
 
 ### Anchor

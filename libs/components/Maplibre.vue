@@ -21,14 +21,15 @@ import type { CreateMaplibreActions, MaplibreActions } from '@libs/types';
 import type {
   ErrorEvent,
   Map,
+  MapBoxZoomEvent,
   MapContextEvent,
-  MapDataEvent,
   MapEventType,
   MapLibreEvent,
-  MapLibreZoomEvent,
   MapMouseEvent,
+  MapMovementEvent,
   MapOptions,
   MapSourceDataEvent,
+  MissingStyleImageResolver,
   MapStyleDataEvent,
   MapStyleImageMissingEvent,
   MapTerrainEvent,
@@ -40,8 +41,22 @@ import type {
  * Enhanced Maplibre component props with comprehensive configuration options
  */
 interface MaplibreProps {
-  /** Map configuration options */
+  /**
+   * Map configuration options, handed to MapLibre's `Map` constructor. This is
+   * where `attributionControl` goes: `false` for none, or
+   * `{ compact, customAttribution }` to configure MapLibre's own control.
+   * MapLibre reads it once, so changing it after the map exists does nothing.
+   */
   options?: Partial<MapOptions>;
+  /**
+   * Supplies images the style asks for but the map does not have, through
+   * MapLibre's `setMissingStyleImageResolver`. Since MapLibre 6 a
+   * `@styleimagemissing` listener can no longer do this: the event only
+   * reports an image still missing after the resolver ran. Called with the
+   * image id; it may be async, and must `map.addImage` before it settles.
+   * `null` or omitted leaves MapLibre's default behaviour.
+   */
+  missingStyleImageResolver?: MissingStyleImageResolver | null;
   /** Callback for registering map actions */
   register?: (actions: MaplibreActions) => void;
   /** Enable debug logging */
@@ -89,15 +104,14 @@ interface Emits {
     ev: MapLibreEvent,
   ): void;
   (e: 'webglcontextlost' | 'webglcontextrestored', ev: MapContextEvent): void;
-  (e: 'dataloading' | 'data' | 'tiledataloading', ev: MapDataEvent): void;
+  (e: 'dataloading' | 'data', ev: MapSourceDataEvent | MapStyleDataEvent): void;
   (e: 'sourcedataloading' | 'sourcedata', ev: MapSourceDataEvent): void;
   (e: 'styledata', ev: MapStyleDataEvent): void;
   (e: 'styleimagemissing', ev: MapStyleImageMissingEvent): void;
-  (e: 'dataabort', ev: MapDataEvent): void;
-  (e: 'sourcedataabort', ev: MapSourceDataEvent): void;
+  (e: 'dataabort' | 'sourcedataabort', ev: MapSourceDataEvent): void;
   (
     e: 'boxzoomcancel' | 'boxzoomstart' | 'boxzoomend',
-    ev: MapLibreZoomEvent,
+    ev: MapBoxZoomEvent,
   ): void;
   (
     e: 'touchcancel' | 'touchmove' | 'touchend' | 'touchstart',
@@ -116,11 +130,13 @@ interface Emits {
     ev: MapMouseEvent,
   ): void;
   (
-    e: 'movestart' | 'move' | 'moveend' | 'zoomstart' | 'zoom' | 'zoomend',
-    ev: MapLibreEvent<MouseEvent | TouchEvent | WheelEvent | undefined>,
-  ): void;
-  (
     e:
+      | 'movestart'
+      | 'move'
+      | 'moveend'
+      | 'zoomstart'
+      | 'zoom'
+      | 'zoomend'
       | 'rotatestart'
       | 'rotate'
       | 'rotateend'
@@ -130,7 +146,7 @@ interface Emits {
       | 'pitchstart'
       | 'pitch'
       | 'pitchend',
-    ev: MapLibreEvent<MouseEvent | TouchEvent | undefined>,
+    ev: MapMovementEvent,
   ): void;
   (e: 'wheel', ev: MapWheelEvent): void;
   (e: 'terrain', ev: MapTerrainEvent): void;
@@ -266,8 +282,10 @@ const {
   setMinPitch,
   setMinZoom,
   setRenderWorldCopies,
+  setMissingStyleImageResolver,
 } = useCreateMaplibre(mapContainerRef, styleRef, {
   ...unref(mapOptions),
+  missingStyleImageResolver: props.missingStyleImageResolver,
   register: (actions: CreateMaplibreActions) => {
     try {
       // Status comes from `useCreateMaplibre` alone. The component keeps its
@@ -389,6 +407,11 @@ const watchers = [
   watch(
     () => unref(mapOptions).renderWorldCopies,
     (value) => value !== undefined && setRenderWorldCopies(value),
+    { flush: 'post' },
+  ),
+  watch(
+    () => props.missingStyleImageResolver,
+    (value) => setMissingStyleImageResolver(value ?? null),
     { flush: 'post' },
   ),
 ];

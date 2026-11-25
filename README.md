@@ -8,7 +8,7 @@ A powerful, feature-rich Vue 3 component library that provides an intuitive, rea
 
 `maplibre-gl` is a peer dependency, re-exported from this package so your app and this one always share a single copy of the MapLibre runtime. npm and Bun would install it on their own; Yarn and pnpm would not, so the commands below name it explicitly.
 
-**Requirements:** Vue `^3.0.0` and `maplibre-gl` `^5.6.1`, both peer dependencies.
+**Requirements:** Vue `^3.0.0` and `maplibre-gl` `^6.4.1`, both peer dependencies. MapLibre 6 needs WebGL2, and 6.4.1 is the first release with the fix for the attribution XSS in [GHSA-jrc7-96c5-q579](https://github.com/advisories/GHSA-jrc7-96c5-q579). Upgrading from 6.x of this package? See [Migration from v6](https://vue-maplibre-gl.pages.dev/guide/migration-v7).
 
 **Using Nuxt?** Install [`nuxt-maplibre-gl`](https://www.npmjs.com/package/nuxt-maplibre-gl) instead — it wraps this package with auto-imports, CSS injection, and the SSR configuration MapLibre needs.
 
@@ -56,6 +56,21 @@ package's own rules, so one import covers both. Apps that already load
 `maplibre-gl/dist/maplibre-gl.css` should import
 `vue3-maplibre-gl/dist/style.css` alongside it instead, rather than shipping
 MapLibre's CSS twice.
+
+### Worker
+
+MapLibre 6 loads a web worker from a file next to its own module, which a
+bundler moves. Point it at the worker once, in your app's entry file, or the
+map stays blank with "Worker failed to load". With Vite:
+
+```ts
+import { setWorkerUrl } from 'maplibre-gl';
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
+
+setWorkerUrl(workerUrl);
+```
+
+Other bundlers are covered in the [installation guide](https://vue-maplibre-gl.pages.dev/guide/installation#point-maplibre-at-its-worker).
 
 ## 🚀 Quick Start
 
@@ -351,6 +366,7 @@ useMapEventListener({
 - **[Composables API](https://vue-maplibre-gl.pages.dev/api/composables)** - Composables reference
 - **[TypeScript Types](https://vue-maplibre-gl.pages.dev/api/types)** - Type definitions
 - **[SSR / Nuxt](https://vue-maplibre-gl.pages.dev/guide/ssr-nuxt)** - Server-side rendering and the Nuxt module
+- **[Migration from v6](https://vue-maplibre-gl.pages.dev/guide/migration-v7)** - Moving to MapLibre 6
 - **[Live Examples](https://vue-maplibre-gl.pages.dev/examples/)** - Interactive demos
 
 ## 🛠️ Development

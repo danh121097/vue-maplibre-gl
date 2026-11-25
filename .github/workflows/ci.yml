@@ -49,7 +49,9 @@ jobs:
       - name: Verify dist output
         run: |
           test -f dist/index.js || exit 1
-          test -f dist/index.umd.cjs || exit 1
+          # ES modules only since MapLibre 6; a CommonJS build coming back
+          # would `require('maplibre-gl')`, which MapLibre no longer exports.
+          test -z "$(find dist -name '*.cjs' -print -quit)" || exit 1
           test -f dist/style.css || exit 1
           test -f dist/maplibre-reexports.js || exit 1
           # Barrels backing the ./components and ./composables subpaths. Rollup
@@ -69,8 +71,7 @@ jobs:
           # sourceMappingURL, so emitting maps again would only bloat the tarball.
           test -z "$(find dist -name '*.map' -print -quit)" || exit 1
           # This package ships its own rules only. If MapLibre's stylesheet gets
-          # re-bundled, or the UMD pass overwrites the ES pass's CSS with a
-          # narrower module graph, this catches it.
+          # re-bundled, this catches it.
           grep -q 'maplibre-container' dist/style.css || exit 1
           test "$(wc -c < dist/style.css)" -lt 2000 || exit 1
           # The opt-in combined stylesheet: MapLibre's rules then this
