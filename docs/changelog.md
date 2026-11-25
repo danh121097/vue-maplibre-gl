@@ -1,5 +1,17 @@
 # Changelog
 
+## v7.0.0
+
+### ✨ Features
+
+- Support maplibre-gl 6
+
+- Move the module to maplibre-gl 6 and set its worker URL
+
+### 📚 Documentation
+
+- Record the v6.1.2 section
+
 ## v6.1.2
 
 ### 🐛 Bug Fixes

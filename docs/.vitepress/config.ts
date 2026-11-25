@@ -48,7 +48,7 @@ export default defineConfig({
       { text: 'API', link: '/api/components' },
       { text: 'Examples', link: '/examples/' },
       {
-        text: 'v6.1.1',
+        text: 'v7.0.0',
         items: [
           { text: 'Changelog', link: '/changelog' },
           { text: 'Migration from v6', link: '/guide/migration-v7' },
