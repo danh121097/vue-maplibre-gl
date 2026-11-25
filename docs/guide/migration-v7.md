@@ -31,6 +31,8 @@ setWorkerUrl(workerUrl);
 
 For webpack and other bundlers, see [Installation](/guide/installation#point-maplibre-at-its-worker).
 
+With the Nuxt module, `nuxt-maplibre-gl` 3 sets the worker URL for you. See [SSR / Nuxt](/guide/ssr-nuxt#worker-url).
+
 ## Breaking changes in this package
 
 ### ES modules only

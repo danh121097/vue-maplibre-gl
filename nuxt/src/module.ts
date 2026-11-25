@@ -11,6 +11,15 @@ export interface ModuleOptions {
   css?: boolean;
   /** Prefix for auto-imported composables (default: none) */
   prefix?: string;
+  /**
+   * Point MapLibre at the web worker the app build emits (default: true).
+   *
+   * MapLibre 6 looks for its worker next to its own module file, which the
+   * build moves, so without this a production build shows a blank map with
+   * "Worker failed to load". Set `false` only to call `setWorkerUrl` yourself,
+   * for example to serve the worker from another origin.
+   */
+  worker?: boolean;
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -34,6 +43,7 @@ export default defineNuxtModule<ModuleOptions>({
   defaults: {
     css: true,
     prefix: '',
+    worker: true,
   },
   async setup(options, nuxt) {
     const { resolve, resolvePath } = createResolver(import.meta.url);
@@ -62,7 +72,7 @@ export default defineNuxtModule<ModuleOptions>({
       if (!existsSync(stylesheet)) {
         throw new Error(
           'nuxt-maplibre-gl could not find vue3-maplibre-gl/dist/style-with-maplibre.css. ' +
-            'That file ships from vue3-maplibre-gl 6.1.0 onwards — upgrade it, ' +
+            'That file ships with vue3-maplibre-gl 7, which this module depends on — upgrade it, ' +
             'or set `maplibre: { css: false }` and import the stylesheets yourself.',
         );
       }
@@ -72,11 +82,22 @@ export default defineNuxtModule<ModuleOptions>({
     // Transpile vue3-maplibre-gl for SSR
     nuxt.options.build.transpile.push('vue3-maplibre-gl');
 
-    // Exclude maplibre-gl from SSR bundle (requires WebGL)
+    // Keep maplibre-gl out of Vite's dev pre-bundling. It is already a single
+    // ES module, and pre-bundling would copy it into `.vite/deps`, away from
+    // the worker file it expects beside it.
     nuxt.options.vite.optimizeDeps ??= {};
     nuxt.options.vite.optimizeDeps.exclude ??= [];
     if (!nuxt.options.vite.optimizeDeps.exclude.includes('maplibre-gl')) {
       nuxt.options.vite.optimizeDeps.exclude.push('maplibre-gl');
+    }
+
+    // Every plugin runs before the app mounts, so the URL is set before any
+    // map can be created.
+    if (options.worker) {
+      addPlugin({
+        src: resolve('./runtime/plugins/maplibre-worker.client'),
+        mode: 'client',
+      });
     }
 
     // Add client-only plugin that registers components

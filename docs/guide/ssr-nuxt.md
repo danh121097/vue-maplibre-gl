@@ -56,9 +56,25 @@ export default defineNuxtConfig({
      * @default '' (no prefix)
      */
     prefix: '',
+
+    /**
+     * Point MapLibre 6 at the web worker the build emits.
+     * Set false only to call setWorkerUrl yourself.
+     * @default true
+     */
+    worker: true,
   },
 });
 ```
+
+### Worker URL
+
+MapLibre 6 loads its web worker from a file next to its own module, which the
+build moves. Without help, a production build shows a blank map with "Worker
+failed to load". The module adds a client-only plugin that calls MapLibre's
+`setWorkerUrl` with the worker file the build emits, so nothing is needed in
+your app. Set `worker: false` only if you call `setWorkerUrl` yourself, for
+example to serve the worker from another origin.
 
 ### Module Features
 
@@ -72,6 +88,7 @@ The module automatically configures:
    - vue3-maplibre-gl transpiled for SSR
    - maplibre-gl excluded from SSR bundle (requires WebGL)
    - vite.optimizeDeps.exclude configured
+6. **Worker URL** - MapLibre 6's web worker emitted by the build and passed to `setWorkerUrl`
 
 ### Usage
 
@@ -248,7 +265,23 @@ export default defineNuxtConfig({
 });
 ```
 
-### 3. Wrap Components in ClientOnly
+### 3. Point MapLibre at Its Worker
+
+MapLibre 6 loads its web worker from a file next to its own module, which the
+build moves, so a production build shows a blank map with "Worker failed to
+load". Set the worker URL in a client-only plugin:
+
+```ts
+// plugins/maplibre-worker.client.ts
+import { setWorkerUrl } from 'maplibre-gl';
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
+
+export default defineNuxtPlugin(() => {
+  setWorkerUrl(workerUrl);
+});
+```
+
+### 4. Wrap Components in ClientOnly
 
 ```vue
 <template>

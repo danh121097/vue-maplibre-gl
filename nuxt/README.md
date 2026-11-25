@@ -10,9 +10,12 @@
 - Auto-imports all 38 composables (useFlyTo, useMapEventListener, etc.)
 - Auto-imports CSS — `vue3-maplibre-gl/dist/style-with-maplibre.css`, which is MapLibre's own stylesheet plus the library's container rules
 - SSR-safe — components register client-only, `maplibre-gl` is kept out of the server bundle
+- Sets up MapLibre 6's web worker, which a bundled app otherwise cannot find
 - Zero configuration required
 
 `vue3-maplibre-gl` and `maplibre-gl` are dependencies of this module, so installing it is enough — there is nothing else to add to your app.
+
+Version 3 of this module uses `vue3-maplibre-gl` 7 and MapLibre GL JS 6, which needs WebGL2. Upgrading from 2.x? Read [Migration from v6](https://vue-maplibre-gl.pages.dev/guide/migration-v7) for the changes to the components and composables.
 
 ## Installation
 
@@ -52,6 +55,7 @@ export default defineNuxtConfig({
   maplibre: {
     css: true, // auto-import CSS (default: true)
     prefix: '', // composable prefix (default: none)
+    worker: true, // set MapLibre's worker URL (default: true)
   },
 });
 ```
